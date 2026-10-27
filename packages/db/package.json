@@ -1,0 +1,22 @@
+{
+	"name": "@radar/db",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"typecheck": "tsc -p .",
+		"generate": "drizzle-kit generate",
+		"migrate": "drizzle-kit migrate"
+	},
+	"dependencies": {
+		"@radar/core": "workspace:*",
+		"better-sqlite3": "13.0.3",
+		"drizzle-orm": "0.45.4"
+	},
+	"devDependencies": {
+		"@types/better-sqlite3": "^9.6.0",
+		"drizzle-kit": "0.31.11"
+	}
+}

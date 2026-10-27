@@ -1,0 +1,14 @@
+{
+	"name": "@radar/cli",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"typecheck": "tsc -p .",
+		"start": "tsx --env-file-if-exists=../../.env src/index.ts"
+	},
+	"dependencies": {
+		"@radar/core": "workspace:*",
+		"@radar/db": "workspace:*",
+		"@radar/sources": "workspace:*"
+	}
+}

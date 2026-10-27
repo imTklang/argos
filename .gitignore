@@ -1,0 +1,17 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+
+# dados locais: banco e currículo
+data/*
+!data/.gitkeep
+*.pdf
+
+# skills de terceiros sem licença de redistribuição
+.claude/skills/
+.claude/settings.local.json
+
+.DS_Store
