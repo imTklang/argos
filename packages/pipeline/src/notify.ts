@@ -26,6 +26,8 @@ export interface Messenger {
 	/** One job with save/discard actions; returns the message id. */
 	sendJob(item: NotifiableJob): Promise<string>;
 	sendDigest(items: NotifiableJob[]): Promise<string>;
+	/** Plain notice, e.g. a failed scheduled scan. */
+	sendText(text: string): Promise<string>;
 }
 
 function scoredJobs(db: Db, minScore: number, excludeKinds: string[]) {
