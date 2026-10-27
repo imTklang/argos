@@ -59,31 +59,37 @@ function digestLine(item: NotifiableJob): string {
 	return `\n<b>${score.score}</b> · <a href="${escapeHtml(job.url)}">${escapeHtml(job.title)}</a> — ${escapeHtml(job.company)}${where(item) ? ` · ${escapeHtml(where(item))}` : ""}${via ? ` · ${via}` : ""}`;
 }
 
-/** Jobs in Brazil first; remote jobs abroad in their own section after. */
-export function formatDigest(items: NotifiableJob[]): string {
+/**
+ * The digest as one or more messages: jobs in Brazil first, remote jobs
+ * abroad in their own section after. It splits instead of truncating, since
+ * every job passed in is recorded as sent.
+ */
+export function formatDigest(items: NotifiableJob[]): string[] {
 	const local = items.filter((i) => !i.job.abroad);
 	const abroad = items.filter((i) => i.job.abroad);
-	let text = `📋 <b>Resumo do dia</b>: ${items.length} ${items.length === 1 ? "vaga" : "vagas"}\n`;
-	let shown = 0;
+	const header = `📋 <b>Resumo do dia</b>: ${items.length} ${items.length === 1 ? "vaga" : "vagas"}\n`;
 	const sections: [string | null, NotifiableJob[]][] = [
 		[local.length > 0 && abroad.length > 0 ? "🇧🇷 <b>Brasil</b>" : null, local],
 		["🌎 <b>Remoto no exterior</b>", abroad],
 	];
+
+	const pages: string[] = [];
+	let text = header;
+	const push = (chunk: string) => {
+		if (text.length + chunk.length > DIGEST_LIMIT) {
+			pages.push(text);
+			text = "📋 <b>Resumo do dia</b> (continuação)\n";
+		}
+		text += chunk;
+	};
 	for (const [title, group] of sections) {
 		if (group.length === 0) continue;
-		if (title) text += `\n${title}`;
-		for (const item of group) {
-			const line = digestLine(item);
-			if (text.length + line.length > DIGEST_LIMIT) break;
-			text += line;
-			shown++;
-		}
-		if (title) text += "\n";
+		if (title) push(`\n${title}`);
+		for (const item of group) push(digestLine(item));
+		if (title) push("\n");
 	}
-	if (shown < items.length) {
-		text += `\n\n…e mais ${items.length - shown}.`;
-	}
-	return text;
+	pages.push(text);
+	return pages;
 }
 
 export function decisionKeyboard(jobId: number): InlineKeyboard {
@@ -137,11 +143,15 @@ export function createTelegramMessenger(
 			return String(message.message_id);
 		},
 		async sendDigest(items) {
-			const message = await api.sendMessage(chatId, formatDigest(items), {
-				parse_mode: "HTML",
-				link_preview_options: { is_disabled: true },
-			});
-			return String(message.message_id);
+			let first: string | undefined;
+			for (const page of formatDigest(items)) {
+				const message = await api.sendMessage(chatId, page, {
+					parse_mode: "HTML",
+					link_preview_options: { is_disabled: true },
+				});
+				first ??= String(message.message_id);
+			}
+			return first ?? "";
 		},
 		async sendText(text) {
 			const message = await api.sendMessage(chatId, text, {
