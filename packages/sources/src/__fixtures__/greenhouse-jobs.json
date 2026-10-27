@@ -1,0 +1,381 @@
+{
+	"jobs": [
+		{
+			"absolute_url": "https://carreiras.btgpactual.com/vagas?gh_jid=6113018004",
+			"data_compliance": [
+				{
+					"type": "gdpr",
+					"requires_consent": false,
+					"requires_processing_consent": false,
+					"requires_retention_consent": false,
+					"retention_period": null,
+					"demographic_data_consent_applies": false
+				}
+			],
+			"education": "education_required",
+			"internal_job_id": 5184762004,
+			"location": {
+				"name": "São Paulo"
+			},
+			"metadata": [
+				{
+					"id": 4847668004,
+					"name": "Empresa",
+					"value": "BTG Pactual",
+					"value_type": "single_select"
+				},
+				{
+					"id": 7448247004,
+					"name": "Área - Página de Carreiras",
+					"value": "INTERNAL AUDIT",
+					"value_type": "single_select"
+				},
+				{
+					"id": 14111512004,
+					"name": "Programa",
+					"value": "VAGA PONTUAL",
+					"value_type": "single_select"
+				},
+				{
+					"id": 4784311004,
+					"name": "Rank Corporativo",
+					"value": "AN - Analyst",
+					"value_type": "single_select"
+				},
+				{
+					"id": 8206219004,
+					"name": "Destaque",
+					"value": true,
+					"value_type": "yes_no"
+				},
+				{
+					"id": 9329793004,
+					"name": "Vaga Oculta",
+					"value": false,
+					"value_type": "yes_no"
+				},
+				{
+					"id": 16223583004,
+					"name": "Company",
+					"value": null,
+					"value_type": "single_select"
+				},
+				{
+					"id": 16219245004,
+					"name": "Reason for hire",
+					"value": null,
+					"value_type": "single_select"
+				},
+				{
+					"id": 16219244004,
+					"name": "Type of Process",
+					"value": null,
+					"value_type": "single_select"
+				}
+			],
+			"id": 6113018004,
+			"updated_at": "2026-10-01T19:11:15-04:00",
+			"requisition_id": "6093",
+			"title": "Analista de Auditoria Interna",
+			"company_name": "BTG Pactual",
+			"first_published": "2026-07-09T16:45:19-04:00",
+			"language": "pt",
+			"application_deadline": null,
+			"content": "&lt;p&gt;&lt;span style=&quot;font-size: 10pt; font-family: verdana, geneva, sans-serif;&quot;&gt;&lt;strong&gt;Sobre a área:&lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;\n&lt;p&gt;&lt;span style=&quot;font-family: verdana, geneva, sans-serif; font-size: 10pt;&quot;&gt;&lt;span data-teams=&quot;true&quot;&gt;A Auditoria Interna é responsável por avaliar os processos de gestão de risco, controles e governança nos diferentes processos e entidades do Grupo BTG Pactual, atuando de maneira objetiva e independente, executando de forma dinâmica um plano de auditoria baseado em riscos previamente aprovado pelo Audit Committee e Senior Management. É formada por um time multidisciplinar com atuação global den",
+			"departments": [
+				{
+					"id": 4053990004,
+					"name": "FINANCE - 9471",
+					"child_ids": [
+						4053991004, 4054058004, 4054057004, 4054053004, 4054039004,
+						4053992004, 4054059004, 4054056004, 4054055004, 4054054004,
+						4054044004, 4054049004, 4054045004, 4054043004, 4054042004,
+						4054040004, 4054038004, 4054032004, 4054021004, 4054029004,
+						4054019004, 4053993004, 4054050004, 4054048004, 4054046004,
+						4054041004, 4054036004, 4054033004, 4054028004, 4054027004,
+						4054026004, 4054025004, 4054024004, 4054023004, 4054022004,
+						4054031004, 4054030004, 4054020004, 4054018004, 4054017004,
+						4054016004, 4054015004, 4054014004, 4054013004, 4054012004,
+						4054008004, 4054003004, 4054002004, 4054001004, 4054000004,
+						4053995004, 4053994004, 4053996004, 4054011004, 4054010004,
+						4054009004, 4054007004, 4054006004, 4054005004, 4054004004,
+						4054052004, 4054051004, 4054047004, 4054037004, 4054035004,
+						4054034004, 4053999004, 4053998004, 4053997004
+					],
+					"parent_id": 4052773004
+				}
+			],
+			"offices": [
+				{
+					"id": 4032260004,
+					"name": "BR - SAO PAULO",
+					"location": "SAO PAULO",
+					"child_ids": [],
+					"parent_id": 4072331004
+				}
+			],
+			"ai_disclaimer": null,
+			"include_ai_disclaimer": null,
+			"ai_opt_out_request_url": null
+		},
+		{
+			"absolute_url": "https://carreiras.btgpactual.com/vagas?gh_jid=6001998004",
+			"data_compliance": [
+				{
+					"type": "gdpr",
+					"requires_consent": false,
+					"requires_processing_consent": false,
+					"requires_retention_consent": false,
+					"retention_period": null,
+					"demographic_data_consent_applies": false
+				}
+			],
+			"education": "education_required",
+			"internal_job_id": 5157374004,
+			"location": {
+				"name": "São Paulo / Rio de Janeiro"
+			},
+			"metadata": [
+				{
+					"id": 4847668004,
+					"name": "Empresa",
+					"value": "BTG Pactual",
+					"value_type": "single_select"
+				},
+				{
+					"id": 7448247004,
+					"name": "Área - Página de Carreiras",
+					"value": "CLIENT SERVICES",
+					"value_type": "single_select"
+				},
+				{
+					"id": 14111512004,
+					"name": "Programa",
+					"value": "VAGA PONTUAL",
+					"value_type": "single_select"
+				},
+				{
+					"id": 4784311004,
+					"name": "Rank Corporativo",
+					"value": "AN - Analyst",
+					"value_type": "single_select"
+				},
+				{
+					"id": 8206219004,
+					"name": "Destaque",
+					"value": false,
+					"value_type": "yes_no"
+				},
+				{
+					"id": 9329793004,
+					"name": "Vaga Oculta",
+					"value": false,
+					"value_type": "yes_no"
+				},
+				{
+					"id": 16223583004,
+					"name": "Company",
+					"value": null,
+					"value_type": "single_select"
+				},
+				{
+					"id": 16219245004,
+					"name": "Reason for hire",
+					"value": null,
+					"value_type": "single_select"
+				},
+				{
+					"id": 16219244004,
+					"name": "Type of Process",
+					"value": null,
+					"value_type": "single_select"
+				}
+			],
+			"id": 6001998004,
+			"updated_at": "2026-10-01T19:11:15-04:00",
+			"requisition_id": "5800",
+			"title": "AI Developer | Asset Servicing - Innovation",
+			"company_name": "BTG Pactual",
+			"first_published": "2026-05-20T19:20:34-04:00",
+			"language": "pt",
+			"application_deadline": null,
+			"content": "&lt;p&gt;&lt;span style=&quot;font-size: 10pt; font-family: verdana, geneva, sans-serif;&quot;&gt;&lt;strong&gt;Sobre a área:&lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;\n&lt;p&gt;A área de Innovation tem como missão estruturar e viabilizar soluções para os desafios de Asset Servicing, além de impulsionar melhorias em processos, gestão e uso de dados, promovendo mais eficiência, controle e escala para a área. Estamos construindo a estrutura que irá disseminar o uso de AI em Asset Servicing, por meio de um programa coordenado para acelerar adoção, orientar casos de uso e capturar resultados concretos para o negócio.&lt;/p&gt;\n&lt;p&gt;&lt;span style=&quot;font-size: 10pt; font-family: verdana, genev",
+			"departments": [
+				{
+					"id": 4053870004,
+					"name": "FUND SERVICES - 42763",
+					"child_ids": [
+						4053890004, 4053888004, 4053871004, 4053880004, 4053892004,
+						4053891004, 4053889004, 4053875004, 4053878004, 4053872004,
+						4053887004, 4053886004, 4053883004, 4053881004, 4059297004,
+						4059298004, 4053877004, 4053876004, 4053879004, 4053874004,
+						4053873004, 4053885004, 4053884004, 4053882004, 4059299004,
+						4059301004, 4059300004
+					],
+					"parent_id": 4053869004
+				}
+			],
+			"offices": [
+				{
+					"id": 4032258004,
+					"name": "BR - RIO DE JANEIRO",
+					"location": null,
+					"child_ids": [],
+					"parent_id": 4072331004
+				},
+				{
+					"id": 4032260004,
+					"name": "BR - SAO PAULO",
+					"location": "SAO PAULO",
+					"child_ids": [],
+					"parent_id": 4072331004
+				}
+			],
+			"ai_disclaimer": null,
+			"include_ai_disclaimer": null,
+			"ai_opt_out_request_url": null
+		},
+		{
+			"absolute_url": "https://carreiras.btgpactual.com/vagas?gh_jid=6198069004",
+			"data_compliance": [
+				{
+					"type": "gdpr",
+					"requires_consent": false,
+					"requires_processing_consent": false,
+					"requires_retention_consent": false,
+					"retention_period": null,
+					"demographic_data_consent_applies": false
+				}
+			],
+			"education": "education_required",
+			"internal_job_id": 5218525004,
+			"location": {
+				"name": "São Paulo, Brazil"
+			},
+			"metadata": [
+				{
+					"id": 4847668004,
+					"name": "Empresa",
+					"value": "BTG Pactual",
+					"value_type": "single_select"
+				},
+				{
+					"id": 7448247004,
+					"name": "Área - Página de Carreiras",
+					"value": "BTG BANKING",
+					"value_type": "single_select"
+				},
+				{
+					"id": 14111512004,
+					"name": "Programa",
+					"value": "VAGA PONTUAL",
+					"value_type": "single_select"
+				},
+				{
+					"id": 4784311004,
+					"name": "Rank Corporativo",
+					"value": "AN - Analyst",
+					"value_type": "single_select"
+				},
+				{
+					"id": 8206219004,
+					"name": "Destaque",
+					"value": false,
+					"value_type": "yes_no"
+				},
+				{
+					"id": 9329793004,
+					"name": "Vaga Oculta",
+					"value": false,
+					"value_type": "yes_no"
+				},
+				{
+					"id": 16223583004,
+					"name": "Company",
+					"value": null,
+					"value_type": "single_select"
+				},
+				{
+					"id": 16219245004,
+					"name": "Reason for hire",
+					"value": null,
+					"value_type": "single_select"
+				},
+				{
+					"id": 16219244004,
+					"name": "Type of Process",
+					"value": null,
+					"value_type": "single_select"
+				}
+			],
+			"id": 6198069004,
+			"updated_at": "2026-10-19T16:53:28-04:00",
+			"requisition_id": "6448",
+			"title": " Analista Automatizador de Testes (QA) | IT OffShore LUX ",
+			"company_name": "BTG Pactual",
+			"first_published": "2026-10-19T16:53:28-04:00",
+			"language": "pt",
+			"application_deadline": null,
+			"content": "&lt;p&gt;&lt;span style=&quot;font-size: 10pt; font-family: verdana, geneva, sans-serif;&quot;&gt;&lt;strong&gt;No seu dia a dia:&lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;\n&lt;p&gt;&lt;span style=&quot;font-size: 10pt; font-family: verdana, geneva, sans-serif;&quot;&gt;&lt;/span&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Desenvolver e manter scripts de automação de testes utilizando ferramentas como Playwright, JUnit e Mockito.&amp;nbsp;&lt;/li&gt;\n&lt;li&gt;Executar testes automatizados de regressão após novas implementações, correções e atualizações dos sistemas.&lt;/li&gt;\n&lt;li&gt;Validar o funcionamento e a estabilidade de aplicações desktop em diferentes cenários e ambientes.&lt;/li&gt;\n&lt;li&gt",
+			"departments": [
+				{
+					"id": 4052787004,
+					"name": "TECHNOLOGY BRAZIL - 8453",
+					"child_ids": [
+						4079502004, 4052871004, 4052859004, 4059315004, 4059316004,
+						4052827004, 4052797004, 4052956004, 4052793004, 4052788004,
+						4052942004, 4059326004, 4052881004, 4052872004, 4052876004,
+						4052926004, 4052885004, 4052873004, 4052919004, 4052790004,
+						4054535004, 4052828004, 4059322004, 4059321004, 4052837004,
+						4052851004, 4052839004, 4052860004, 4052835004, 4052850004,
+						4052833004, 4052831004, 4052834004, 4052832004, 4052836004,
+						4052806004, 4052798004, 4052820004, 4052811004, 4052810004,
+						4052812004, 4052815004, 4052957004, 4052796004, 4052794004,
+						4052795004, 4052896004, 4052902004, 4052951004, 4052948004,
+						4052947004, 4052943004, 4059330004, 4052931004, 4052950004,
+						4052949004, 4052946004, 4052945004, 4052944004, 4059328004,
+						4059327004, 4059329004, 4052884004, 4052883004, 4052882004,
+						4052877004, 4052880004, 4052879004, 4052930004, 4052929004,
+						4052928004, 4052927004, 4052875004, 4052874004, 4052924004,
+						4052925004, 4052923004, 4052922004, 4052921004, 4052920004,
+						4052791004, 4052792004, 4052830004, 4059320004, 4052829004,
+						4052844004, 4059325004, 4052838004, 4052840004, 4052847004,
+						4052843004, 4052842004, 4052841004, 4052855004, 4052856004,
+						4052854004, 4052853004, 4052852004, 4059324004, 4059323004,
+						4052857004, 4052867004, 4059318004, 4059319004, 4052866004,
+						4052862004, 4059317004, 4052865004, 4052864004, 4052863004,
+						4052861004, 4052807004, 4052809004, 4052808004, 4052803004,
+						4052802004, 4052799004, 4052822004, 4052821004, 4052825004,
+						4052826004, 4052823004, 4052824004, 4052813004, 4052814004,
+						4052819004, 4052816004, 4052901004, 4052897004, 4052900004,
+						4052899004, 4052898004, 4052903004, 4052913004, 4052911004,
+						4052906004, 4052912004, 4052914004, 4052952004, 4052953004,
+						4052939004, 4052932004, 4052934004, 4052933004, 4052878004,
+						4052846004, 4052845004, 4052848004, 4052849004, 4052805004,
+						4052804004, 4052801004, 4052800004, 4052818004, 4052817004,
+						4052905004, 4052904004, 4052908004, 4052909004, 4052907004,
+						4052910004, 4052917004, 4052918004, 4052916004, 4052915004,
+						4052941004, 4052940004, 4052938004, 4052937004, 4052936004,
+						4052935004
+					],
+					"parent_id": 4052774004
+				}
+			],
+			"offices": [
+				{
+					"id": 4032260004,
+					"name": "BR - SAO PAULO",
+					"location": "SAO PAULO",
+					"child_ids": [],
+					"parent_id": 4072331004
+				}
+			],
+			"ai_disclaimer": null,
+			"include_ai_disclaimer": null,
+			"ai_opt_out_request_url": null
+		}
+	],
+	"meta": {
+		"total": 3
+	}
+}

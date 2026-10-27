@@ -18,6 +18,7 @@ export interface JobSource<Raw = unknown> {
 	normalize(raw: Raw): Job;
 }
 
+export * from "./ats.ts";
 export * from "./ciee.ts";
 export * from "./github.ts";
 export * from "./gupy.ts";

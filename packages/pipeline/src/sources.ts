@@ -1,7 +1,11 @@
 import {
+	type AtsCompany,
+	createAshbySource,
 	createCieeSource,
 	createGitHubSource,
+	createGreenhouseSource,
 	createGupySource,
+	createLeverSource,
 	createSolidesSource,
 	type JobSource,
 } from "@radar/sources";
@@ -11,7 +15,12 @@ import type { SourcesConfig } from "./config.ts";
 export function createSources(
 	config: SourcesConfig,
 	env: Record<string, string | undefined> = process.env,
+	warn: (message: string) => void = console.warn,
 ): JobSource[] {
+	const onMissingBoard = (company: AtsCompany) =>
+		warn(
+			`Board de ${company.name} (${company.slug}) não existe mais; revise config/sources.json.`,
+		);
 	return [
 		createGupySource(),
 		createSolidesSource(),
@@ -20,6 +29,12 @@ export function createSources(
 			repos: config.github.repos,
 			token: env.GITHUB_TOKEN || undefined,
 		}),
+		createGreenhouseSource({
+			companies: config.ats.greenhouse,
+			onMissingBoard,
+		}),
+		createLeverSource({ companies: config.ats.lever, onMissingBoard }),
+		createAshbySource({ companies: config.ats.ashby, onMissingBoard }),
 	];
 }
 

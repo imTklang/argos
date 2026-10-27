@@ -1,4 +1,96 @@
 {
+	"ats": {
+		"greenhouse": [
+			{
+				"slug": "btgpactual",
+				"name": "BTG Pactual"
+			},
+			{
+				"slug": "c6bank",
+				"name": "C6 Bank"
+			},
+			{
+				"slug": "inter",
+				"name": "Inter"
+			},
+			{
+				"slug": "xpinc",
+				"name": "XP Inc."
+			},
+			{
+				"slug": "stone",
+				"name": "Stone"
+			},
+			{
+				"slug": "quintoandar",
+				"name": "QuintoAndar"
+			},
+			{
+				"slug": "ebanx",
+				"name": "EBANX"
+			},
+			{
+				"slug": "vtex",
+				"name": "VTEX"
+			},
+			{
+				"slug": "gympass",
+				"name": "Wellhub"
+			},
+			{
+				"slug": "rdstation",
+				"name": "RD Station"
+			},
+			{
+				"slug": "wildlifestudios",
+				"name": "Wildlife Studios"
+			},
+			{
+				"slug": "jusbrasil",
+				"name": "Jusbrasil"
+			},
+			{
+				"slug": "clara",
+				"name": "Clara"
+			},
+			{
+				"slug": "incognia",
+				"name": "Incognia"
+			},
+			{
+				"slug": "zupinnovation",
+				"name": "Zup"
+			}
+		],
+		"lever": [
+			{
+				"slug": "ciandt",
+				"name": "CI&T"
+			},
+			{
+				"slug": "starkbank",
+				"name": "Stark Bank"
+			},
+			{
+				"slug": "swile",
+				"name": "Swile"
+			},
+			{
+				"slug": "neon",
+				"name": "Neon"
+			}
+		],
+		"ashby": [
+			{
+				"slug": "nubank",
+				"name": "Nubank"
+			},
+			{
+				"slug": "belvo",
+				"name": "Belvo"
+			}
+		]
+	},
 	"github": {
 		"repos": [
 			"backend-br/vagas",

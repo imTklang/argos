@@ -5,7 +5,19 @@ import { z } from "zod";
 export const SOURCES_CONFIG_PATH = "./config/sources.json";
 export const PREFERENCES_PATH = "./data/preferences.json";
 
+const Company = z.object({
+	slug: z.string().regex(/^[\w.-]+$/, "slug do board, ex.: btgpactual"),
+	name: z.string().min(1),
+});
+
 const SourcesConfig = z.object({
+	ats: z
+		.object({
+			greenhouse: z.array(Company).default([]),
+			lever: z.array(Company).default([]),
+			ashby: z.array(Company).default([]),
+		})
+		.default({ greenhouse: [], lever: [], ashby: [] }),
 	github: z.object({
 		repos: z.array(
 			z.string().regex(/^[\w.-]+\/[\w.-]+$/, "use o formato dono/repositório"),

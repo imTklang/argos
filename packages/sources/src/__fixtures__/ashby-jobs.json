@@ -1,0 +1,105 @@
+{
+	"apiVersion": "1",
+	"jobs": [
+		{
+			"id": "3835ec58-5e5a-4bd4-a076-4a8f89490011",
+			"title": "Nu AI Core Summer PhD Research Internship",
+			"department": "Early Talent",
+			"team": "Early Talent",
+			"employmentType": "Intern",
+			"location": "Palo Alto",
+			"secondaryLocations": [
+				{
+					"location": "Virginia",
+					"address": {
+						"postalAddress": {
+							"addressRegion": "Virginia",
+							"addressCountry": "United States",
+							"addressLocality": "Virginia"
+						}
+					}
+				},
+				{
+					"location": "Miami",
+					"address": {
+						"postalAddress": {
+							"addressRegion": "Florida",
+							"addressCountry": "United States",
+							"addressLocality": "Miami"
+						}
+					}
+				}
+			],
+			"publishedAt": "2026-10-19T18:25:40.923+00:00",
+			"isListed": true,
+			"isRemote": true,
+			"workplaceType": "Remote",
+			"address": {
+				"postalAddress": {
+					"addressRegion": "California",
+					"addressCountry": "United States",
+					"addressLocality": "Palo Alto"
+				}
+			},
+			"jobUrl": "https://jobs.ashbyhq.com/nubank/3835ec58-5e5a-4bd4-a076-4a8f89490011",
+			"applyUrl": "https://jobs.ashbyhq.com/nubank/3835ec58-5e5a-4bd4-a076-4a8f89490011/application",
+			"descriptionHtml": "",
+			"descriptionPlain": "ABOUT NU\n\nNu serves more than 140 million customers, guided by a mission to fight complexity and empower people. The company has been leading an industry transformation through innovative products and human-centered services.\n\n \n\nProprietary technology and data at scale power Nu’s digital platform, built to promote financial access, advancement, and transparency. Its business model thrives on customer love and lower costs, feeding a flywheel of growth and profitability.\n\nVisit our Institutional Page https://www.nu.com/2026-en\n\n\nABOUT THE PROGRAM\n\nThe Nu AI Core Summer Internship Program is a r"
+		},
+		{
+			"id": "20ae8a5c-6692-41f1-8567-a0446a3a5983",
+			"title": "Senior Software Engineer",
+			"department": "Engineer",
+			"team": "Engineer",
+			"employmentType": "FullTime",
+			"location": "São Paulo",
+			"secondaryLocations": [
+				{
+					"location": "Campinas",
+					"address": {
+						"postalAddress": {
+							"addressRegion": "São Paulo",
+							"addressCountry": "Brazil",
+							"addressLocality": "Campinas"
+						}
+					}
+				},
+				{
+					"location": "Belo Horizonte",
+					"address": {
+						"postalAddress": {
+							"addressRegion": "Minas Gerais",
+							"addressCountry": "Brazil",
+							"addressLocality": "Belo Horizonte"
+						}
+					}
+				},
+				{
+					"location": "Rio de Janeiro",
+					"address": {
+						"postalAddress": {
+							"addressRegion": "Rio de Janeiro",
+							"addressCountry": "Brazil",
+							"addressLocality": "Rio de Janeiro"
+						}
+					}
+				}
+			],
+			"publishedAt": "2026-07-19T23:15:05.812+00:00",
+			"isListed": true,
+			"isRemote": true,
+			"workplaceType": "Hybrid",
+			"address": {
+				"postalAddress": {
+					"addressRegion": "São Paulo",
+					"addressCountry": "Brazil",
+					"addressLocality": "São Paulo"
+				}
+			},
+			"jobUrl": "https://jobs.ashbyhq.com/nubank/20ae8a5c-6692-41f1-8567-a0446a3a5983",
+			"applyUrl": "https://jobs.ashbyhq.com/nubank/20ae8a5c-6692-41f1-8567-a0446a3a5983/application",
+			"descriptionHtml": "",
+			"descriptionPlain": "ABOUT NU\n\nNu serves more than 140 million customers, guided by a mission to fight complexity and empower people. The company has been leading an industry transformation through innovative products and human-centered services.\n\n \n\nProprietary technology and data at scale power Nu’s digital platform, built to promote financial access, advancement, and transparency. Its business model thrives on customer love and lower costs, feeding a flywheel of growth and profitability.\n\nVisit our Institutional Page https://www.nu.com/2026-en\n\n\n\nEngineering at Nubank\n\nAt Nubank, software engineers sit at the i"
+		}
+	]
+}
