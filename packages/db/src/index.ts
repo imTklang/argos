@@ -6,12 +6,14 @@ import * as schema from "./schema.ts";
 
 export {
 	and,
+	asc,
 	desc,
 	eq,
 	gte,
 	inArray,
 	isNotNull,
 	isNull,
+	lt,
 	sql,
 } from "drizzle-orm";
 export * from "./schema.ts";

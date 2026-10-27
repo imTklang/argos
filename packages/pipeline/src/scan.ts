@@ -23,6 +23,7 @@ import {
 	sql,
 } from "@radar/db";
 import type { JobSource } from "@radar/sources";
+import { markDuplicates } from "./dedupe.ts";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -30,6 +31,8 @@ export type ScannedJob = { jobId: number; job: Job; result: JobScoreResult };
 
 export type ScanReport = {
 	sources: { id: string; found: number; inserted: number; error?: string }[];
+	/** New jobs linked to a job already seen (another source or a repost). */
+	duplicates: number;
 	pending: number;
 	rejected: Partial<Record<FilterReason, number>>;
 	candidates: number;
@@ -153,6 +156,7 @@ export async function runScan(opts: ScanOptions): Promise<ScanReport> {
 
 	const report: ScanReport = {
 		sources: [],
+		duplicates: 0,
 		pending: 0,
 		rejected: {},
 		candidates: 0,
@@ -166,6 +170,8 @@ export async function runScan(opts: ScanOptions): Promise<ScanReport> {
 		log(`Buscando vagas em ${source.id}...`);
 		report.sources.push(await collect(db, source, preferences));
 	}
+	// Duplicates are never scored or notified; their original already is.
+	report.duplicates = markDuplicates(db);
 
 	// Every unscored job is re-filtered, not only the new ones, so jobs left
 	// behind by a limit or by older preferences get another chance.
@@ -176,6 +182,7 @@ export async function runScan(opts: ScanOptions): Promise<ScanReport> {
 		.where(
 			and(
 				isNull(jobScores.id),
+				isNull(jobs.duplicateOf),
 				// Only jobs from the sources in this scan, so `--source x` stays scoped.
 				inArray(
 					jobs.source,
@@ -224,6 +231,7 @@ export async function runScan(opts: ScanOptions): Promise<ScanReport> {
 			.where(
 				and(
 					eq(jobs.level, "estágio"),
+					isNull(jobs.duplicateOf),
 					gte(
 						jobs.createdAt,
 						new Date(now.getTime() - MAX_JOB_AGE_DAYS * DAY_MS),
@@ -339,6 +347,11 @@ export function formatScanReport(report: ScanReport, minScore: number): string {
 			source.error
 				? `  ${source.id}: falhou (${source.error})`
 				: `  ${source.id}: ${source.found} vagas, ${source.inserted} novas`,
+		);
+	}
+	if (report.duplicates > 0) {
+		lines.push(
+			`  Duplicadas: ${report.duplicates} (mesma vaga já vista em outra fonte ou repostada)`,
 		);
 	}
 	const rejected = Object.entries(report.rejected)
