@@ -139,6 +139,8 @@ export function createSolidesSource(
 					? new Date(`${raw.createdAt}T00:00:00-03:00`)
 					: null,
 				expiresAt: raw.date?.due ? dayEnd(raw.date.due) : null,
+				// Fetched with contractsType=estagio.
+				level: "estágio",
 			};
 		},
 	};

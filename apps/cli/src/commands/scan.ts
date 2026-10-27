@@ -10,8 +10,11 @@ import {
 import {
 	and,
 	type Db,
+	desc,
 	eq,
 	gte,
+	inArray,
+	isNotNull,
 	isNull,
 	jobScores,
 	jobStatus,
@@ -65,11 +68,29 @@ function tokensUsedSince(db: Db, since: Date): number {
 	return row?.total ?? 0;
 }
 
+function lastSuccessfulRun(db: Db, sourceId: string): Date | undefined {
+	const row = db
+		.select({ startedAt: runs.startedAt })
+		.from(runs)
+		.where(
+			and(
+				eq(runs.source, sourceId),
+				isNotNull(runs.finishedAt),
+				isNull(runs.errors),
+			),
+		)
+		.orderBy(desc(runs.startedAt))
+		.limit(1)
+		.get();
+	return row?.startedAt;
+}
+
 async function collect(
 	db: Db,
 	source: JobSource,
 	preferences: Preferences,
 ): Promise<ScanReport["sources"][number]> {
+	const since = lastSuccessfulRun(db, source.id);
 	const run = db
 		.insert(runs)
 		.values({ source: source.id, startedAt: new Date() })
@@ -86,6 +107,7 @@ async function collect(
 			keywords: preferences.roles,
 			locations: preferences.locations,
 			modality: preferences.modality,
+			since,
 		});
 		report.found = raw.length;
 		db.transaction((tx) => {
@@ -154,6 +176,11 @@ export async function runScan(opts: ScanOptions): Promise<ScanReport> {
 		.where(
 			and(
 				isNull(jobScores.id),
+				// Only jobs from the sources in this scan, so `--source x` stays scoped.
+				inArray(
+					jobs.source,
+					sources.map((s) => s.id),
+				),
 				gte(
 					jobs.createdAt,
 					new Date(now.getTime() - MAX_JOB_AGE_DAYS * DAY_MS),

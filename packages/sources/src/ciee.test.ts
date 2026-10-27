@@ -65,6 +65,7 @@ describe("ciee normalize", () => {
 
 	it("builds a title from the professional area", () => {
 		expect(informatica?.title).toBe("Estágio em Informática");
+		expect(informatica?.level).toBe("estágio");
 	});
 
 	it("puts activities, stipend and schedule in the description", () => {

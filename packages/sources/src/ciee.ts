@@ -130,6 +130,7 @@ export function createCieeSource(opts: CieeOptions = {}): JobSource<CieeJob> {
 				url: `https://portal.ciee.org.br/quero-uma-vaga/?codigoVaga=${raw.codigoVaga}`,
 				publishedAt: null,
 				expiresAt: null,
+				level: "estágio",
 			};
 		},
 	};

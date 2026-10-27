@@ -40,10 +40,14 @@ const STATES: Record<string, string> = {
 	to: "tocantins",
 };
 
+/** Brazilian state names, normalized (no accents, lowercase). */
+export const STATE_NAMES = Object.values(STATES);
+
 export type FilterReason =
 	| "expirada"
 	| "antiga"
 	| "nível bloqueado"
+	| "não é estágio"
 	| "sem palavra obrigatória"
 	| "modalidade"
 	| "fora da região"
@@ -82,11 +86,17 @@ export function hardFilter(
 		return { pass: false, reason: "antiga" };
 	}
 
+	if (job.level && job.level !== "estágio") {
+		return { pass: false, reason: "não é estágio" };
+	}
 	if (matchKeywords(job.title, prefs.keywordsBlock).length > 0) {
 		return { pass: false, reason: "nível bloqueado" };
 	}
 	const fullText = `${job.title}\n${job.description}`;
-	if (matchKeywords(fullText, prefs.keywordsMust).length === 0) {
+	if (
+		job.level !== "estágio" &&
+		matchKeywords(fullText, prefs.keywordsMust).length === 0
+	) {
 		return { pass: false, reason: "sem palavra obrigatória" };
 	}
 

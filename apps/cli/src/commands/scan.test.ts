@@ -225,3 +225,73 @@ describe("formatScanReport", () => {
 		expect(out).toContain("1 com nota ≥ 70");
 	});
 });
+
+describe("incremental collection", () => {
+	it("passes the start of the last successful run as since", async () => {
+		const db = createDb(":memory:");
+		const seen: (Date | undefined)[] = [];
+		const source: JobSource<Job> = {
+			id: "fake",
+			fetchJobs: async (query) => {
+				seen.push(query.since);
+				return [];
+			},
+			normalize: (job) => job,
+		};
+		const score = vi.fn();
+
+		await runScan({ ...options, db, sources: [source], score });
+		await runScan({ ...options, db, sources: [source], score });
+
+		expect(seen[0]).toBeUndefined();
+		expect(seen[1]).toBeInstanceOf(Date);
+	});
+
+	it("does not advance since past a failed run", async () => {
+		const db = createDb(":memory:");
+		const seen: (Date | undefined)[] = [];
+		let fail = false;
+		const source: JobSource<Job> = {
+			id: "flaky",
+			fetchJobs: async (query) => {
+				seen.push(query.since);
+				if (fail) throw new Error("timeout");
+				return [];
+			},
+			normalize: (job) => job,
+		};
+		const score = vi.fn();
+
+		await runScan({ ...options, db, sources: [source], score });
+		fail = true;
+		await runScan({ ...options, db, sources: [source], score });
+		fail = false;
+		await runScan({ ...options, db, sources: [source], score });
+
+		expect(seen[2]?.getTime()).toBe(seen[1]?.getTime());
+	});
+});
+
+describe("scoped scans", () => {
+	it("only filters and scores jobs from the sources being scanned", async () => {
+		const db = createDb(":memory:");
+		const score = vi.fn().mockResolvedValue(scoreOf(80));
+		await runScan({
+			...options,
+			db,
+			sources: [fakeSource([makeJob(1, { source: "a" })], "a")],
+			score: vi.fn().mockRejectedValue(new Error("offline")),
+		});
+
+		const report = await runScan({
+			...options,
+			db,
+			sources: [fakeSource([makeJob(2, { source: "b" })], "b")],
+			score,
+		});
+
+		expect(report.pending).toBe(1);
+		expect(score).toHaveBeenCalledTimes(1);
+		expect(report.scored[0]?.job.source).toBe("b");
+	});
+});
