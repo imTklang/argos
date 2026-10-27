@@ -68,7 +68,7 @@ interface JobSource {
 Ordem de implementação (da mais estável para a mais frágil):
 
 1. **Gupy** — maior plataforma de vagas no Brasil, muitas vagas de estágio. Verificar se o portal público expõe endpoint JSON de busca antes de partir para scraping.
-2. **Repositórios de vagas no GitHub** (ex.: `backend-br/vagas`, `frontendbr/vagas`) — as vagas são issues; usar a API do GitHub com labels/filtros. Muito estável.
+2. ~~**Repositórios de vagas no GitHub**~~ — **descartado em 27/10/2026**: o `backend-br/vagas` não tinha nenhuma vaga de estágio aberta (as 3 com label `Estagiário` em 2026 eram o template em branco) e o `frontendbr/vagas` teve 7 no ano inteiro.
 3. **Greenhouse / Lever / Ashby** — empresas de tech usam essas plataformas e elas têm APIs públicas de job board por empresa. Manter uma lista de empresas-alvo em config.
 4. **Outras BR**: Programathor, Solides, Vagas.com, CIEE/Nube (agentes de estágio). Avaliar uma a uma.
 5. **LinkedIn — sem scraping logado.** Scraping do LinkedIn viola os termos de uso e pode resultar em banimento da conta, que é a conta que eu uso para me candidatar. Alternativa segura: criar **alertas de vaga no LinkedIn** e o sistema **ler os e-mails de alerta** (Gmail API / IMAP) para extrair as vagas. Implementar só na fase 2.
@@ -164,7 +164,7 @@ type JobScore = {
 ### Fase 1 — MVP pela linha de comando
 1. `cli profile import ./data/curriculo.pdf` → gera e salva o perfil; imprime para eu revisar.
 2. `cli prefs init` → gera preferências a partir do perfil; salva em JSON editável.
-3. Adapter **Gupy** + adapter **GitHub (backend-br/vagas)**.
+3. Adapter **Gupy** (busca todos os estágios, ~2.550 vagas em ~45 s; o GitHub foi descartado, ver seção 3).
 4. `cli scan` → roda o pipeline completo e imprime uma tabela ordenada por score.
 5. Deduplicação e histórico funcionando.
 - **Checkpoint:** rodar `cli scan` e trazer vagas reais e relevantes.
