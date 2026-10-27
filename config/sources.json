@@ -1,0 +1,11 @@
+{
+	"github": {
+		"repos": [
+			"backend-br/vagas",
+			"frontendbr/vagas",
+			"soujava/vagas-java",
+			"react-brasil/vagas",
+			"androiddevbr/vagas"
+		]
+	}
+}
