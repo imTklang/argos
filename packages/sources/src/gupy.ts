@@ -1,7 +1,7 @@
 import type { Job, Modality } from "@radar/core";
 import { z } from "zod";
 import type { JobSource } from "./index.ts";
-import { decodeHtmlEntities, USER_AGENT } from "./util.ts";
+import { decodeHtmlEntities, politeFetch } from "./util.ts";
 
 // Same endpoint the public portal (portal.gupy.io) calls. Not documented, so
 // it can change without notice: the old portal.api.gupy.io host now 404s.
@@ -66,9 +66,11 @@ export function createGupySource(opts: GupyOptions = {}): JobSource<GupyJob> {
 					limit: String(PAGE_SIZE),
 					offset: String(page * PAGE_SIZE),
 				});
-				const res = await fetch(`${ENDPOINT}?${params}`, {
-					headers: { "user-agent": USER_AGENT, accept: "application/json" },
-				});
+				const res = await politeFetch(
+					`${ENDPOINT}?${params}`,
+					{ accept: "application/json" },
+					{ fetch, sleep },
+				);
 				if (!res.ok) {
 					throw new Error(
 						`Gupy respondeu HTTP ${res.status} na página ${page}`,
