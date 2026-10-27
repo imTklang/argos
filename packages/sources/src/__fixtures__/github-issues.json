@@ -1,0 +1,249 @@
+[
+	{
+		"number": 12474,
+		"title": "[Remoto] Back-end Developer JR - PORT LOUIS",
+		"html_url": "https://github.com/backend-br/vagas/issues/12474",
+		"state": "open",
+		"created_at": "2026-10-19T20:18:45Z",
+		"updated_at": "2026-10-26T23:25:53Z",
+		"labels": [
+			{
+				"name": "CLT"
+			},
+			{
+				"name": "Júnior"
+			},
+			{
+				"name": "Remoto"
+			},
+			{
+				"name": "AWS"
+			},
+			{
+				"name": "MySQL"
+			},
+			{
+				"name": "TypeScript"
+			},
+			{
+				"name": "PostgreSQL"
+			},
+			{
+				"name": "formato-sugerido"
+			}
+		],
+		"body": "## Nossa empresa\n\nNa Port Louis, valorizamos a contratação de colaboradores juniores e estagiários, visando seu crescimento em conjunto conosco e seu contínuo desenvolvimento profissional.\nOperamos com projetos ágeis, constituídos por squads de 5 a 9 membros, utilizando a metodologia Scrum. Realizamos sprints quinzenais, com rituais de planning, dailies, review e revisão de roadmap.\nA Port Louis possui soluções de RPA para tarefas de contabilidade e financeiras. O nosso stack é composto por um front em Vue.js, e o back em Node + Net Core, ambos rodando em AWS.\n\n- Tecnologia comprovada de ponta para automação de processos (modelo SaaS);\n- Produto inovador de auditorias jurídicas com portfolio robusto de clientes;\n- Excelência técnica: obsessão por qualidade, foco em longo prazo e comprometimento com resultados\n\nNossa missão: \n\nAlavancar a tecnologia para que as pessoas realizem trabalhos com alto valor cognitivo.\n\n## Descrição da vaga\n\nDesenvolvedor Back-End, com foco em Banco de Dados, para atuar na manutenção e otimização da nossa API e DBs.\n\n## Local\n\nRemoto\n\n## Requisitos\n\n- Obrigatórios:\n  - Conhecimento de Typescript\n  - Conhecimento de Node e das bibliotecas mais comuns\n  - Conhecimento de banco de dados MySQL\n  - Vontade e disposição para aprender e se desenvolver\n \n- Desejáveis:\n  - Conhecimento de banco de dados PostgreSQL e DynamoDB.\n  - Conhecimento de ferramentas AWS (Lambda, S3, etc.)\n\n## Benefícios\n\n- Vale Alimentação\n- Plano de Saúde\n- Seguro de Vida\n- Ajuda de",
+		"user": {
+			"login": "andregodeiro"
+		}
+	},
+	{
+		"number": 12481,
+		"title": "[Joinville/SC] Back-end ou Full Stack Developer (Node.js + React)",
+		"html_url": "https://github.com/backend-br/vagas/issues/12481",
+		"state": "open",
+		"created_at": "2026-10-23T20:20:43Z",
+		"updated_at": "2026-10-25T13:45:55Z",
+		"labels": [
+			{
+				"name": "PJ"
+			},
+			{
+				"name": "Sênior"
+			},
+			{
+				"name": "Node.js"
+			},
+			{
+				"name": "AWS"
+			},
+			{
+				"name": "TypeScript"
+			},
+			{
+				"name": "Híbrido"
+			},
+			{
+				"name": "DDD"
+			},
+			{
+				"name": "verificada"
+			}
+		],
+		"body": "### Sobre a empresa\n\nJoin our team of talented software engineers and be at the forefront of building innovative, AI-driven solutions. At LRA Ventures and Shipix, you'll have the opportunity to create groundbreaking products from scratch, tackling diverse challenges and making a significant impact across various industries. \n\nWe are dedicated to empowering businesses with intelligent tools that drive competitiveness, profitability, and sustainability. While our roots are in transforming the logistics sector, we are expanding our expertise to develop cutting-edge, AI-powered systems for a range of new projects. \n\nWe foster a collaborative environment where deep technological expertise meets creative problem-solving. As part of our international team, based in the Netherlands and Brazil, you will play a key role in building and launching new applications, and shaping the future of our technology.\n\n\n### Site da empresa\n\nhttps://lra-ventures.com/\n\n### Descrição da vaga\n\nAs a Full Stack Developer, you will be responsible for building new features on our platform, delivering complete end-to-end solutions. From concept to implementation, you will be involved in every stage of feature development.\nYou can have more experience as a backend or frontend developer, but you should be comfortable working across the full stack when necessary.\n\nResponsibilities:\n- Develop and implement new features for our platform using Node.js and React.\n- Work closely with the tech lead, other developers,",
+		"user": {
+			"login": "logistictechrecruiter"
+		}
+	},
+	{
+		"number": 12475,
+		"title": "[Híbrido / São Paulo, Brasil] Engenheiro de Software Backend Sênior (Híbrido, São Paulo) na Coodesh",
+		"html_url": "https://github.com/backend-br/vagas/issues/12475",
+		"state": "open",
+		"created_at": "2026-10-20T16:31:08Z",
+		"updated_at": "2026-10-24T18:02:04Z",
+		"labels": [
+			{
+				"name": "Sênior"
+			},
+			{
+				"name": "Python"
+			},
+			{
+				"name": "Node.js"
+			},
+			{
+				"name": "Java"
+			},
+			{
+				"name": "Go"
+			},
+			{
+				"name": "Especialista"
+			},
+			{
+				"name": "AWS"
+			},
+			{
+				"name": "Testes automatizados"
+			},
+			{
+				"name": "Kubernetes"
+			},
+			{
+				"name": "Híbrido"
+			},
+			{
+				"name": "CI/CD"
+			},
+			{
+				"name": "Azure"
+			},
+			{
+				"name": "GCP"
+			},
+			{
+				"name": "formato-sugerido"
+			}
+		],
+		"body": "## Descrição da vaga: \nEsta é uma vaga de um parceiro da plataforma Coodesh, ao candidatar-se você terá acesso as informações completas sobre a empresa e benefícios.\n\n\nFique atento ao redirecionamento que vai te levar para uma url [https://coodesh.com](https://coodesh.com/jobs/engenharia-de-software-backend-senior-hibrido-sao-paulo-231806636?utm_source=github&utm_medium=backend-br-vagas&modal=open) para realizar a candidatura. 👋\nEmpresas parceiras da Coodesh, de scale-ups a grandes companhias de tecnologia, estão buscando pessoas engenheiras de backend para construir sistemas que atendem milhões de usuários. Você vai trabalhar em times de produto com autonomia técnica, código revisado por pares e decisões guiadas por dados.\r\n\r\n \r\n\r\n### O que você vai fazer\r\n\r\n*   Projetar, desenvolver e manter serviços e APIs com foco em escalabilidade, confiabilidade e segurança.\r\n    \r\n*   Participar de decisões de arquitetura e de design de sistemas distribuídos.\r\n    \r\n*   Escrever testes automatizados e revisar código de outras pessoas do time.\r\n    \r\n*   Investigar e resolver problemas em produção, usando métricas, logs e rastreamento.\r\n    \r\n*   Colaborar com produto, design e outras engenharias para entregar valor de forma incremental.\r\n    \r\n\r\n \r\n\r\n### Como funciona pela Coodesh\r\n\r\n1.  Crie sua conta e complete seu perfil com LinkedIn ou currículo.\r\n    \r\n2.  Faça o Assessment da vaga\r\n    \r\n3.  Com o perfil validado por assessment, uma pessoa especialista Coodesh vai fazer uma verif",
+		"user": {
+			"login": "FrancieleGhizzoni"
+		}
+	},
+	{
+		"number": 12479,
+		"title": "[Híbrido] Desenvolvedor(a) Fullstack Java/React Pleno - Protege Cash",
+		"html_url": "https://github.com/backend-br/vagas/issues/12479",
+		"state": "open",
+		"created_at": "2026-10-21T14:19:07Z",
+		"updated_at": "2026-10-21T14:19:33Z",
+		"labels": [
+			{
+				"name": "CLT"
+			},
+			{
+				"name": "PJ"
+			},
+			{
+				"name": "Pleno"
+			},
+			{
+				"name": "Node.js"
+			},
+			{
+				"name": "Java"
+			},
+			{
+				"name": "Presencial"
+			},
+			{
+				"name": "AWS"
+			},
+			{
+				"name": "Testes automatizados"
+			},
+			{
+				"name": "MongoDB"
+			},
+			{
+				"name": "TypeScript"
+			},
+			{
+				"name": "SQL"
+			},
+			{
+				"name": "Git"
+			},
+			{
+				"name": "Docker"
+			},
+			{
+				"name": "Kubernetes"
+			},
+			{
+				"name": "Híbrido"
+			},
+			{
+				"name": "CI/CD"
+			},
+			{
+				"name": "verificada"
+			}
+		],
+		"body": "### Sobre a empresa\n\n**Sobre a Beyond**\nA [Beyond ](https://www.imaginebeyond.com.br/)é uma consultoria de tecnologia que conecta pessoas desenvolvedoras a empresas do segmento financeiro ou logístico, cuidando da contratação e do acompanhamento dos profissionais alocados nos clientes. Nesta vaga, a Beyond é a empresa contratante nos primeiros 6 meses.\n\n**Sobre a Protege Cash (onde você vai atuar)**\nA [Protege Cash](https://www.protegecash.com.br/) é uma instituição de pagamento em fase de crescimento, com Internet Banking web e aplicativo mobile. Você vai fazer parte do time responsável pelos canais digitais, desenvolvendo do backend ao frontend e ao app, no dia a dia e nos projetos da Protege.\n\n**Como funciona a contratação**\n- **Primeiros 6 meses:** contratação PJ pela Beyond, com atuação alocada no time da Protege Cash.\n- **Após 6 meses:** internalização pela Protege Cash no regime CLT, passando a fazer parte do quadro de funcionários da empresa.\n\nÉ uma vaga com objetivo de efetivação: ela já nasce para que a pessoa se torne funcionária da Protege.\n\n### Site da empresa\n\nhttps://www.imaginebeyond.com.br/\n\n### Descrição da vaga\n\nBuscamos uma pessoa **desenvolvedora fullstack** com **base forte em backend Java** para construir e evoluir as soluções dos canais digitais de uma instituição de pagamento.\n\n**No dia a dia, você vai:**\n- Desenvolver e evoluir microsserviços em Java (Quarkus e/ou Spring Boot)\n- Desenhar a comunicação entre serviços, desacoplar fluxos síncronos com f",
+		"user": {
+			"login": "yassobral"
+		}
+	},
+	{
+		"number": 12441,
+		"title": "[Remoto ou Híbrido - São Paulo/SP] Full Stack Developer - Cogfy",
+		"html_url": "https://github.com/backend-br/vagas/issues/12441",
+		"state": "open",
+		"created_at": "2026-10-09T15:07:16Z",
+		"updated_at": "2026-10-26T14:08:53Z",
+		"labels": [
+			{
+				"name": "PJ"
+			},
+			{
+				"name": "Sênior"
+			},
+			{
+				"name": "Node.js"
+			},
+			{
+				"name": "Remoto"
+			},
+			{
+				"name": "Testes automatizados"
+			},
+			{
+				"name": "TypeScript"
+			},
+			{
+				"name": "PostgreSQL"
+			},
+			{
+				"name": "Docker"
+			},
+			{
+				"name": "Kubernetes"
+			},
+			{
+				"name": "Híbrido"
+			},
+			{
+				"name": "CI/CD"
+			},
+			{
+				"name": "formato-sugerido"
+			}
+		],
+		"body": "### Sobre a empresa\n\nA Cogfy é uma empresa de tecnologia que desenvolve plataformas de missão crítica para o setor público, com foco em automação, integrações e IA aplicada a milhões de interações. O processo seletivo é conduzido pela Combine Global Recruitment.\n\n### Site da empresa\n\nhttps://cogfy.ai\n\n### Descrição da vaga\n\nA plataforma atende governos e precisa lidar com milhões de interações, exigindo baixa latência, alta disponibilidade, segurança e rastreabilidade. O desafio é construir capacidades de produto AI-first que aumentem o throughput da Operação e a capacidade de venda do Comercial.\n\nO que você vai fazer:\n- Desenvolver e evoluir serviços de backend em Node.js focados em performance e escalabilidade\n- Projetar APIs, workers, filas, webhooks e módulos de integração\n- Evoluir componentes de mensageria, orquestração de jornadas, automações e agentes de IA\n- Trabalhar com arquitetura orientada a eventos, processamento assíncrono e tolerância a falhas\n- Integrar sistemas legados, CRMs, ERPs e plataformas de mensageria\n- Construir autenticação, RBAC, auditoria e governança de ações\n\nStack: Node.js, TypeScript, PostgreSQL, Redis, Docker, Kubernetes, APIs REST, filas e mensageria, LLMs e APIs de IA, RAG\n\n### Requisitos\n\n- Experiência sólida em produção com Node.js\n- Domínio forte de TypeScript\n- Experiência com APIs REST, webhooks, autenticação e integrações\n- Bom entendimento de arquitetura backend e modularização\n- Experiência com bancos relacionais e modelagem multi-t",
+		"user": {
+			"login": "CombineGlobalRecruitment"
+		}
+	}
+]
