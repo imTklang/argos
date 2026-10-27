@@ -70,7 +70,12 @@ Ordem de implementação (da mais estável para a mais frágil):
 1. **Gupy** — maior plataforma de vagas no Brasil, muitas vagas de estágio. Verificar se o portal público expõe endpoint JSON de busca antes de partir para scraping.
 2. ~~**Repositórios de vagas no GitHub**~~ — **descartado em 27/10/2026**: o `backend-br/vagas` não tinha nenhuma vaga de estágio aberta (as 3 com label `Estagiário` em 2026 eram o template em branco) e o `frontendbr/vagas` teve 7 no ano inteiro.
 3. **Greenhouse / Lever / Ashby** — empresas de tech usam essas plataformas e elas têm APIs públicas de job board por empresa. Manter uma lista de empresas-alvo em config.
-4. **Outras BR**: Programathor, Solides, Vagas.com, CIEE/Nube (agentes de estágio). Avaliar uma a uma.
+4. **Outras BR** (avaliadas em 27/10/2026):
+   - **Sólides** — implementada. API do próprio portal; busca a união de "área tecnologia", "remoto" e as UFs das preferências (~20 requisições, `take` máximo 20).
+   - **CIEE** — implementada. API pública `api.ciee.org.br`; todos os estágios de nível superior (3 requisições). Traz bolsa e horário, mas não título nem modalidade, e quase não tem vagas de TI fora do Sudeste.
+   - **Nube** — adiada. API sem login, mas a listagem não tem descrição (exige uma requisição por vaga) e havia só ~30 vagas de TI, 1 remota.
+   - **Programathor** — descartada. Só HTML, rate limit agressivo (429 na 2ª requisição) e só 1 estágio aberto.
+   - Vagas.com — não avaliada.
 5. **LinkedIn — sem scraping logado.** Scraping do LinkedIn viola os termos de uso e pode resultar em banimento da conta, que é a conta que eu uso para me candidatar. Alternativa segura: criar **alertas de vaga no LinkedIn** e o sistema **ler os e-mails de alerta** (Gmail API / IMAP) para extrair as vagas. Implementar só na fase 2.
 
 Regras para todos os adapters:
