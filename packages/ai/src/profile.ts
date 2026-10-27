@@ -11,11 +11,14 @@ Regras:
 - Use só o que está escrito no currículo. Não invente skills, projetos ou experiências.
 - Escreva os textos em português, mantendo nomes de tecnologias como aparecem (ex.: "Node.js", "TypeScript").
 - skills: uma entrada por tecnologia, ferramenta ou conceito técnico (ex.: "Docker", "arquitetura orientada a eventos").
-  - level "avançado": usada em produção ou como base de vários projetos.
+  Para decidir o nível, cruze a lista de skills com os projetos e experiências: o nível vem do uso, não de onde a skill foi listada.
+  - level "avançado": usada em sistema em produção ou entregue a cliente, ou base de dois ou mais projetos.
   - level "intermediário": usada em pelo menos um projeto real.
-  - level "básico": citada como estudo, curso ou interesse.
+  - level "básico": só citada como estudo, curso ou interesse, sem nenhum projeto que a use.
+  - Ferramentas de base do dia a dia de quem tem projetos reais (Git, GitHub, APIs REST) são no mínimo "intermediário" quando houver projetos publicados ou entregues.
+  - Uma skill marcada como "em estudo" ou "ampliando repertório" que aparece na stack de um projeto em produção segue a regra do uso, não a da frase.
   - evidence: onde a skill aparece (projeto, experiência ou curso), em poucas palavras.
-- projects: projetos pessoais, acadêmicos ou de sociedade, com a stack usada.
+- projects: projetos pessoais, acadêmicos ou de sociedade, com a stack usada. Se um projeto não lista stack, deixe a lista vazia.
 - experience: empregos, estágios, freelas e trabalhos para clientes.
 - currentPeriod: o período atual do curso como número inteiro.
 - expectedGraduation: previsão de formatura como aparece no currículo (ex.: "12/2027"); string vazia se não constar.`;
