@@ -179,6 +179,7 @@ type JobScore = {
 - Bot do Telegram: digest diário + alerta imediato para score ≥ 85; botões "salvar / descartar". **Feito.**
 - Adapters Greenhouse/Lever com lista de empresas-alvo. **Feito**, mais Ashby (Nubank); empresas em `config/sources.json`.
 - Leitura dos e-mails de alerta do LinkedIn. **Adiada** por decisão de 27/10/2026.
+- **Extra (27/10/2026):** estágios remotos no exterior, opcionais (`"abroad": "remote"`) e com prioridade menor que as vagas do Brasil. Fonte nova: Himalayas (API pública; termos exigem link de candidatura inalterado e crédito visível). Remotive descartado (`robots.txt` proíbe `/api/*`).
 
 ### Fase 3 — Dashboard
 - API REST no Fastify (listar vagas, filtrar, mudar status, editar preferências).

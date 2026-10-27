@@ -1,4 +1,4 @@
-import type { JobScoreResult } from "@radar/ai";
+import type { JobHints, JobScoreResult } from "@radar/ai";
 import {
 	type FilterReason,
 	hardFilter,
@@ -45,7 +45,7 @@ export type ScanOptions = {
 	db: Db;
 	sources: JobSource[];
 	preferences: Preferences;
-	score: (job: Job) => Promise<JobScoreResult>;
+	score: (job: Job, hints: JobHints) => Promise<JobScoreResult>;
 	maxScored: number;
 	dailyTokenLimit: number;
 	concurrency?: number;
@@ -199,13 +199,41 @@ export async function runScan(opts: ScanOptions): Promise<ScanReport> {
 			report.rejected[result.reason] =
 				(report.rejected[result.reason] ?? 0) + 1;
 	}
-	// Most skill overlap first, then newest, so a limit cuts the weakest.
+	// Jobs in Brazil before jobs abroad, then most skill overlap, then newest,
+	// so a limit cuts the lowest-priority ones.
 	candidates.sort(
 		(a, b) =>
+			Number(a.job.abroad ?? false) - Number(b.job.abroad ?? false) ||
 			b.bonus - a.bonus ||
 			(b.job.publishedAt?.getTime() ?? 0) - (a.job.publishedAt?.getTime() ?? 0),
 	);
 	report.candidates = candidates.length;
+
+	// How many internships each company has open per source: a company that
+	// posts dozens at once is a mass-posting signal the model cannot see alone.
+	// Counted over every recent job, scored or not, so one new posting from a
+	// company that already has twenty still carries the signal.
+	const internshipsByCompany = new Map(
+		db
+			.select({
+				source: jobs.source,
+				company: jobs.company,
+				total: sql<number>`count(*)`,
+			})
+			.from(jobs)
+			.where(
+				and(
+					eq(jobs.level, "estágio"),
+					gte(
+						jobs.createdAt,
+						new Date(now.getTime() - MAX_JOB_AGE_DAYS * DAY_MS),
+					),
+				),
+			)
+			.groupBy(jobs.source, jobs.company)
+			.all()
+			.map((row) => [`${row.source}|${row.company}`, row.total]),
+	);
 
 	const startOfDay = new Date(now);
 	startOfDay.setHours(0, 0, 0, 0);
@@ -231,7 +259,12 @@ export async function runScan(opts: ScanOptions): Promise<ScanReport> {
 
 			let result: JobScoreResult;
 			try {
-				result = await score(next.job);
+				result = await score(next.job, {
+					companyInternships:
+						internshipsByCompany.get(
+							`${next.job.source}|${next.job.company}`,
+						) ?? 0,
+				});
 			} catch (error) {
 				// API-level failures (auth, outage) would repeat for every job.
 				report.scoringError = errorMessage(error);

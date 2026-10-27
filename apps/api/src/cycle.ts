@@ -1,4 +1,4 @@
-import type { JobScoreResult } from "@radar/ai";
+import type { JobHints, JobScoreResult } from "@radar/ai";
 import type { Job, Preferences, Profile } from "@radar/core";
 import type { Db } from "@radar/db";
 import {
@@ -15,7 +15,11 @@ export type CycleOptions = {
 	sources: JobSource[];
 	preferences: Preferences;
 	profile: Profile;
-	score: (job: Job, profile: Profile) => Promise<JobScoreResult>;
+	score: (
+		job: Job,
+		profile: Profile,
+		hints: JobHints,
+	) => Promise<JobScoreResult>;
 	messenger: Messenger | null;
 	digest: boolean;
 	maxScored: number;
@@ -35,7 +39,7 @@ export async function runCycle(opts: CycleOptions): Promise<CycleResult> {
 		db: opts.db,
 		sources: opts.sources,
 		preferences: opts.preferences,
-		score: (job) => opts.score(job, opts.profile),
+		score: (job, hints) => opts.score(job, opts.profile, hints),
 		maxScored: opts.maxScored,
 		dailyTokenLimit: opts.dailyTokenLimit,
 		log: opts.log,

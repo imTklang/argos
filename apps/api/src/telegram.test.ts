@@ -61,6 +61,32 @@ describe("formatDigest", () => {
 		expect(text).not.toContain("e mais");
 	});
 
+	it("puts jobs abroad in their own section after Brazil", () => {
+		const text = formatDigest([
+			item(1),
+			item(2, { abroad: true, title: "Backend Intern" }),
+		]);
+		expect(text.indexOf("🇧🇷 <b>Brasil</b>")).toBeLessThan(
+			text.indexOf("🌎 <b>Remoto no exterior</b>"),
+		);
+		expect(text.indexOf("Estágio Backend 1")).toBeLessThan(
+			text.indexOf("Backend Intern"),
+		);
+	});
+
+	it("skips the Brazil heading when every job is local", () => {
+		expect(formatDigest([item(1)])).not.toContain("<b>Brasil</b>");
+	});
+
+	it("credits Himalayas as the API terms require", () => {
+		const himalayas = item(3, { source: "himalayas", abroad: true });
+		expect(formatDigest([himalayas])).toContain(
+			'href="https://himalayas.app">via Himalayas',
+		);
+		expect(formatJob(himalayas)).toContain("via Himalayas");
+		expect(formatJob(item(4))).not.toContain("via Himalayas");
+	});
+
 	it("stays under Telegram's message limit", () => {
 		const many = Array.from({ length: 200 }, (_, i) => item(i));
 		const text = formatDigest(many);

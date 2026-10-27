@@ -54,3 +54,7 @@ pnpm worker --now --digest                     # roda uma varredura com resumo a
 3. Coloque o ID em `TELEGRAM_CHAT_ID` e reinicie o worker.
 
 Vagas com nota ≥ `instantAlertScore` (padrão 85) chegam na hora, com botões **Salvar** e **Descartar**. Às 18h chega o resumo das vagas com nota ≥ `minScoreToNotify`.
+
+## Vagas remotas no exterior
+
+Com `"abroad": "remote"` em `data/preferences.json`, o Radar também traz estágios remotos de empresas de fora que aceitam candidatos no Brasil (fonte [Himalayas](https://himalayas.app) e as vagas remotas no exterior das empresas de Greenhouse/Lever/Ashby). Elas ficam em segundo plano: são pontuadas depois das vagas do Brasil, nunca disparam alerta imediato e aparecem no resumo das 18h numa seção própria. A IA confere país aceito, fuso, nível de inglês e sinais de vaga ruim (estágio não remunerado, anúncio em massa).

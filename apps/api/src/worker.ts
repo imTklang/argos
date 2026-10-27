@@ -73,7 +73,8 @@ async function main() {
 					sources,
 					preferences,
 					profile,
-					score: (job, p) => scoreJob(client, { profile: p, preferences }, job),
+					score: (job, p, hints) =>
+						scoreJob(client, { profile: p, preferences }, job, hints),
 					messenger,
 					digest,
 					maxScored: intFromEnv("SCAN_MAX_JOBS", 50),

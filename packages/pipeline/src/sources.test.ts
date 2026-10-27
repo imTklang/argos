@@ -17,6 +17,7 @@ describe("createSources", () => {
 			"greenhouse",
 			"lever",
 			"ashby",
+			"himalayas",
 		]);
 		expect(config.ats.greenhouse.length).toBeGreaterThan(0);
 	});

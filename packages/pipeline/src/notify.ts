@@ -30,7 +30,12 @@ export interface Messenger {
 	sendText(text: string): Promise<string>;
 }
 
-function scoredJobs(db: Db, minScore: number, excludeKinds: string[]) {
+function scoredJobs(
+	db: Db,
+	minScore: number,
+	excludeKinds: string[],
+	includeAbroad: boolean,
+) {
 	const alreadySent = db
 		.select({ jobId: notifications.jobId })
 		.from(notifications)
@@ -52,9 +57,11 @@ function scoredJobs(db: Db, minScore: number, excludeKinds: string[]) {
 				// Saved or discarded jobs were already handled by the user.
 				sql`coalesce(${jobStatus.status}, 'nova') = 'nova'`,
 				sql`${jobs.id} not in ${alreadySent}`,
+				includeAbroad ? undefined : eq(jobs.abroad, false),
 			),
 		)
-		.orderBy(desc(jobScores.score))
+		// Jobs in Brazil first, then by score.
+		.orderBy(jobs.abroad, desc(jobScores.score))
 		.all();
 
 	return rows.flatMap(({ job: row, score }) => {
@@ -64,15 +71,18 @@ function scoredJobs(db: Db, minScore: number, excludeKinds: string[]) {
 	});
 }
 
-/** Strong matches not yet alerted. */
+/**
+ * Strong matches not yet alerted. Jobs abroad never interrupt: they wait for
+ * the digest, since the user wants them available but not prioritized.
+ */
 export function pendingAlerts(db: Db, prefs: Preferences): NotifiableJob[] {
 	const threshold = prefs.instantAlertScore ?? DEFAULT_INSTANT_ALERT_SCORE;
-	return scoredJobs(db, threshold, ["alert"]);
+	return scoredJobs(db, threshold, ["alert"], false);
 }
 
-/** Jobs above the notify threshold that no message has mentioned yet. */
+/** Jobs above the notify threshold that no message has mentioned yet, Brazil first. */
 export function pendingDigest(db: Db, prefs: Preferences): NotifiableJob[] {
-	return scoredJobs(db, prefs.minScoreToNotify, ["alert", "digest"]);
+	return scoredJobs(db, prefs.minScoreToNotify, ["alert", "digest"], true);
 }
 
 function record(
