@@ -3,16 +3,16 @@ import { parseArgs } from "node:util";
 import { Anthropic, extractProfile, scoreJob } from "@radar/ai";
 import { createDb, desc, profiles } from "@radar/db";
 import {
-	createCieeSource,
-	createGitHubSource,
-	createGupySource,
-	createSolidesSource,
-	type JobSource,
-} from "@radar/sources";
-import { initPreferences, readPreferences } from "./commands/prefs-init.ts";
+	createSources,
+	formatScanReport,
+	PREFERENCES_PATH,
+	pickSources,
+	readPreferences,
+	readSourcesConfig,
+	runScan,
+} from "@radar/pipeline";
+import { initPreferences } from "./commands/prefs-init.ts";
 import { formatProfile, importProfile } from "./commands/profile-import.ts";
-import { formatScanReport, runScan } from "./commands/scan.ts";
-import { readSourcesConfig } from "./config.ts";
 import { readResume } from "./resume.ts";
 
 const usage = `Radar de Estágio
@@ -21,8 +21,6 @@ Uso:
   pnpm cli profile import <curriculo.pdf> [--force]   Lê o currículo e gera o perfil
   pnpm cli prefs init [--force]                       Gera preferências a partir do perfil
   pnpm cli scan [--max N] [--source ID]...            Busca e pontua vagas (fontes: gupy, solides, ciee, github)`;
-
-const PREFERENCES_PATH = "./data/preferences.json";
 
 function openDb() {
 	return createDb(process.env.DATABASE_PATH ?? "./data/radar.db");
@@ -44,27 +42,6 @@ function hasAnthropicCredentials() {
 function intFromEnv(name: string, fallback: number) {
 	const value = Number.parseInt(process.env[name] ?? "", 10);
 	return Number.isFinite(value) && value > 0 ? value : fallback;
-}
-
-async function selectSources(only: string[] | undefined): Promise<JobSource[]> {
-	const config = await readSourcesConfig();
-	const all: JobSource[] = [
-		createGupySource(),
-		createSolidesSource(),
-		createCieeSource(),
-		createGitHubSource({
-			repos: config.github.repos,
-			token: process.env.GITHUB_TOKEN || undefined,
-		}),
-	];
-	if (!only?.length) return all;
-	const unknown = only.filter((id) => !all.some((s) => s.id === id));
-	if (unknown.length > 0) {
-		throw new Error(
-			`Fonte desconhecida: ${unknown.join(", ")}. Disponíveis: ${all.map((s) => s.id).join(", ")}`,
-		);
-	}
-	return all.filter((s) => only.includes(s.id));
 }
 
 async function scan(args: string[]) {
@@ -97,7 +74,10 @@ async function scan(args: string[]) {
 	const context = { profile: profile.data, preferences };
 	const report = await runScan({
 		db,
-		sources: await selectSources(values.source),
+		sources: pickSources(
+			createSources(await readSourcesConfig()),
+			values.source,
+		),
 		preferences,
 		score: (job) => scoreJob(client, context, job),
 		maxScored: values.max

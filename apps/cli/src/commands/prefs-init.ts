@@ -1,5 +1,5 @@
-import { access, readFile, writeFile } from "node:fs/promises";
-import { buildPreferences, Preferences } from "@radar/core";
+import { access, writeFile } from "node:fs/promises";
+import { buildPreferences, type Preferences } from "@radar/core";
 import { type Db, desc, preferences, profiles } from "@radar/db";
 
 export type PrefsInitResult =
@@ -38,23 +38,4 @@ async function fileExists(path: string) {
 	} catch {
 		return false;
 	}
-}
-
-export async function readPreferences(path: string): Promise<Preferences> {
-	let raw: string;
-	try {
-		raw = await readFile(path, "utf8");
-	} catch {
-		throw new Error(
-			`${path} não encontrado. Rode primeiro: pnpm cli prefs init`,
-		);
-	}
-	const parsed = Preferences.safeParse(JSON.parse(raw));
-	if (!parsed.success) {
-		const issues = parsed.error.issues
-			.map((i) => `  ${i.path.join(".") || "(raiz)"}: ${i.message}`)
-			.join("\n");
-		throw new Error(`${path} tem campos inválidos:\n${issues}`);
-	}
-	return parsed.data;
 }
