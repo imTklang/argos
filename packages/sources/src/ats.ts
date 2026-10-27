@@ -34,8 +34,10 @@ type BoardSpec<T> = {
 	url: (slug: string) => string;
 	posting: z.ZodType<T>;
 	list: (body: unknown) => unknown[];
-	/** Postings for Brazil only; remote roles with no country are kept. */
+	/** Whether the posting is in Brazil; remote roles with no country count. */
 	inBrazil: (posting: T) => boolean;
+	/** Remote roles abroad are kept (flagged abroad); on-site ones abroad are not. */
+	isRemote: (posting: T) => boolean;
 	normalize: (posting: AtsPosting<T>) => Job;
 };
 
@@ -75,7 +77,7 @@ function createAtsSource<T>(spec: BoardSpec<T>, opts: AtsOptions) {
 				for (const raw of spec.list(await res.json())) {
 					const parsed = spec.posting.safeParse(raw);
 					if (!parsed.success) onInvalid?.(raw, parsed.error);
-					else if (spec.inBrazil(parsed.data)) {
+					else if (spec.inBrazil(parsed.data) || spec.isRemote(parsed.data)) {
 						postings.push({ ...parsed.data, company });
 					}
 				}
@@ -83,7 +85,10 @@ function createAtsSource<T>(spec: BoardSpec<T>, opts: AtsOptions) {
 			return postings;
 		},
 
-		normalize: spec.normalize,
+		normalize: (posting) => ({
+			...spec.normalize(posting),
+			abroad: !spec.inBrazil(posting),
+		}),
 	};
 	return source;
 }
@@ -130,6 +135,8 @@ export function createGreenhouseSource(opts: AtsOptions) {
 			posting: GreenhouseJob,
 			list: (body) => z.object({ jobs: z.array(z.unknown()) }).parse(body).jobs,
 			inBrazil: (job) => brazilScope(greenhousePlace(job)) !== "abroad",
+			isRemote: (job) =>
+				modalitiesIn(`${greenhousePlace(job)} ${job.title}`).includes("remoto"),
 			normalize: (job) => {
 				const location = job.location?.name.trim() || null;
 				// No workplace field; boards write it in the location or title.
@@ -209,6 +216,7 @@ export function createLeverSource(opts: AtsOptions) {
 			url: (slug) => `https://api.lever.co/v0/postings/${slug}?mode=json`,
 			posting: LeverPosting,
 			list: (body) => z.array(z.unknown()).parse(body),
+			isRemote: (posting) => posting.workplaceType === "remote",
 			inBrazil: (posting) => {
 				if (posting.country) return posting.country === "BR";
 				const places = posting.categories.allLocations ?? [
@@ -302,6 +310,9 @@ export function createAshbySource(opts: AtsOptions) {
 			url: (slug) => `https://api.ashbyhq.com/posting-api/job-board/${slug}`,
 			posting: AshbyJob,
 			list: (body) => z.object({ jobs: z.array(z.unknown()) }).parse(body).jobs,
+			isRemote: (job) =>
+				job.isListed &&
+				(job.workplaceType === "Remote" || job.isRemote === true),
 			inBrazil: (job) => {
 				if (!job.isListed) return false;
 				const countries = ashbyCountries(job);

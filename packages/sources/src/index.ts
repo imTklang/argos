@@ -22,5 +22,6 @@ export * from "./ats.ts";
 export * from "./ciee.ts";
 export * from "./github.ts";
 export * from "./gupy.ts";
+export * from "./himalayas.ts";
 export * from "./solides.ts";
 export { USER_AGENT } from "./util.ts";

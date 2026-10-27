@@ -148,11 +148,23 @@ describe("Greenhouse", () => {
 describe("Lever", () => {
 	const source = createLeverSource({ companies: [ciandt] });
 
-	it("keeps Brazilian postings and drops other countries", async () => {
+	it("keeps Brazilian postings and flags remote ones abroad", async () => {
 		const fetch = vi.fn().mockResolvedValue(jsonResponse(leverFixture));
 		const s = createLeverSource({ companies: [ciandt], fetch, sleep: noSleep });
 		const postings = await s.fetchJobs(query);
-		expect(postings.map((p) => p.country)).toEqual(["BR", "BR"]);
+		const jobs = postings.map((p) => s.normalize(p));
+		expect(jobs.map((j) => [j.title, j.abroad])).toEqual([
+			["Senior Java Developer, São Paulo (Hybrid)", false],
+			["Senior Fullstack Developer ( Java + Angular ), Brazil", false],
+			["Data Product Manager, Colombia", true],
+		]);
+	});
+
+	it("drops on-site postings abroad", async () => {
+		const onSite = { ...leverFixture[2], workplaceType: "onsite" };
+		const fetch = vi.fn().mockResolvedValue(jsonResponse([onSite]));
+		const s = createLeverSource({ companies: [ciandt], fetch, sleep: noSleep });
+		expect(await s.fetchJobs(query)).toHaveLength(0);
 	});
 
 	it("strips the requisition prefix and maps workplace and level", () => {
@@ -189,13 +201,25 @@ describe("Lever", () => {
 describe("Ashby", () => {
 	const source = createAshbySource({ companies: [nubank] });
 
-	it("drops roles abroad even when remote and keeps Brazil", async () => {
+	it("keeps remote roles abroad flagged, and Brazil unflagged", async () => {
 		const fetch = vi.fn().mockResolvedValue(jsonResponse(ashbyFixture));
 		const s = createAshbySource({ companies: [nubank], fetch, sleep: noSleep });
-		const postings = await s.fetchJobs(query);
-		expect(
-			postings.map((p) => p.address?.postalAddress?.addressCountry),
-		).toEqual(["Brazil"]);
+		const jobs = (await s.fetchJobs(query)).map((p) => s.normalize(p));
+		expect(jobs.map((j) => [j.location, j.abroad])).toEqual([
+			["Palo Alto, California", true],
+			["São Paulo", false],
+		]);
+	});
+
+	it("drops on-site roles abroad", async () => {
+		const onSite = {
+			...ashbyFixture.jobs[0],
+			workplaceType: "OnSite",
+			isRemote: false,
+		};
+		const fetch = vi.fn().mockResolvedValue(jsonResponse({ jobs: [onSite] }));
+		const s = createAshbySource({ companies: [nubank], fetch, sleep: noSleep });
+		expect(await s.fetchJobs(query)).toHaveLength(0);
 	});
 
 	it("drops unlisted postings", async () => {
