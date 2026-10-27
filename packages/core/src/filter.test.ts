@@ -112,6 +112,14 @@ describe("hardFilter", () => {
 		});
 	});
 
+	it("recognizes tech titles written in English", () => {
+		const english = job({
+			title: "Estágio Short Job | Automation - Development",
+			description: "Estágio na área de automação.",
+		});
+		expect(hardFilter(english, prefs, now).pass).toBe(true);
+	});
+
 	it("does not treat 'Desenvolvimento de Negócios' as tech", () => {
 		const business = job({
 			title: "Estágio em Desenvolvimento de Negócios",

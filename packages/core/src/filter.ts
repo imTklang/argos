@@ -7,8 +7,10 @@ export const MAX_JOB_AGE_DAYS = 120;
 // names at least this many of the profile's skills.
 const MIN_BONUS_FOR_GENERIC_TITLE = 2;
 
+// Portuguese and English: company boards (Greenhouse, Lever) often title
+// internships in English, e.g. "Automation - Development".
 const TECH_TITLE =
-	/(?<![a-z])(ti|t\.i\.|tecnologia|software|sistemas|programacao|programador|desenvolvedor|desenvolvimento (de )?(software|sistemas|web|aplicac)|back-?end|front-?end|full ?stack|dev|devops|computacao|informatica|dados|cloud|qa)(?![a-z])/;
+	/(?<![a-z])(ti|t\.i\.|it|tecnologia|technology|software|sistemas|programacao|programming|programador|desenvolvedor|developer|development|desenvolvimento (de )?(software|sistemas|web|aplicac)|back-?end|front-?end|full ?stack|dev|devops|computacao|computer science|informatica|dados|data|automacao|automation|machine learning|cloud|qa)(?![a-z])/;
 
 const STATES: Record<string, string> = {
 	ac: "acre",
