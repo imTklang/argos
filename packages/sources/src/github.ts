@@ -1,13 +1,13 @@
-import {
-	type Job,
-	type Level,
-	type Modality,
-	normalizeText,
-	STATE_NAMES,
-} from "@radar/core";
+import { type Job, normalizeText, STATE_NAMES } from "@radar/core";
 import { z } from "zod";
 import type { JobSource } from "./index.ts";
-import { sleep as defaultSleep, politeFetch } from "./util.ts";
+import {
+	sleep as defaultSleep,
+	issueLevel,
+	modalitiesIn,
+	mostFlexible,
+	politeFetch,
+} from "./util.ts";
 
 const API = "https://api.github.com";
 const PER_PAGE = 100;
@@ -38,64 +38,6 @@ export type GitHubOptions = {
 	delayMs?: number;
 	onInvalid?: (raw: unknown, error: z.ZodError) => void;
 };
-
-// Modality words as they appear in labels and title tags, matched on
-// normalized text. Repos differ: frontendbr says "Alocado" for on-site, and
-// soujava/androiddevbr say "Semi-presencial" for hybrid.
-const MODALITY_WORDS: [RegExp, Modality][] = [
-	[/(?<![a-z])(remot[oa]|remote|home ?office)(?![a-z])/, "remoto"],
-	[/(?<![a-z])(hibrid[oa]|hybrid|semi-?presencial)(?![a-z])/, "híbrido"],
-	[/(?<![a-z-])(presencial|alocad[oa]|on-?site)(?![a-z])/, "presencial"],
-];
-
-// Level words in titles and labels ("👶 Estágio", "Junior", "Dev Sr").
-// Matched as whole words on normalized text so "pl" or "sr" never hit inside
-// another word.
-const LEVEL_WORDS: [RegExp, Level][] = [
-	[/(?<![a-z])(estagio|estagiari[oa]s?|intern|internship)(?![a-z])/, "estágio"],
-	[/(?<![a-z])trainee(?![a-z])/, "trainee"],
-	[/(?<![a-z])(junior|jr)(?![a-z])/, "júnior"],
-	// "pl" but not "PL/SQL".
-	[/(?<![a-z])(pleno|plena|pl(?!\/))(?![a-z])/, "pleno"],
-	[/(?<![a-z])(senior|sr|iii)(?![a-z])/, "sênior"],
-	[
-		/(?<![a-z])(especialista|staff|principal|tech lead)(?![a-z])/,
-		"especialista",
-	],
-];
-
-function levelsIn(text: string): Level[] {
-	const normalized = normalizeText(text);
-	return LEVEL_WORDS.filter(([pattern]) => pattern.test(normalized)).map(
-		([, level]) => level,
-	);
-}
-
-/**
- * Title first, then labels: the title is written per posting, labels are
- * often left over from the template. "Estágio ou Júnior" counts as estágio.
- */
-export function issueLevel(title: string, labels: string[]): Level | null {
-	for (const levels of [levelsIn(title), labels.flatMap(levelsIn)]) {
-		if (levels.includes("estágio")) return "estágio";
-		if (levels[0]) return levels[0];
-	}
-	return null;
-}
-// When several are named ("Remoto ou Híbrido", or contradictory labels),
-// keep the most flexible one: it is the one the candidate can take.
-const FLEXIBILITY: Modality[] = ["remoto", "híbrido", "presencial"];
-
-function modalitiesIn(text: string): Modality[] {
-	const normalized = normalizeText(text);
-	return MODALITY_WORDS.filter(([pattern]) => pattern.test(normalized)).map(
-		([, modality]) => modality,
-	);
-}
-
-function mostFlexible(modalities: Modality[]): Modality | null {
-	return FLEXIBILITY.find((m) => modalities.includes(m)) ?? null;
-}
 
 export type ParsedTitle = {
 	title: string;
