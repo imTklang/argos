@@ -42,6 +42,8 @@ export const Preferences = z.object({
 	minStipend: z.number().nonnegative().optional(),
 	maxHoursPerWeek: z.number().positive().optional(),
 	minScoreToNotify: z.number().min(0).max(100),
+	/** Jobs at or above this score are sent right away instead of waiting for the digest. */
+	instantAlertScore: z.number().min(0).max(100).optional(),
 });
 export type Preferences = z.infer<typeof Preferences>;
 

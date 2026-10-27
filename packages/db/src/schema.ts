@@ -78,6 +78,20 @@ export const jobStatus = sqliteTable("job_status", {
 		.default(sql`(unixepoch())`),
 });
 
+export const notifications = sqliteTable("notifications", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	jobId: integer("job_id")
+		.notNull()
+		.references(() => jobs.id),
+	// "alert": sent right after scoring; "digest": part of the daily summary.
+	kind: text("kind").$type<"alert" | "digest">().notNull(),
+	channel: text("channel").notNull(),
+	messageId: text("message_id"),
+	sentAt: integer("sent_at", { mode: "timestamp" })
+		.notNull()
+		.default(sql`(unixepoch())`),
+});
+
 export const runs = sqliteTable("runs", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	source: text("source").notNull(),
