@@ -45,6 +45,7 @@ export const jobs = sqliteTable(
 		description: text("description").notNull(),
 		url: text("url").notNull(),
 		publishedAt: integer("published_at", { mode: "timestamp" }),
+		expiresAt: integer("expires_at", { mode: "timestamp" }),
 		// hash(company + title + url): dedup across sources
 		hash: text("hash").notNull().unique(),
 		createdAt: createdAt(),

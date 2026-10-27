@@ -55,6 +55,7 @@ export const Job = z.object({
 	description: z.string(),
 	url: z.url(),
 	publishedAt: z.date().nullable(),
+	expiresAt: z.date().nullable(),
 });
 export type Job = z.infer<typeof Job>;
 

@@ -12,6 +12,7 @@ const job = {
 	description: "Node, TypeScript, Postgres",
 	url: "https://github.com/backend-br/vagas/issues/123",
 	publishedAt: null,
+	expiresAt: null,
 	hash: "abc",
 };
 

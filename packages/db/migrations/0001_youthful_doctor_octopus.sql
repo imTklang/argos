@@ -1,0 +1,1 @@
+ALTER TABLE `jobs` ADD `expires_at` integer;
