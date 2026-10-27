@@ -2,6 +2,7 @@ import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { Anthropic, extractProfile } from "@radar/ai";
 import { createDb } from "@radar/db";
+import { initPreferences } from "./commands/prefs-init.ts";
 import { formatProfile, importProfile } from "./commands/profile-import.ts";
 import { readResume } from "./resume.ts";
 
@@ -9,8 +10,48 @@ const usage = `Radar de Estágio
 
 Uso:
   pnpm cli profile import <curriculo.pdf> [--force]   Lê o currículo e gera o perfil
-  pnpm cli prefs init                                 Gera preferências a partir do perfil
+  pnpm cli prefs init [--force]                       Gera preferências a partir do perfil
   pnpm cli scan                                       Busca e pontua vagas`;
+
+const PREFERENCES_PATH = "./data/preferences.json";
+
+function openDb() {
+	return createDb(process.env.DATABASE_PATH ?? "./data/radar.db");
+}
+
+async function prefsInit(args: string[]) {
+	const { values } = parseArgs({
+		args,
+		options: { force: { type: "boolean", default: false } },
+	});
+	const result = await initPreferences({
+		db: openDb(),
+		path: PREFERENCES_PATH,
+		force: values.force,
+	});
+
+	switch (result.kind) {
+		case "no-profile":
+			console.error(
+				"Nenhum perfil encontrado. Rode primeiro: pnpm cli profile import <curriculo.pdf>",
+			);
+			process.exitCode = 1;
+			return;
+		case "exists":
+			console.log(
+				`${result.path} já existe e pode ter edições suas. Use --force para gerar de novo.`,
+			);
+			return;
+		case "created":
+			console.log(
+				`Preferências geradas a partir do perfil #${result.profileId} em ${result.path}\n`,
+			);
+			console.log(JSON.stringify(result.prefs, null, 2));
+			console.log(
+				"\nRevise e edite o arquivo: palavras-chave, cidades, carga horária e nota mínima para aviso.",
+			);
+	}
+}
 
 async function profileImport(args: string[]) {
 	const { positionals, values } = parseArgs({
@@ -36,7 +77,7 @@ async function profileImport(args: string[]) {
 		return;
 	}
 
-	const db = createDb(process.env.DATABASE_PATH ?? "./data/radar.db");
+	const db = openDb();
 	console.log("Lendo o currículo...");
 	const resume = await readResume(resolve(pdfPath));
 
@@ -70,7 +111,11 @@ async function main() {
 		await profileImport(rest);
 		return;
 	}
-	if (command === "prefs" || command === "scan") {
+	if (command === "prefs" && subcommand === "init") {
+		await prefsInit(rest);
+		return;
+	}
+	if (command === "scan") {
 		console.log("Ainda não implementado.");
 		return;
 	}
