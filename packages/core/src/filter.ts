@@ -50,6 +50,7 @@ export type FilterReason =
 	| "antiga"
 	| "nível bloqueado"
 	| "não é estágio"
+	| "exterior"
 	| "sem palavra obrigatória"
 	| "modalidade"
 	| "fora da região"
@@ -102,10 +103,15 @@ export function hardFilter(
 		return { pass: false, reason: "sem palavra obrigatória" };
 	}
 
-	if (job.modality && !prefs.modality.includes(job.modality)) {
+	if (job.abroad) {
+		// Only remote roles abroad, and only when the user opted in.
+		if ((prefs.abroad ?? "none") !== "remote" || job.modality !== "remoto") {
+			return { pass: false, reason: "exterior" };
+		}
+	} else if (job.modality && !prefs.modality.includes(job.modality)) {
 		return { pass: false, reason: "modalidade" };
 	}
-	if (job.modality !== "remoto") {
+	if (!job.abroad && job.modality !== "remoto") {
 		const location = normalizeText(job.location ?? "");
 		const inRegion = locationTerms(prefs.locations).some((term) =>
 			termPattern(term).test(location),

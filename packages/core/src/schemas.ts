@@ -44,6 +44,11 @@ export const Preferences = z.object({
 	minScoreToNotify: z.number().min(0).max(100),
 	/** Jobs at or above this score are sent right away instead of waiting for the digest. */
 	instantAlertScore: z.number().min(0).max(100).optional(),
+	/**
+	 * Jobs with employers abroad: "none" ignores them, "remote" accepts remote
+	 * ones open to candidates in Brazil, at lower priority than local jobs.
+	 */
+	abroad: z.enum(["none", "remote"]).optional(),
 });
 export type Preferences = z.infer<typeof Preferences>;
 
@@ -70,6 +75,8 @@ export const Job = z.object({
 	expiresAt: z.date().nullable(),
 	/** Seniority from structured data (source type, labels), not free text. */
 	level: Level.nullable().optional(),
+	/** Remote job for an employer abroad (open to candidates in Brazil). */
+	abroad: z.boolean().optional(),
 });
 export type Job = z.infer<typeof Job>;
 

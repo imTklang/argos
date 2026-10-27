@@ -1,0 +1,1 @@
+ALTER TABLE `jobs` ADD `abroad` integer DEFAULT false NOT NULL;
