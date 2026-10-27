@@ -78,6 +78,38 @@ describe("hardFilter", () => {
 		expect(hardFilter(labeled, prefs, now).pass).toBe(true);
 	});
 
+	describe("jobs abroad", () => {
+		const abroad = job({
+			abroad: true,
+			level: "estágio",
+			modality: "remoto",
+			location: "Worldwide",
+			title: "Backend Engineering Intern",
+			description: "Internship. Node.js and TypeScript.",
+		});
+
+		it("are left out unless the user opted in", () => {
+			expect(hardFilter(abroad, prefs, now)).toEqual({
+				pass: false,
+				reason: "exterior",
+			});
+		});
+
+		it("pass when the user accepts remote jobs abroad, skipping the region rule", () => {
+			expect(hardFilter(abroad, { ...prefs, abroad: "remote" }, now).pass).toBe(
+				true,
+			);
+		});
+
+		it("must be remote", () => {
+			const onSite = { ...abroad, modality: "presencial" as const };
+			expect(hardFilter(onSite, { ...prefs, abroad: "remote" }, now)).toEqual({
+				pass: false,
+				reason: "exterior",
+			});
+		});
+	});
+
 	it("accepts remote jobs anywhere", () => {
 		const remote = job({ location: null, modality: "remoto" });
 		expect(hardFilter(remote, prefs, now).pass).toBe(true);
