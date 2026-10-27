@@ -12,8 +12,8 @@ Regras:
 - Escreva os textos em português, mantendo nomes de tecnologias como aparecem (ex.: "Node.js", "TypeScript").
 - skills: uma entrada por tecnologia, ferramenta ou conceito técnico (ex.: "Docker", "arquitetura orientada a eventos").
   Para decidir o nível, cruze a lista de skills com os projetos e experiências: o nível vem do uso, não de onde a skill foi listada.
-  - level "avançado": usada em sistema em produção ou entregue a cliente, ou base de dois ou mais projetos.
-  - level "intermediário": usada em pelo menos um projeto real.
+  - level "avançado": usada em dois ou mais projetos reais, sendo pelo menos um em produção ou entregue a cliente.
+  - level "intermediário": usada em um único projeto real, mesmo que em produção.
   - level "básico": só citada como estudo, curso ou interesse, sem nenhum projeto que a use.
   - Ferramentas de base do dia a dia de quem tem projetos reais (Git, GitHub, APIs REST) são no mínimo "intermediário" quando houver projetos publicados ou entregues.
   - Uma skill marcada como "em estudo" ou "ampliando repertório" que aparece na stack de um projeto em produção segue a regra do uso, não a da frase.
