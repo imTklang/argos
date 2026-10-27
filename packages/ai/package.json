@@ -1,0 +1,16 @@
+{
+	"name": "@radar/ai",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"typecheck": "tsc -p ."
+	},
+	"dependencies": {
+		"@anthropic-ai/sdk": "^1.3.0",
+		"@radar/core": "workspace:*",
+		"zod": "4.6.7"
+	}
+}
