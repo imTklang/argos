@@ -55,17 +55,19 @@ describe("formatJob", () => {
 
 describe("formatDigest", () => {
 	it("lists every job when it fits", () => {
-		const text = formatDigest([item(1), item(2)]);
+		const [text = "", ...rest] = formatDigest([item(1), item(2)]);
+		expect(rest).toHaveLength(0);
 		expect(text).toContain("2 vagas");
 		expect(text).toContain("Estágio Backend 2");
 		expect(text).not.toContain("e mais");
 	});
 
 	it("puts jobs abroad in their own section after Brazil", () => {
-		const text = formatDigest([
+		const [text = ""] = formatDigest([
 			item(1),
 			item(2, { abroad: true, title: "Backend Intern" }),
 		]);
+		expect(text.indexOf("🇧🇷 <b>Brasil</b>")).toBeGreaterThan(-1);
 		expect(text.indexOf("🇧🇷 <b>Brasil</b>")).toBeLessThan(
 			text.indexOf("🌎 <b>Remoto no exterior</b>"),
 		);
@@ -75,23 +77,36 @@ describe("formatDigest", () => {
 	});
 
 	it("skips the Brazil heading when every job is local", () => {
-		expect(formatDigest([item(1)])).not.toContain("<b>Brasil</b>");
+		expect(formatDigest([item(1)])[0]).not.toContain("<b>Brasil</b>");
 	});
 
 	it("credits Himalayas as the API terms require", () => {
 		const himalayas = item(3, { source: "himalayas", abroad: true });
-		expect(formatDigest([himalayas])).toContain(
+		expect(formatDigest([himalayas])[0]).toContain(
 			'href="https://himalayas.app">via Himalayas',
 		);
 		expect(formatJob(himalayas)).toContain("via Himalayas");
 		expect(formatJob(item(4))).not.toContain("via Himalayas");
 	});
 
-	it("stays under Telegram's message limit", () => {
-		const many = Array.from({ length: 200 }, (_, i) => item(i));
-		const text = formatDigest(many);
-		expect(text.length).toBeLessThan(4096);
-		expect(text).toMatch(/…e mais \d+\./);
+	it("splits a long digest into messages under Telegram's limit, losing nothing", () => {
+		const many = [
+			...Array.from({ length: 120 }, (_, i) => item(i)),
+			...Array.from({ length: 80 }, (_, i) =>
+				item(1000 + i, { abroad: true, title: `Intern ${i}` }),
+			),
+		];
+		const pages = formatDigest(many);
+		expect(pages.length).toBeGreaterThan(1);
+		for (const page of pages) expect(page.length).toBeLessThan(4096);
+		const all = pages.join("\n");
+		for (const i of [0, 119]) expect(all).toContain(`Estágio Backend ${i}<`);
+		for (const i of [0, 79]) expect(all).toContain(`Intern ${i}<`);
+		// Every job in Brazil comes before the first one abroad.
+		expect(all.lastIndexOf("Estágio Backend")).toBeLessThan(
+			all.indexOf("Intern 0<"),
+		);
+		expect(all).not.toContain("e mais");
 	});
 });
 
@@ -175,6 +190,21 @@ describe("createTelegramMessenger", () => {
 		expect(
 			buttons.map((b: { callback_data: string }) => b.callback_data),
 		).toEqual(["save:5", "discard:5"]);
+	});
+
+	it("sends a long digest as several messages and returns the first id", async () => {
+		const sendMessage = vi
+			.fn()
+			.mockResolvedValueOnce({ message_id: 10 })
+			.mockResolvedValue({ message_id: 11 });
+		const messenger = createTelegramMessenger({ sendMessage } as never, "42");
+
+		const id = await messenger.sendDigest(
+			Array.from({ length: 200 }, (_, i) => item(i)),
+		);
+
+		expect(id).toBe("10");
+		expect(sendMessage.mock.calls.length).toBeGreaterThan(1);
 	});
 
 	it("sends the digest and plain notices without buttons", async () => {
