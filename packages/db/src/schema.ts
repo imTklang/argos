@@ -8,6 +8,7 @@ import type {
 } from "@radar/core";
 import { sql } from "drizzle-orm";
 import {
+	index,
 	integer,
 	sqliteTable,
 	text,
@@ -49,11 +50,18 @@ export const jobs = sqliteTable(
 		expiresAt: integer("expires_at", { mode: "timestamp" }),
 		level: text("level").$type<Level>(),
 		abroad: integer("abroad", { mode: "boolean" }).notNull().default(false),
+		// titleKey(title): candidates for duplicate detection are looked up by it.
+		titleKey: text("title_key"),
+		// The earlier job this one repeats (another source, or a repost).
+		duplicateOf: integer("duplicate_of"),
 		// hash(company + title + url): dedup across sources
 		hash: text("hash").notNull().unique(),
 		createdAt: createdAt(),
 	},
-	(t) => [uniqueIndex("jobs_source_external_id").on(t.source, t.externalId)],
+	(t) => [
+		uniqueIndex("jobs_source_external_id").on(t.source, t.externalId),
+		index("jobs_title_key").on(t.titleKey),
+	],
 );
 
 export const jobScores = sqliteTable("job_scores", {

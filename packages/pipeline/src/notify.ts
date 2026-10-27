@@ -5,6 +5,7 @@ import {
 	desc,
 	eq,
 	gte,
+	isNull,
 	jobScores,
 	jobStatus,
 	jobs,
@@ -58,6 +59,8 @@ function scoredJobs(
 				sql`coalesce(${jobStatus.status}, 'nova') = 'nova'`,
 				sql`${jobs.id} not in ${alreadySent}`,
 				includeAbroad ? undefined : eq(jobs.abroad, false),
+				// The original was (or will be) notified on its own.
+				isNull(jobs.duplicateOf),
 			),
 		)
 		// Jobs in Brazil first, then by score.
