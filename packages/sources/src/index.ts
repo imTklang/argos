@@ -13,5 +13,7 @@ export interface JobSource<Raw = unknown> {
 	normalize(raw: Raw): Job;
 }
 
+export * from "./ciee.ts";
 export * from "./gupy.ts";
+export * from "./solides.ts";
 export { USER_AGENT } from "./util.ts";

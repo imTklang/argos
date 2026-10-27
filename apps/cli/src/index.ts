@@ -2,7 +2,11 @@ import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { Anthropic, extractProfile, scoreJob } from "@radar/ai";
 import { createDb, desc, profiles } from "@radar/db";
-import { createGupySource } from "@radar/sources";
+import {
+	createCieeSource,
+	createGupySource,
+	createSolidesSource,
+} from "@radar/sources";
 import { initPreferences, readPreferences } from "./commands/prefs-init.ts";
 import { formatProfile, importProfile } from "./commands/profile-import.ts";
 import { formatScanReport, runScan } from "./commands/scan.ts";
@@ -63,7 +67,7 @@ async function scan(args: string[]) {
 	const context = { profile: profile.data, preferences };
 	const report = await runScan({
 		db,
-		sources: [createGupySource()],
+		sources: [createGupySource(), createSolidesSource(), createCieeSource()],
 		preferences,
 		score: (job) => scoreJob(client, context, job),
 		maxScored: values.max

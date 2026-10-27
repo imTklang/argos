@@ -1,0 +1,577 @@
+{
+	"totalPages": 1,
+	"currentPage": 1,
+	"count": 3,
+	"data": [
+		{
+			"killerQuestions": [],
+			"id": 944056,
+			"title": "Estagiário de Automação e IA",
+			"description": "<p><strong>Papel na Soutag:</strong></p>\n<p>Desenvolver e manter soluções de automação e inteligência artificial que otimizem processos internos e o atendimento aos usuários, garantindo eficiência, integração entre sistemas e análise inteligente de dados. Atuar na construção de fluxos automatizados, ferramentas de suporte e modelos de machine learning que assegurem escalabilidade, performance e inovação contínua na operação da Soutag.</p>\n<p><strong>Responsabilidades:</strong></p>\n<ul>\n<li>Fazer e manter fluxos de automação com ferramentas diversas, principalmente N8N com IA, Python, Excel...;</li>\n<li>Manter sistemas de atendimento a usuários com IA, projetando e melhorando fluxos de atendimento automatizados;</li>\n<li>Desenvolver integrações entre sistemas (internos e externos) com linguagens e ferramentas diversas;</li>\n<li>Construir ferramentas para análise automática de dados, usand",
+			"currentState": "em_andamento",
+			"referenceId": 218309,
+			"companyName": "SOUTAG TECNOLOGIA BRASIL LTDA",
+			"companyLogo": "https://c5gwmsmjx1.execute-api.us-east-1.amazonaws.com/prod/dados_processo_seletivo/logo_empresa/226197/Marca_Soutag_rgb_Principal (1).png",
+			"state": {
+				"id": 17,
+				"name": "Minas Gerais",
+				"code": "MG"
+			},
+			"city": {
+				"id": 2310,
+				"name": "Belo Horizonte",
+				"stateId": 17
+			},
+			"address": {
+				"id": 111642962,
+				"neighborhood": "Funcionários",
+				"number": "167",
+				"latitude": null,
+				"longitude": null,
+				"city": {
+					"id": 2310,
+					"name": "Belo Horizonte",
+					"stateId": 17
+				},
+				"state": {
+					"id": 17,
+					"name": "Minas Gerais",
+					"code": "MG"
+				},
+				"country": {
+					"id": 30,
+					"name": "Brasil",
+					"code": "BR"
+				},
+				"zipCode": "30112-020",
+				"streetAddress": "Avenida Getúlio Vargas",
+				"foreignCity": null,
+				"foreignState": null,
+				"additionalInformation": ""
+			},
+			"slug": "soutag",
+			"redirectLink": "https://soutag./vacancies/944056?origem=portal",
+			"type": "externa",
+			"isHiddenJob": false,
+			"homeOffice": false,
+			"jobType": "presencial",
+			"openPositions": 1,
+			"salary": {
+				"type": "simple",
+				"showRangeToApplicant": true,
+				"initialRange": 0,
+				"finalRange": 2000,
+				"negotiable": false
+			},
+			"phases": [],
+			"hasSpecialNeeds": false,
+			"peopleWithDisabilities": false,
+			"disabilityType": null,
+			"pcdOnly": false,
+			"videoUrl": null,
+			"seniority": [
+				{
+					"id": 371223,
+					"name": "Estagiário",
+					"level": null
+				}
+			],
+			"recruitmentContractType": [
+				{
+					"id": 167694,
+					"name": "Estágio",
+					"level": null
+				}
+			],
+			"benefits": [
+				{
+					"id": 301333,
+					"name": "Seguro de vida",
+					"level": null
+				},
+				{
+					"id": 301334,
+					"name": "Vale alimentação",
+					"level": null
+				},
+				{
+					"id": 301337,
+					"name": "Vale refeição",
+					"level": null
+				},
+				{
+					"id": 301338,
+					"name": "Vale transporte",
+					"level": null
+				},
+				{
+					"id": 2182344,
+					"name": "Day off de aniversário",
+					"level": null
+				},
+				{
+					"id": 2186846,
+					"name": "Vale Refeição flexível",
+					"level": null
+				},
+				{
+					"id": 2186847,
+					"name": "Wellhub (Gympass)",
+					"level": null
+				},
+				{
+					"id": 2186848,
+					"name": "Caju benefícios",
+					"level": null
+				},
+				{
+					"id": 2186850,
+					"name": "Economia no combustível através do App Soutag",
+					"level": null
+				},
+				{
+					"id": 2186851,
+					"name": "Equipamentos de trabalho disponibilizados pela empresa",
+					"level": null
+				}
+			],
+			"language": [],
+			"hardSkills": [
+				{
+					"id": 2186843,
+					"name": "Conhecimentos em linguagem de programação, preferencialmente Python ou Javascript",
+					"level": 1
+				},
+				{
+					"id": 2186845,
+					"name": "Conhecimento em ferramentas de dados (Excel com procv e tabelas dinâmicas, PowerBI, SQL)",
+					"level": 1
+				},
+				{
+					"id": 2187099,
+					"name": "Microsoft Excel",
+					"level": 3
+				}
+			],
+			"education": [
+				{
+					"id": 43,
+					"name": "Ensino Fundamental",
+					"level": null
+				}
+			],
+			"createdAt": "2026-10-26",
+			"availablePositions": 1,
+			"affirmative": [],
+			"occupationAreas": [
+				{
+					"id": 349584,
+					"name": "Tecnologia",
+					"level": null
+				},
+				{
+					"id": 349581,
+					"name": "Administrativo",
+					"level": null
+				}
+			],
+			"isGoogleForJobsEnabled": true,
+			"requiredFields": ["academicEducations", "killerQuestions"],
+			"receivingResume": true,
+			"showSkillsLevel": true,
+			"showModality": true,
+			"shift": [
+				{
+					"id": 42,
+					"name": "Integral",
+					"level": null
+				}
+			],
+			"date": {
+				"due": "2026-10-30",
+				"show": false
+			},
+			"preApplyEnabled": true,
+			"startSolidesEnabled": false,
+			"publishers": null,
+			"isDisabled": false
+		},
+		{
+			"killerQuestions": [],
+			"id": 939337,
+			"title": "025/2026 (LAB)- Estágio — Inteligência Artificial e Desenvolvimento Full Stack ",
+			"description": "<p>Buscamos uma pessoa organizada, com autonomia para trabalhar remotamente e disposição para aprender. A atuação começará com rotulação de imagens e apoio ao cientista de dados, com evolução para desenvolvimento full stack em Angular e .NET.</p>\n<p><strong>Requisitos</strong></p>\n<ul>\n<li>\n<p>Cursar Ciência da Computação, Sistemas de Informação, Engenharia de Software, Análise e Desenvolvimento de Sistemas ou áreas correlatas.</p>\n</li>\n<li>\n<p>Ter pelo menos 1 ano de curso restante até a formatura.</p>\n</li>\n<li>\n<p>Conhecimentos básicos de lógica de programação.</p>\n</li>\n<li>\n<p>Conhecimentos em Angular e Git.</p>\n</li>\n<li>\n<p>Organização, autonomia no trabalho remoto e disposição para aprender.</p>\n</li>\n</ul>\n<p><strong>Diferenciais</strong></p>\n<ul>\n<li>\n<p>Conhecimentos em C#/.NET, Python, SQL e computação em nuvem.</p>\n</li>\n</ul>\n<p><strong>Modelo de trabalho:</strong> remoto.",
+			"currentState": "em_andamento",
+			"referenceId": 31250,
+			"companyName": "CONCERT TECHNOLOGIES S.A.",
+			"companyLogo": "https://c5gwmsmjx1.execute-api.us-east-1.amazonaws.com/prod/empresa/logo/31250/logo_horizontal_250.jpg",
+			"state": {
+				"id": 17,
+				"name": "Minas Gerais",
+				"code": "MG"
+			},
+			"city": {
+				"id": 2310,
+				"name": "Belo Horizonte",
+				"stateId": 17
+			},
+			"address": {
+				"id": 111243704,
+				"neighborhood": "Savassi",
+				"number": null,
+				"latitude": null,
+				"longitude": null,
+				"city": {
+					"id": 2310,
+					"name": "Belo Horizonte",
+					"stateId": 17
+				},
+				"state": {
+					"id": 17,
+					"name": "Minas Gerais",
+					"code": "MG"
+				},
+				"country": {
+					"id": 30,
+					"name": "Brasil",
+					"code": "BR"
+				},
+				"zipCode": "30112-010",
+				"streetAddress": "Rua Antônio de Albuquerque",
+				"foreignCity": null,
+				"foreignState": null,
+				"additionalInformation": null
+			},
+			"slug": "concert",
+			"redirectLink": "https://concert./vacancies/939337?origem=portal",
+			"type": "externa",
+			"isHiddenJob": false,
+			"homeOffice": false,
+			"jobType": "remoto",
+			"openPositions": 1,
+			"salary": {
+				"type": "simple",
+				"showRangeToApplicant": false,
+				"initialRange": null,
+				"finalRange": null,
+				"negotiable": false
+			},
+			"phases": [],
+			"hasSpecialNeeds": false,
+			"peopleWithDisabilities": false,
+			"disabilityType": null,
+			"pcdOnly": false,
+			"videoUrl": null,
+			"seniority": [
+				{
+					"id": 371223,
+					"name": "Estagiário",
+					"level": null
+				}
+			],
+			"recruitmentContractType": [
+				{
+					"id": 167694,
+					"name": "Estágio",
+					"level": null
+				}
+			],
+			"benefits": [
+				{
+					"id": 8817,
+					"name": "Avaliação de Desempenho",
+					"level": null
+				},
+				{
+					"id": 8823,
+					"name": "Horário Flexível",
+					"level": null
+				},
+				{
+					"id": 301333,
+					"name": "Seguro de vida",
+					"level": null
+				},
+				{
+					"id": 301338,
+					"name": "Vale transporte",
+					"level": null
+				},
+				{
+					"id": 1840088,
+					"name": "SESC",
+					"level": null
+				},
+				{
+					"id": 2183530,
+					"name": "wellhub",
+					"level": null
+				},
+				{
+					"id": 2183534,
+					"name": "Day off de aniversário",
+					"level": null
+				},
+				{
+					"id": 2183538,
+					"name": "Onhappy",
+					"level": null
+				}
+			],
+			"language": [],
+			"hardSkills": [],
+			"education": [
+				{
+					"id": 45,
+					"name": "Graduação",
+					"level": null
+				}
+			],
+			"createdAt": "2026-10-15",
+			"availablePositions": 1,
+			"affirmative": [],
+			"occupationAreas": [
+				{
+					"id": 349584,
+					"name": "Tecnologia",
+					"level": null
+				}
+			],
+			"isGoogleForJobsEnabled": true,
+			"requiredFields": ["academicEducations", "about_me"],
+			"receivingResume": true,
+			"showSkillsLevel": true,
+			"showModality": true,
+			"shift": [
+				{
+					"id": 40,
+					"name": "Tarde",
+					"level": null
+				}
+			],
+			"date": {
+				"due": "2026-11-23",
+				"show": false
+			},
+			"preApplyEnabled": false,
+			"startSolidesEnabled": false,
+			"publishers": null,
+			"isDisabled": false
+		},
+		{
+			"killerQuestions": [],
+			"id": 943722,
+			"title": "Estágio em Distribuição de Tecnologia ",
+			"description": "<p>Com mais de 39 anos de atuação no mercado de tecnologia, a MakeOne tem inovação em seu DNA. Evoluímos com a mesma velocidade que o mercado exige, entregando soluções completas de comunicação unificada, mobilidade e estratégias inteligentes de Customer Experience (CX) para empresas de todo o Brasil.<br /><br />Nosso compromisso é claro: conectar times, clientes e parceiros com eficiência, segurança e estratégia. Unimos tradição e confiança a um time altamente qualificado, pronto para promover excelência operacional em ambientes críticos e dinâmicos.<br /><br /><strong>Sobre a Oportunidade</strong></p>\n<p>Estamos em busca de um(a) <strong>Estagiário(a)</strong> para integrar nosso time de Distribuição. Aqui, você apoiará a operação comercial da área de Distribuição, realizando prospecção de novas revendas, apresentação institucional, atendimento inicial aos parceiros e direcionamento de",
+			"currentState": "em_andamento",
+			"referenceId": 152775,
+			"companyName": "MakeOne Tecnologia Digital Ltda.",
+			"companyLogo": "https://c5gwmsmjx1.execute-api.us-east-1.amazonaws.com/prod/dados_processo_seletivo/logo_empresa/160757/vert-preto-roxo-impressao.png",
+			"state": {
+				"id": 20,
+				"name": "São Paulo",
+				"code": "SP"
+			},
+			"city": {
+				"id": 3830,
+				"name": "São Paulo",
+				"stateId": 20
+			},
+			"address": {
+				"id": 111623779,
+				"neighborhood": "Vila Hamburguesa",
+				"number": "1560",
+				"latitude": null,
+				"longitude": null,
+				"city": {
+					"id": 3830,
+					"name": "São Paulo",
+					"stateId": 20
+				},
+				"state": {
+					"id": 20,
+					"name": "São Paulo",
+					"code": "SP"
+				},
+				"country": {
+					"id": 30,
+					"name": "Brasil",
+					"code": "BR"
+				},
+				"zipCode": "05319-000",
+				"streetAddress": "Avenida Queiroz Filho",
+				"foreignCity": null,
+				"foreignState": null,
+				"additionalInformation": "Andar Torre Gaivota, Cond. Vista Verde Offices"
+			},
+			"slug": "makeone",
+			"redirectLink": "https://makeone./vacancies/943722?origem=portal",
+			"type": "externa",
+			"isHiddenJob": false,
+			"homeOffice": false,
+			"jobType": "hibrido",
+			"openPositions": 1,
+			"salary": {
+				"type": "simple",
+				"showRangeToApplicant": false,
+				"initialRange": null,
+				"finalRange": null,
+				"negotiable": false
+			},
+			"phases": [],
+			"hasSpecialNeeds": false,
+			"peopleWithDisabilities": true,
+			"disabilityType": null,
+			"pcdOnly": false,
+			"videoUrl": null,
+			"seniority": [
+				{
+					"id": 371223,
+					"name": "Estagiário",
+					"level": null
+				}
+			],
+			"recruitmentContractType": [
+				{
+					"id": 167694,
+					"name": "Estágio",
+					"level": null
+				}
+			],
+			"benefits": [
+				{
+					"id": 301338,
+					"name": "Vale transporte",
+					"level": null
+				},
+				{
+					"id": 301337,
+					"name": "Vale refeição",
+					"level": null
+				},
+				{
+					"id": 927956,
+					"name": "Day Off de Aniversário",
+					"level": null
+				},
+				{
+					"id": 927957,
+					"name": "TotalPass",
+					"level": null
+				},
+				{
+					"id": 927961,
+					"name": "Convênio com Universidades",
+					"level": null
+				},
+				{
+					"id": 1171234,
+					"name": "Wellhub",
+					"level": null
+				},
+				{
+					"id": 1175430,
+					"name": "Plataformas de Saúde Mental (Starbem/Guia da Alma)",
+					"level": null
+				},
+				{
+					"id": 932087,
+					"name": "Quick Massage",
+					"level": null
+				}
+			],
+			"language": [
+				{
+					"id": 1579,
+					"name": "Inglês",
+					"level": 3
+				}
+			],
+			"hardSkills": [
+				{
+					"id": 975189,
+					"name": "Excel",
+					"level": 2
+				}
+			],
+			"education": [
+				{
+					"id": 45,
+					"name": "Graduação",
+					"level": null
+				},
+				{
+					"id": 46,
+					"name": "Tecnólogo",
+					"level": null
+				}
+			],
+			"createdAt": "2026-10-26",
+			"availablePositions": 1,
+			"affirmative": [
+				{
+					"id": 351200,
+					"name": "Vaga afirmativa para Pessoas LGBTQIAP+",
+					"level": null
+				},
+				{
+					"id": 351201,
+					"name": "Vaga afirmativa para Pessoas Pretas",
+					"level": null
+				},
+				{
+					"id": 351202,
+					"name": "Vaga afirmativa para Mulheres",
+					"level": null
+				}
+			],
+			"occupationAreas": [
+				{
+					"id": 349581,
+					"name": "Administrativo",
+					"level": null
+				},
+				{
+					"id": 349584,
+					"name": "Tecnologia",
+					"level": null
+				},
+				{
+					"id": 349596,
+					"name": "Comercial",
+					"level": null
+				}
+			],
+			"isGoogleForJobsEnabled": true,
+			"requiredFields": [
+				"academicEducations",
+				"linkedin",
+				"salary",
+				"about_me",
+				"address",
+				"street",
+				"district",
+				"city",
+				"killerQuestions"
+			],
+			"receivingResume": true,
+			"showSkillsLevel": true,
+			"showModality": true,
+			"shift": [
+				{
+					"id": 42,
+					"name": "Integral",
+					"level": null
+				}
+			],
+			"date": {
+				"due": "2026-11-30",
+				"show": false
+			},
+			"preApplyEnabled": false,
+			"startSolidesEnabled": false,
+			"publishers": null,
+			"isDisabled": false
+		}
+	]
+}
