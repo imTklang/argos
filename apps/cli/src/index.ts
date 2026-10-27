@@ -1,10 +1,11 @@
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { Anthropic, extractProfile, scoreJob } from "@radar/ai";
-import { createDb, desc, profiles } from "@radar/db";
+import { createDb } from "@radar/db";
 import {
 	createSources,
 	formatScanReport,
+	loadLatestProfile,
 	PREFERENCES_PATH,
 	pickSources,
 	readPreferences,
@@ -56,12 +57,7 @@ async function scan(args: string[]) {
 
 	const preferences = await readPreferences(PREFERENCES_PATH);
 	const db = openDb();
-	const profile = db
-		.select()
-		.from(profiles)
-		.orderBy(desc(profiles.id))
-		.limit(1)
-		.get();
+	const profile = loadLatestProfile(db);
 	if (!profile) {
 		console.error(
 			"Nenhum perfil encontrado. Rode primeiro: pnpm cli profile import <curriculo.pdf>",
@@ -71,7 +67,7 @@ async function scan(args: string[]) {
 	}
 
 	const client = new Anthropic();
-	const context = { profile: profile.data, preferences };
+	const context = { profile, preferences };
 	const report = await runScan({
 		db,
 		sources: pickSources(

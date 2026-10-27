@@ -78,6 +78,7 @@ function fakeMessenger() {
 			sent.push({ kind: "digest", items });
 			return String(++n);
 		}),
+		sendText: vi.fn(async () => String(++n)),
 	};
 	return { messenger, sent };
 }
