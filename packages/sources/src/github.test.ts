@@ -5,9 +5,9 @@ import {
 	createGitHubSource,
 	GitHubIssue,
 	type GitHubJob,
-	issueLevel,
 	parseIssueTitle,
 } from "./github.ts";
+import { issueLevel } from "./util.ts";
 
 function jsonResponse(body: unknown, status = 200, headers = {}) {
 	return new Response(JSON.stringify(body), {
