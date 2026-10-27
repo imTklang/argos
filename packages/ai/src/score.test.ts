@@ -88,6 +88,17 @@ describe("scoreJob", () => {
 		expect(params.system[1].text).toContain("Ana Souza");
 		expect(params.messages[0].content).toContain("Estágio Backend");
 		expect(params.messages[0].content).toContain("2026-11-30");
+		expect(params.messages[0].content).not.toContain("Estágios abertos");
+	});
+
+	it("passes the company's open internship count when known", async () => {
+		const { client, parse } = fakeClient({ parsed_output: score });
+		await scoreJob(client, { profile, preferences }, job, {
+			companyInternships: 21,
+		});
+		expect(parse.mock.calls[0]?.[0].messages[0].content).toContain(
+			"Estágios abertos por esta empresa nesta fonte: 21",
+		);
 	});
 
 	it("retries once when the output does not parse", async () => {
