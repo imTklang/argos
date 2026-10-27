@@ -1,0 +1,168 @@
+{
+	"content": [
+		{
+			"codigoVaga": 6279736,
+			"tipoVaga": "ESTAGIO",
+			"nomeEmpresa": "CENTRO MEDICO BARBOSA LTDA",
+			"areaAtuacao": null,
+			"areaProfissional": "Informática",
+			"salario": null,
+			"bolsaAuxilio": 1200,
+			"quantidadeBeneficios": 1,
+			"tipoAuxilioBolsa": "Mensal",
+			"tipoValorBolsa": "FIXO",
+			"tipoSalarioValor": null,
+			"tipoSalario": null,
+			"bolsaAuxilioDe": null,
+			"bolsaAuxilioAte": null,
+			"salarioDe": null,
+			"salarioAte": null,
+			"beneficios": [],
+			"descricao": "Atividades de atendimento hospitalar, exceto pronto-socorro e unidades para atendimento a urgências",
+			"local": {
+				"tipoLogradouro": null,
+				"endereco": null,
+				"numero": null,
+				"bairro": "Centro",
+				"complemento": null,
+				"cep": null,
+				"cidade": "Feira de Santana",
+				"uf": "BA"
+			},
+			"tipoHorario": "A_COMBINAR",
+			"horarioEntrada": null,
+			"horarioSaida": null,
+			"atividades": [
+				"Acessar arquivos diversos utilizando aplicativos específicos",
+				"Acessar arquivos e carregá-los com informações solicitadas",
+				"Acessar as funções de pesquisa tecnológica",
+				"Acessar a especificação de equipamentos e/ou materiais",
+				"Acessar programas específicos",
+				"Acessar sistemas da seguradora",
+				"Acessar sistemas internos",
+				"Acompanhamento da documentação e divulgação da metodologia de projetos",
+				"Analisar dispositivos e projetos diversos",
+				"Acompanhamento às áreas de Suporte"
+			],
+			"requisitos": {
+				"semestreInicio": 1,
+				"semestreFinal": 8,
+				"escolas": null
+			},
+			"nivelEscolar": "SU",
+			"logo": null
+		},
+		{
+			"codigoVaga": 6280415,
+			"tipoVaga": "ESTAGIO",
+			"nomeEmpresa": "EAD BRAZILIAN DESIGN",
+			"areaAtuacao": null,
+			"areaProfissional": "Administrativa",
+			"salario": null,
+			"bolsaAuxilio": 1000,
+			"quantidadeBeneficios": 1,
+			"tipoAuxilioBolsa": "Mensal",
+			"tipoValorBolsa": "FIXO",
+			"tipoSalarioValor": null,
+			"tipoSalario": null,
+			"bolsaAuxilioDe": null,
+			"bolsaAuxilioAte": null,
+			"salarioDe": null,
+			"salarioAte": null,
+			"beneficios": [],
+			"descricao": "Comércio varejista de móveis",
+			"local": {
+				"tipoLogradouro": null,
+				"endereco": null,
+				"numero": null,
+				"bairro": "Jardim Emília",
+				"complemento": null,
+				"cep": null,
+				"cidade": "Sorocaba",
+				"uf": "SP"
+			},
+			"tipoHorario": "DEFINIDO",
+			"horarioEntrada": "10:00:00",
+			"horarioSaida": "17:00:00",
+			"atividades": [
+				"Acessar arquivos diversos e auxiliar na execução de rotinas da área",
+				"Acompanhamento e pagamento de notas fiscais e acompanhamento orçamentário",
+				"Auxiliar nas rotinas administrativas"
+			],
+			"requisitos": {
+				"semestreInicio": 5,
+				"semestreFinal": 14,
+				"escolas": null
+			},
+			"nivelEscolar": "SU",
+			"logo": null
+		},
+		{
+			"codigoVaga": 6280411,
+			"tipoVaga": "ESTAGIO",
+			"nomeEmpresa": "CANP MED- CENTRO DE AVALIAÇÃO NEUROPSICOLÓGICA, PSICODIAGNÓSTICO E MEDICINA LTDA",
+			"areaAtuacao": null,
+			"areaProfissional": "Psicologia",
+			"salario": null,
+			"bolsaAuxilio": 600,
+			"quantidadeBeneficios": 1,
+			"tipoAuxilioBolsa": "Mensal",
+			"tipoValorBolsa": "FIXO",
+			"tipoSalarioValor": null,
+			"tipoSalario": null,
+			"bolsaAuxilioDe": null,
+			"bolsaAuxilioAte": null,
+			"salarioDe": null,
+			"salarioAte": null,
+			"beneficios": [],
+			"descricao": "Atividade médica ambulatorial restrita a consultas",
+			"local": {
+				"tipoLogradouro": null,
+				"endereco": null,
+				"numero": null,
+				"bairro": "Triângulo",
+				"complemento": null,
+				"cep": null,
+				"cidade": "Juazeiro do Norte",
+				"uf": "CE"
+			},
+			"tipoHorario": "DEFINIDO",
+			"horarioEntrada": "12:00:00",
+			"horarioSaida": "18:00:00",
+			"atividades": [
+				"Auxiliar no atendimento ao público",
+				"Auxiliar no atendimento telefônico",
+				"Acompanhar atendimentos em ambiente clínico das equipes multidisciplinares"
+			],
+			"requisitos": {
+				"semestreInicio": 1,
+				"semestreFinal": 6,
+				"escolas": null
+			},
+			"nivelEscolar": "SU",
+			"logo": null
+		}
+	],
+	"pageable": {
+		"sort": {
+			"sorted": true,
+			"unsorted": false
+		},
+		"pageNumber": 0,
+		"pageSize": 1000,
+		"offset": 0,
+		"unpaged": false,
+		"paged": true
+	},
+	"last": true,
+	"totalElements": 3,
+	"totalPages": 3,
+	"first": true,
+	"sort": {
+		"sorted": true,
+		"unsorted": false
+	},
+	"numberOfElements": 3,
+	"size": 1000,
+	"number": 0
+}
