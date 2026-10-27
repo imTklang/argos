@@ -14,7 +14,7 @@
 		"typecheck": "pnpm -r typecheck",
 		"db:generate": "pnpm --filter @radar/db generate",
 		"db:migrate": "pnpm --filter @radar/db migrate",
-		"cli": "pnpm --filter @radar/cli start"
+		"cli": "tsx --env-file-if-exists=.env apps/cli/src/index.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.6.3",

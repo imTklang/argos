@@ -3,12 +3,13 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"typecheck": "tsc -p .",
-		"start": "tsx --env-file-if-exists=../../.env src/index.ts"
+		"typecheck": "tsc -p ."
 	},
 	"dependencies": {
+		"@radar/ai": "workspace:*",
 		"@radar/core": "workspace:*",
 		"@radar/db": "workspace:*",
-		"@radar/sources": "workspace:*"
+		"@radar/sources": "workspace:*",
+		"unpdf": "^1.9.1"
 	}
 }

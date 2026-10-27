@@ -15,6 +15,7 @@ apps/
   api/        # servidor Fastify + jobs agendados (Fase 2)
   cli/        # comandos de linha de comando
 packages/
+  ai/         # chamadas ao Claude (extração de perfil, pontuação)
   core/       # tipos e schemas Zod
   db/         # schema Drizzle, migrations, cliente SQLite
   sources/    # adapters de fontes de vagas
@@ -30,4 +31,11 @@ pnpm test
 pnpm lint
 pnpm typecheck
 pnpm cli
+```
+
+## Comandos
+
+```sh
+pnpm cli profile import ./data/curriculo.pdf   # lê o currículo e gera o perfil
+pnpm cli profile import ./data/curriculo.pdf --force   # extrai de novo
 ```
