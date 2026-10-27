@@ -12,3 +12,6 @@ export interface JobSource<Raw = unknown> {
 	fetchJobs(query: SearchQuery): Promise<Raw[]>;
 	normalize(raw: Raw): Job;
 }
+
+export * from "./gupy.ts";
+export { USER_AGENT } from "./util.ts";

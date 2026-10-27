@@ -1,0 +1,65 @@
+{
+	"data": [
+		{
+			"id": 12739069,
+			"name": "Estagiário(a) - Central de Operações: Atendimento às Empresas",
+			"applicationDeadline": "2026-11-13T00:00:00.000Z",
+			"description": "O Centro de Integração Empresa Escola - CIEE é uma instituição filantrópica sem fins lucrativos e de fins não econômicos, reconhecida como entidade de assistência social que, por meio de diversos programas, dentre eles o de aprendizagem e o estágio de estudantes, possibilita aos adolescentes e jovens uma formação integral, ingressando-os ao mundo do trabalho.O CIEE tem um programa de diversidade que acolhe e respeita como você é e como quiser ser!Responsabilidades e atribuiçõesAtender empresas&nbsp; para cadastramento e divulgação de oportunidades.Atualizar cadastro de clientes;Cadastrar dados",
+			"careerPageName": "CIEE - Centro de Integração Empresa-Escola",
+			"careerPageLogo": "https://attachments.gupy.io/production/companies/1685/career/2754/images/2023-08-08_13-22_companyLogoUrl.jpg",
+			"careerPageUrl": "",
+			"type": "vacancy_type_internship",
+			"publishedDate": "2026-10-26T20:44:47.063Z",
+			"workplaceType": "remote",
+			"city": "",
+			"state": "",
+			"jobUrl": "https://ciee.gupy.io/job/eyJqb2JJZCI6MTI3MzkwNjksInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+			"badges": {
+				"friendlyBadge": true,
+				"isPWD": false
+			},
+			"disabilities": false
+		},
+		{
+			"id": 12785889,
+			"name": "Programa de Estágio Honda 2027 - Cidade de Sumaré ",
+			"applicationDeadline": "2026-11-09T00:00:00.000Z",
+			"description": "Dedicamo-nos a oferecer soluções de mobilidade que&nbsp;proporcionem&nbsp;experiências&nbsp;únicas por meio de nossos produtos e serviços.E isso só é possível porque temos uma&nbsp;equipe incrível, com&nbsp;brilho&nbsp;nos&nbsp;olhos&nbsp;e&nbsp;vontade&nbsp;de&nbsp;realizar!É assim que fazemos acontecer! Inspirados pelo Poder dos Sonhos e movidos pelas crenças fundamentais da nossa Filosofia:&nbsp;#respeitoaoindivíduo,&nbsp;#iniciativa,&nbsp;#igualdade&nbsp;e&nbsp;#confiança,&nbsp;temos contribuído para tornar a Honda uma empresa única, inovadora e desejada pela sociedade.A&nbsp;Honda&nbsp;va",
+			"careerPageName": "Programa de Estágio Honda 2027",
+			"careerPageLogo": "https://attachments.gupy.io/production/companies/48910/career/164917/images/2023-11-13_21-17_companyLogoUrl.jpg",
+			"careerPageUrl": "",
+			"type": "vacancy_type_internship",
+			"publishedDate": "2026-10-26T21:16:52.099Z",
+			"workplaceType": "hybrid",
+			"city": "São Paulo",
+			"state": "São Paulo",
+			"jobUrl": "https://estagiohonda.gupy.io/job/eyJqb2JJZCI6MTI3ODU4ODksInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+			"disabilities": true
+		},
+		{
+			"id": 12780346,
+			"name": "Programa de Estágio MRV&CO | Engenharia Civil, Produção e Arquitetura - Anápolis",
+			"applicationDeadline": "2026-12-24T00:00:00.000Z",
+			"description": "Que tal sonhar mais alto e começar a construir o seu futuro agora?🚀 Programa de Estágio MRV&amp;CO 2026 🚀Estamos de portas abertas para talentos dispostos a transformar sonhos em realidade e construir o futuro do Brasil de Norte a Sul. Aqui, você não vai só aprender: vai viver experiências práticas e se desenvolver para se tornar um profissional completo. Buscamos estudantes curiosos, comprometidos com o aprendizado contínuo, proativos, éticos e com vontade de crescer dentro da construção civil.Falar da MRV&amp;CO (MRV, Urba, Luggo, Sensia e Resia) é dizer muito mais do que os títulos que re",
+			"careerPageName": "Programa de Estágio MRV&CO",
+			"careerPageLogo": "https://attachments.gupy.io/production/companies/58909/career/221704/images/2025-08-18_20-53_companyLogoUrl.png",
+			"careerPageUrl": "",
+			"type": "vacancy_type_internship",
+			"publishedDate": "2026-10-27T01:58:23.641Z",
+			"workplaceType": "on-site",
+			"city": "Anápolis",
+			"state": "Goiás",
+			"jobUrl": "https://programadeestagiomrveco.gupy.io/job/eyJqb2JJZCI6MTI3ODAzNDYsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+			"badges": {
+				"friendlyBadge": true,
+				"isPWD": true
+			},
+			"disabilities": true
+		}
+	],
+	"pagination": {
+		"total": 3,
+		"limit": 100,
+		"offset": 0
+	}
+}

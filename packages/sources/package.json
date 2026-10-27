@@ -9,6 +9,7 @@
 		"typecheck": "tsc -p ."
 	},
 	"dependencies": {
-		"@radar/core": "workspace:*"
+		"@radar/core": "workspace:*",
+		"zod": "4.6.7"
 	}
 }
