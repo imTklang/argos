@@ -105,6 +105,7 @@ describe("solides normalize", () => {
 		expect(presencial?.modality).toBe("presencial");
 		expect(remoto?.modality).toBe("remoto");
 		expect(hibrido?.modality).toBe("híbrido");
+		expect(presencial?.level).toBe("estágio");
 	});
 
 	it("builds the public job URL from slug and id", () => {

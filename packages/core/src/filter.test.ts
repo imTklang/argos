@@ -62,6 +62,22 @@ describe("hardFilter", () => {
 		});
 	});
 
+	it("rejects jobs whose structured level is not an internship", () => {
+		expect(hardFilter(job({ level: "júnior" }), prefs, now)).toEqual({
+			pass: false,
+			reason: "não é estágio",
+		});
+	});
+
+	it("lets a known internship skip the mandatory word", () => {
+		const labeled = job({
+			level: "estágio",
+			title: "Desenvolvedor Backend",
+			description: "Node e TypeScript no dia a dia.",
+		});
+		expect(hardFilter(labeled, prefs, now).pass).toBe(true);
+	});
+
 	it("accepts remote jobs anywhere", () => {
 		const remote = job({ location: null, modality: "remoto" });
 		expect(hardFilter(remote, prefs, now).pass).toBe(true);

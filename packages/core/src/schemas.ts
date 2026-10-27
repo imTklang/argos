@@ -45,6 +45,16 @@ export const Preferences = z.object({
 });
 export type Preferences = z.infer<typeof Preferences>;
 
+export const Level = z.enum([
+	"estágio",
+	"trainee",
+	"júnior",
+	"pleno",
+	"sênior",
+	"especialista",
+]);
+export type Level = z.infer<typeof Level>;
+
 export const Job = z.object({
 	source: z.string(),
 	externalId: z.string(),
@@ -56,6 +66,8 @@ export const Job = z.object({
 	url: z.url(),
 	publishedAt: z.date().nullable(),
 	expiresAt: z.date().nullable(),
+	/** Seniority from structured data (source type, labels), not free text. */
+	level: Level.nullable().optional(),
 });
 export type Job = z.infer<typeof Job>;
 

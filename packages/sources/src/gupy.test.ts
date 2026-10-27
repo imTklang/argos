@@ -109,6 +109,14 @@ describe("gupy normalize", () => {
 		expect(onSite?.modality).toBe("presencial");
 	});
 
+	it("leaves the level unknown for non-internship types", () => {
+		const raw = GupyJob.parse({
+			...fixture.data[0],
+			type: "vacancy_type_effective",
+		});
+		expect(source.normalize(raw).level).toBeNull();
+	});
+
 	it("leaves modality null for old postings without a workplace type", () => {
 		const { workplaceType: _, ...old } = fixture.data[0] ?? {};
 		expect(source.normalize(GupyJob.parse(old)).modality).toBeNull();
@@ -127,6 +135,7 @@ describe("gupy normalize", () => {
 	it("parses dates", () => {
 		expect(hybrid?.publishedAt).toBeInstanceOf(Date);
 		expect(hybrid?.expiresAt).toBeInstanceOf(Date);
+		expect(hybrid?.level).toBe("estágio");
 		expect(hybrid?.externalId).toBe(String(fixture.data[1]?.id));
 	});
 });

@@ -1,6 +1,7 @@
 import type {
 	JobScore,
 	JobStatus,
+	Level,
 	Modality,
 	Preferences,
 	Profile,
@@ -46,6 +47,7 @@ export const jobs = sqliteTable(
 		url: text("url").notNull(),
 		publishedAt: integer("published_at", { mode: "timestamp" }),
 		expiresAt: integer("expires_at", { mode: "timestamp" }),
+		level: text("level").$type<Level>(),
 		// hash(company + title + url): dedup across sources
 		hash: text("hash").notNull().unique(),
 		createdAt: createdAt(),

@@ -106,6 +106,8 @@ export function createGupySource(opts: GupyOptions = {}): JobSource<GupyJob> {
 				expiresAt: raw.applicationDeadline
 					? new Date(raw.applicationDeadline)
 					: null,
+				// The search asks for internships; this guards mislabeled results.
+				level: raw.type === "vacancy_type_internship" ? "estágio" : null,
 			};
 		},
 	};

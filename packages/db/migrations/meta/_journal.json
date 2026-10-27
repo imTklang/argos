@@ -15,6 +15,13 @@
 			"when": 1793070414489,
 			"tag": "0001_youthful_doctor_octopus",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "6",
+			"when": 1793072813338,
+			"tag": "0002_mysterious_gunslinger",
+			"breakpoints": true
 		}
 	]
 }
