@@ -26,6 +26,11 @@ function where(item: NotifiableJob): string {
 	return [item.job.modality, item.job.location].filter(Boolean).join(" · ");
 }
 
+// Himalayas API terms ask for a visible link back to the source.
+const ATTRIBUTION: Record<string, string> = {
+	himalayas: `<a href="https://himalayas.app">via Himalayas</a>`,
+};
+
 export function formatJob(item: NotifiableJob): string {
 	const { job, score } = item;
 	const lines = [
@@ -40,19 +45,40 @@ export function formatJob(item: NotifiableJob): string {
 	if (score.missingSkills.length > 0) {
 		lines.push(`➕ ${escapeHtml(score.missingSkills.join(", "))}`);
 	}
-	lines.push("", `<a href="${escapeHtml(job.url)}">Ver vaga</a>`);
+	const via = ATTRIBUTION[job.source];
+	lines.push(
+		"",
+		`<a href="${escapeHtml(job.url)}">Ver vaga</a>${via ? ` · ${via}` : ""}`,
+	);
 	return lines.join("\n");
 }
 
+function digestLine(item: NotifiableJob): string {
+	const { job, score } = item;
+	const via = ATTRIBUTION[job.source];
+	return `\n<b>${score.score}</b> · <a href="${escapeHtml(job.url)}">${escapeHtml(job.title)}</a> — ${escapeHtml(job.company)}${where(item) ? ` · ${escapeHtml(where(item))}` : ""}${via ? ` · ${via}` : ""}`;
+}
+
+/** Jobs in Brazil first; remote jobs abroad in their own section after. */
 export function formatDigest(items: NotifiableJob[]): string {
-	const header = `📋 <b>Resumo do dia</b>: ${items.length} ${items.length === 1 ? "vaga" : "vagas"}\n`;
-	let text = header;
+	const local = items.filter((i) => !i.job.abroad);
+	const abroad = items.filter((i) => i.job.abroad);
+	let text = `📋 <b>Resumo do dia</b>: ${items.length} ${items.length === 1 ? "vaga" : "vagas"}\n`;
 	let shown = 0;
-	for (const item of items) {
-		const line = `\n<b>${item.score.score}</b> · <a href="${escapeHtml(item.job.url)}">${escapeHtml(item.job.title)}</a> — ${escapeHtml(item.job.company)}${where(item) ? ` · ${escapeHtml(where(item))}` : ""}`;
-		if (text.length + line.length > DIGEST_LIMIT) break;
-		text += line;
-		shown++;
+	const sections: [string | null, NotifiableJob[]][] = [
+		[local.length > 0 && abroad.length > 0 ? "🇧🇷 <b>Brasil</b>" : null, local],
+		["🌎 <b>Remoto no exterior</b>", abroad],
+	];
+	for (const [title, group] of sections) {
+		if (group.length === 0) continue;
+		if (title) text += `\n${title}`;
+		for (const item of group) {
+			const line = digestLine(item);
+			if (text.length + line.length > DIGEST_LIMIT) break;
+			text += line;
+			shown++;
+		}
+		if (title) text += "\n";
 	}
 	if (shown < items.length) {
 		text += `\n\n…e mais ${items.length - shown}.`;

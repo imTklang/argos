@@ -35,6 +35,7 @@ function seed(
 	db: ReturnType<typeof createDb>,
 	n: number,
 	score: number | null,
+	abroad = false,
 ) {
 	const { id } = db
 		.insert(jobs)
@@ -50,6 +51,7 @@ function seed(
 			publishedAt: null,
 			expiresAt: null,
 			hash: `h${n}`,
+			abroad,
 		})
 		.returning({ id: jobs.id })
 		.get();
@@ -109,6 +111,21 @@ describe("pending notifications", () => {
 		seed(db, 3, null);
 		expect(pendingDigest(db, prefs).map((i) => i.job.title)).toEqual([
 			"Estágio 1",
+		]);
+	});
+
+	it("never alerts jobs abroad and lists them after Brazil in the digest", () => {
+		const db = createDb(":memory:");
+		seed(db, 1, 95, true);
+		seed(db, 2, 72);
+		seed(db, 3, 80, true);
+		expect(pendingAlerts(db, prefs)).toHaveLength(0);
+		expect(
+			pendingDigest(db, prefs).map((i) => [i.score.score, i.job.abroad]),
+		).toEqual([
+			[72, false],
+			[95, true],
+			[80, true],
 		]);
 	});
 

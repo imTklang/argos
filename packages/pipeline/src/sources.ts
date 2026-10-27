@@ -5,6 +5,7 @@ import {
 	createGitHubSource,
 	createGreenhouseSource,
 	createGupySource,
+	createHimalayasSource,
 	createLeverSource,
 	createSolidesSource,
 	type JobSource,
@@ -35,6 +36,7 @@ export function createSources(
 		}),
 		createLeverSource({ companies: config.ats.lever, onMissingBoard }),
 		createAshbySource({ companies: config.ats.ashby, onMissingBoard }),
+		createHimalayasSource({ apiKey: env.HIMALAYAS_API_KEY || undefined }),
 	];
 }
 

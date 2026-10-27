@@ -97,6 +97,7 @@ describe("runCycle", () => {
 		expect(score).toHaveBeenCalledWith(
 			expect.objectContaining({ title: "Estágio Backend" }),
 			profile,
+			{ companyInternships: 0 },
 		);
 		expect(result.alerts).toBe(1);
 		expect(m.sendJob).toHaveBeenCalledTimes(1);

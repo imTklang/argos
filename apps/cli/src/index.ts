@@ -21,7 +21,7 @@ const usage = `Radar de Estágio
 Uso:
   pnpm cli profile import <curriculo.pdf> [--force]   Lê o currículo e gera o perfil
   pnpm cli prefs init [--force]                       Gera preferências a partir do perfil
-  pnpm cli scan [--max N] [--source ID]...            Busca e pontua vagas (fontes: gupy, solides, ciee, github, greenhouse, lever, ashby)`;
+  pnpm cli scan [--max N] [--source ID]...            Busca e pontua vagas (fontes: gupy, solides, ciee, github, greenhouse, lever, ashby, himalayas)`;
 
 function openDb() {
 	return createDb(process.env.DATABASE_PATH ?? "./data/radar.db");
@@ -75,7 +75,7 @@ async function scan(args: string[]) {
 			values.source,
 		),
 		preferences,
-		score: (job) => scoreJob(client, context, job),
+		score: (job, hints) => scoreJob(client, context, job, hints),
 		maxScored: values.max
 			? Number.parseInt(values.max, 10)
 			: intFromEnv("SCAN_MAX_JOBS", 50),

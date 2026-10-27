@@ -152,6 +152,43 @@ describe("runScan", () => {
 		expect(second.scored).toHaveLength(3);
 	});
 
+	it("tells the scorer how many internships the company has open", async () => {
+		const db = createDb(":memory:");
+		const score = vi.fn().mockResolvedValue(scoreOf(80));
+		const posts = [1, 2, 3].map((id) =>
+			makeJob(id, { company: "Massa", level: "estágio" }),
+		);
+
+		await runScan({ ...options, db, sources: [fakeSource(posts)], score });
+
+		expect(score).toHaveBeenCalledWith(expect.anything(), {
+			companyInternships: 3,
+		});
+	});
+
+	it("scores jobs in Brazil before jobs abroad when a limit cuts", async () => {
+		const db = createDb(":memory:");
+		const score = vi.fn().mockResolvedValue(scoreOf(80));
+
+		const report = await runScan({
+			...options,
+			preferences: { ...preferences, abroad: "remote" },
+			db,
+			sources: [
+				fakeSource([
+					makeJob(1, { abroad: true, level: "estágio" }),
+					makeJob(2),
+				]),
+			],
+			score,
+			concurrency: 1,
+			maxScored: 1,
+		});
+
+		expect(report.scored.map((s) => s.job.externalId)).toEqual(["2"]);
+		expect(report.deferred).toBe(1);
+	});
+
 	it("stops at the daily token limit", async () => {
 		const db = createDb(":memory:");
 		const score = vi.fn().mockResolvedValue(scoreOf(80));
