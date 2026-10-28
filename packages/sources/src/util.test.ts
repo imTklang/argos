@@ -46,7 +46,7 @@ describe("politeFetch", () => {
 		await politeFetch("https://x", { accept: "a" }, { fetch, sleep: vi.fn() });
 		expect(fetch.mock.calls[0]?.[1].headers).toMatchObject({
 			accept: "a",
-			"user-agent": expect.stringMatching(/radar-estagio/),
+			"user-agent": expect.stringMatching(/argos\//),
 		});
 	});
 });

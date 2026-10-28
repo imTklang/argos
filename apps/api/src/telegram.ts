@@ -170,7 +170,7 @@ export function registerHandlers(
 	bot.command("start", (ctx) =>
 		ctx.reply(
 			chatId
-				? "Radar de Estágio ativo. As vagas chegam aqui às 8h e às 18h."
+				? "Argos ativo. As vagas chegam aqui às 8h e às 18h."
 				: `O ID deste chat é <code>${ctx.chat.id}</code>.\nColoque <code>TELEGRAM_CHAT_ID=${ctx.chat.id}</code> no .env e reinicie o worker.`,
 			{ parse_mode: "HTML" },
 		),

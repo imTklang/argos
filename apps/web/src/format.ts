@@ -58,3 +58,16 @@ export function fromNow(iso: string | null, now = new Date()): string | null {
 		return relative.format(Math.round(days / 7), "week");
 	return relative.format(days, "day");
 }
+
+/** "há 5 minutos", "há 3 horas", "ontem": for things that just happened. */
+export function ago(iso: string | null, now = new Date()): string | null {
+	if (!iso) return null;
+	const minutes = Math.round(
+		(new Date(iso).getTime() - now.getTime()) / 60_000,
+	);
+	if (Math.abs(minutes) < 1) return "agora";
+	if (Math.abs(minutes) < 60) return relative.format(minutes, "minute");
+	if (Math.abs(minutes) < 24 * 60)
+		return relative.format(Math.round(minutes / 60), "hour");
+	return fromNow(iso, now);
+}

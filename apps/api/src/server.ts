@@ -31,6 +31,11 @@ export type ServerOptions = {
 	/** Built dashboard (apps/web/dist) to serve at "/", when present. */
 	webRoot?: string;
 	logger?: boolean;
+	/**
+	 * Read-only demo for sharing through a tunnel: any Host, no writes, and
+	 * personal notes and cover letters hidden.
+	 */
+	demo?: boolean;
 };
 
 /** "a,b,c" query values as a list. */
@@ -71,6 +76,12 @@ export function buildServer(opts: ServerOptions) {
 	// - the custom header on writes forces a CORS preflight that this API never
 	//   grants, so another site cannot trigger paid cover letters or edits.
 	app.addHook("onRequest", async (req, reply) => {
+		if (opts.demo) {
+			if (MUTATING.has(req.method)) {
+				return reply.code(403).send({ error: "Demonstração: só leitura" });
+			}
+			return;
+		}
 		if (!LOOPBACK_HOSTS.has(hostname(req.headers.host))) {
 			return reply
 				.code(403)
@@ -90,13 +101,17 @@ export function buildServer(opts: ServerOptions) {
 	app.setSerializerCompiler(serializerCompiler);
 	const api = app.withTypeProvider<ZodTypeProvider>();
 
-	api.get("/api/jobs", { schema: { querystring: JobsQuery } }, (req) =>
-		listJobs(opts.db, req.query),
-	);
+	api.get("/api/jobs", { schema: { querystring: JobsQuery } }, (req) => {
+		const page = listJobs(opts.db, req.query);
+		return opts.demo
+			? { ...page, items: page.items.map((job) => ({ ...job, note: null })) }
+			: page;
+	});
 
 	api.get("/api/jobs/:id", { schema: { params: IdParams } }, (req, reply) => {
 		const job = getJob(opts.db, req.params.id);
-		return job ?? reply.code(404).send({ error: "Vaga não encontrada" });
+		if (!job) return reply.code(404).send({ error: "Vaga não encontrada" });
+		return opts.demo ? { ...job, note: null, coverLetter: null } : job;
 	});
 
 	api.patch(
