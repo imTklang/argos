@@ -40,7 +40,7 @@ Não é objetivo: candidatar-se automaticamente. A candidatura é sempre manual.
 Estrutura sugerida (monorepo simples com pnpm workspaces):
 
 ```
-radar-estagio/
+argos/
   apps/
     api/        # Fastify + jobs agendados
     web/        # React (fase 3)

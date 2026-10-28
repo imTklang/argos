@@ -48,7 +48,7 @@ describe("github fetchJobs", () => {
 		expect(url).toContain("per_page=100");
 		expect(url).not.toContain("since=");
 		expect(init.headers.authorization).toBe("Bearer t0k3n");
-		expect(init.headers["user-agent"]).toMatch(/radar-estagio/);
+		expect(init.headers["user-agent"]).toMatch(/argos\//);
 	});
 
 	it("only asks for issues updated since the last good scan", async () => {

@@ -1,5 +1,5 @@
 {
-	"name": "radar-estagio",
+	"name": "argos",
 	"private": true,
 	"type": "module",
 	"packageManager": "pnpm@12.8.1",

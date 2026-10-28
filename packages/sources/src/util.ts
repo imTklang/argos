@@ -1,7 +1,6 @@
 import { type Modality, normalizeText } from "@radar/core";
 
-export const USER_AGENT =
-	"radar-estagio/0.1 (+https://github.com/imTklang/radar-estagio)";
+export const USER_AGENT = "argos/0.1 (+https://github.com/imTklang/argos)";
 
 const NAMED: Record<string, string> = {
 	amp: "&",
