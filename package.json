@@ -15,7 +15,10 @@
 		"db:generate": "pnpm --filter @radar/db generate",
 		"db:migrate": "pnpm --filter @radar/db migrate",
 		"cli": "tsx --env-file-if-exists=.env apps/cli/src/index.ts",
-		"worker": "tsx --env-file-if-exists=.env apps/api/src/worker.ts"
+		"worker": "tsx --env-file-if-exists=.env apps/api/src/worker.ts",
+		"api": "tsx --env-file-if-exists=.env apps/api/src/serve.ts",
+		"web": "pnpm --filter @radar/web dev",
+		"build:web": "pnpm --filter @radar/web build"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.6.3",

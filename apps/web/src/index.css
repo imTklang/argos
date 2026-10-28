@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+/* Colors come from tokens so light and dark stay in step. */
+@theme {
+	--color-bg: oklch(98.5% 0.003 250);
+	--color-surface: oklch(100% 0 0);
+	--color-sunken: oklch(96.5% 0.004 250);
+	--color-line: oklch(91% 0.006 250);
+	/* Borders that outline a control, not just separate content: 3:1. */
+	--color-control: oklch(62% 0.01 260);
+	--color-ink: oklch(22% 0.02 260);
+	--color-muted: oklch(50% 0.015 260);
+	--color-accent: oklch(52% 0.17 262);
+	--color-accent-soft: oklch(95% 0.03 262);
+	--color-on-accent: oklch(100% 0 0);
+	--color-good: oklch(52% 0.13 155);
+	--color-good-soft: oklch(95% 0.04 155);
+	--color-fair: oklch(47% 0.1 230);
+	--color-fair-soft: oklch(95% 0.03 230);
+	--color-warn: oklch(49% 0.12 65);
+	--color-warn-soft: oklch(96% 0.05 85);
+	--color-bad: oklch(55% 0.18 25);
+	--color-bad-soft: oklch(96% 0.03 25);
+
+	--font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+	/* Strong curves: built-in easings feel limp (see emil-design-eng). */
+	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+	--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+	--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-bg: oklch(17% 0.01 260);
+		--color-surface: oklch(21% 0.012 260);
+		--color-sunken: oklch(19% 0.01 260);
+		--color-line: oklch(29% 0.012 260);
+		--color-control: oklch(53% 0.012 260);
+		--color-ink: oklch(94% 0.005 260);
+		--color-muted: oklch(70% 0.012 260);
+		--color-accent: oklch(72% 0.14 262);
+		--color-accent-soft: oklch(30% 0.06 262);
+		/* The dark accent is light, so text on it goes dark. */
+		--color-on-accent: oklch(18% 0.02 262);
+		--color-good: oklch(75% 0.13 155);
+		--color-good-soft: oklch(30% 0.05 155);
+		--color-fair: oklch(75% 0.09 230);
+		--color-fair-soft: oklch(30% 0.04 230);
+		--color-warn: oklch(80% 0.13 80);
+		--color-warn-soft: oklch(32% 0.05 80);
+		--color-bad: oklch(72% 0.15 25);
+		--color-bad-soft: oklch(31% 0.06 25);
+	}
+}
+
+html {
+	background: var(--color-bg);
+	color: var(--color-ink);
+	-webkit-font-smoothing: antialiased;
+}
+
+/* Pressable things answer the press. */
+.pressable {
+	transition: transform 160ms var(--ease-out);
+}
+.pressable:active:not(:disabled) {
+	transform: scale(0.97);
+}
+
+/* Hover only where there is a real pointer; taps would leave it stuck. */
+@media (hover: hover) and (pointer: fine) {
+	.hoverable:hover {
+		background: var(--color-sunken);
+	}
+}
+
+:focus-visible {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
+}
+
+/* Side panel: slides from its edge, exits faster than it enters. */
+.drawer {
+	transform: translateX(0);
+	transition: transform 300ms var(--ease-drawer);
+	@starting-style {
+		transform: translateX(100%);
+	}
+}
+.drawer-backdrop {
+	opacity: 1;
+	transition: opacity 200ms var(--ease-out);
+	@starting-style {
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pressable:active:not(:disabled) {
+		transform: none;
+	}
+	.drawer {
+		transition: opacity 150ms ease;
+		@starting-style {
+			transform: none;
+			opacity: 0;
+		}
+	}
+}

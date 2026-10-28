@@ -1,3 +1,4 @@
+export * from "./api.ts";
 export * from "./dedupe.ts";
 export * from "./filter.ts";
 export * from "./hash.ts";
