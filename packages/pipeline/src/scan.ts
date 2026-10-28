@@ -171,7 +171,7 @@ export async function runScan(opts: ScanOptions): Promise<ScanReport> {
 		report.sources.push(await collect(db, source, preferences));
 	}
 	// Duplicates are never scored or notified; their original already is.
-	report.duplicates = markDuplicates(db);
+	report.duplicates = markDuplicates(db, now);
 
 	// Every unscored job is re-filtered, not only the new ones, so jobs left
 	// behind by a limit or by older preferences get another chance.
