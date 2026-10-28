@@ -74,6 +74,32 @@ describe("markDuplicates", () => {
 		});
 	});
 
+	it("treats a repost of an expired or stale posting as a new opening", () => {
+		const db = createDb(":memory:");
+		const now = new Date("2026-10-28T12:00:00Z");
+		const expired = insert(db, 1, {
+			expiresAt: new Date("2026-10-01T00:00:00Z"),
+		});
+		const repost = insert(db, 2);
+		const stale = insert(db, 3, {
+			title: "Estágio Backend",
+			publishedAt: new Date("2026-03-01T00:00:00Z"),
+		});
+		const fresh = insert(db, 4, { title: "Estágio Backend" });
+		const repostAgain = insert(db, 5);
+
+		markDuplicates(db, now);
+
+		expect(duplicateOf(db)).toEqual({
+			[expired]: null,
+			[repost]: null,
+			[stale]: null,
+			[fresh]: null,
+			// Later reposts link to the posting that is still current.
+			[repostAgain]: repost,
+		});
+	});
+
 	it("only checks jobs it has not seen yet", () => {
 		const db = createDb(":memory:");
 		insert(db, 1);
