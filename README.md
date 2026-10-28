@@ -52,7 +52,7 @@ pnpm api & pnpm web                            # desenvolvimento do dashboard co
 
 ## Dashboard
 
-Lista de vagas pontuadas com a análise da IA, filtros (status, Brasil/exterior, nota mínima, busca), kanban por status com arrastar e soltar (também pelo teclado), painel de detalhe com nota pessoal e rascunho de mensagem de apresentação gerado sob demanda pelo Claude Sonnet 5.5, e editor de preferências. A API escuta só em `127.0.0.1`: não há login, então o dashboard não deve ser exposto na rede.
+Visual no estilo Apple (macOS no computador, iOS 27 no celular): listas inteligentes como caixas do Mail (Para você, Novas, Salvas, Candidaturas, Descartadas), detalhe da vaga ao lado da lista em telas largas ou em painel nas menores, quadro por status com arrastar e soltar (também pelo teclado) e Ajustes no estilo do app Ajustes do iPhone. O detalhe traz a análise da IA, nota pessoal e rascunho de mensagem de apresentação gerado sob demanda pelo Claude Sonnet 5.5. A API escuta só em `127.0.0.1`: não há login, então o dashboard não deve ser exposto na rede. Guia completo em [docs/dashboard.md](docs/dashboard.md).
 
 ## Telegram
 

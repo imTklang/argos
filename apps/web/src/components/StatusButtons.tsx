@@ -1,13 +1,33 @@
 import type { JobStatus } from "@radar/core";
-import { Bookmark, Check, X } from "lucide-react";
+import { Bookmark, CircleCheck, CircleX } from "lucide-react";
 import { toast } from "sonner";
 import { useUpdateStatus } from "../api.ts";
 import { STATUS_LABEL } from "../format.ts";
 
-const ACTIONS: { status: JobStatus; label: string; Icon: typeof Check }[] = [
-	{ status: "salva", label: "Salvar", Icon: Bookmark },
-	{ status: "candidatei", label: "Candidatei", Icon: Check },
-	{ status: "descartada", label: "Descartar", Icon: X },
+const ACTIONS: {
+	status: JobStatus;
+	label: string;
+	Icon: typeof Bookmark;
+	on: string;
+}[] = [
+	{
+		status: "salva",
+		label: "Salvar",
+		Icon: Bookmark,
+		on: "bg-accent-soft text-accent",
+	},
+	{
+		status: "candidatei",
+		label: "Candidatei",
+		Icon: CircleCheck,
+		on: "bg-good-soft text-good",
+	},
+	{
+		status: "descartada",
+		label: "Descartar",
+		Icon: CircleX,
+		on: "bg-bad-soft text-bad",
+	},
 ];
 
 export function StatusButtons({
@@ -34,9 +54,9 @@ export function StatusButtons({
 	};
 
 	return (
-		<fieldset className="flex flex-wrap gap-1.5">
+		<fieldset className="grid grid-cols-3 gap-2">
 			<legend className="sr-only">Status da vaga</legend>
-			{ACTIONS.map(({ status: value, label, Icon }) => {
+			{ACTIONS.map(({ status: value, label, Icon, on }) => {
 				const active = status === value;
 				return (
 					<button
@@ -44,13 +64,15 @@ export function StatusButtons({
 						type="button"
 						aria-pressed={active}
 						onClick={() => change(value)}
-						className={`pressable inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-sm ${
-							active
-								? "border-accent bg-accent-soft text-accent"
-								: "hoverable border-control text-muted"
+						className={`pressable flex flex-col items-center gap-1 rounded-xl py-2.5 text-[13px] font-medium ${
+							active ? on : "hoverable bg-surface text-ink"
 						}`}
 					>
-						<Icon aria-hidden size={14} />
+						<Icon
+							aria-hidden
+							size={20}
+							fill={active && value === "salva" ? "currentColor" : "none"}
+						/>
 						{label}
 					</button>
 				);
