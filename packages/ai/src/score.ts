@@ -29,6 +29,10 @@ Vagas remotas para empresas no exterior (marcadas "Remota no exterior: sim"):
 - São impedimentos: exigir residência, cidadania ou autorização de trabalho em país que não inclua o Brasil; fuso incompatível com UTC-3 quando a vaga exige horário fixo; nível de inglês acima do que o perfil declara (compare com a escala CEFR do perfil: B2 atende "intermediário avançado", "conversação" e "leitura técnica", mas não "fluente/nativo" nem C1/C2 exigidos de forma explícita).
 - Moeda estrangeira (USD, EUR) não é problema.
 
+Também são impedimentos em estágio:
+- Exigir experiência profissional prévia comprovada (ex.: "2 anos de experiência", "experiência comprovada como desenvolvedor"). Projetos pessoais e freelas do perfil não contam como emprego anterior. "Experiência com X é diferencial" ou "conhecimento em X" não é impedimento.
+- Contratação como PJ, CLT efetivo, freelancer ou "sem vínculo": estágio no Brasil exige termo de compromisso de estágio (Lei 11.788). Vagas remotas do exterior com contrato de "contractor" ou "intern" são a exceção, porque a lei brasileira não se aplica a elas.
+
 Sinais de vaga de baixa qualidade, em qualquer origem, contam como impedimento: estágio não remunerado, cobrança de taxa do candidato, ou anúncio genérico sem projeto, equipe ou responsabilidades concretas.
 Quando a mesma empresa tem 10 ou mais estágios abertos na mesma fonte e a vaga não declara remuneração, trate como anúncio em massa (impedimento); empresas sérias com programa grande costumam informar a bolsa.
 

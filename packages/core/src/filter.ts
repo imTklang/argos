@@ -1,3 +1,4 @@
+import { detectLevel } from "./level.ts";
 import type { Job, Preferences } from "./schemas.ts";
 import { matchKeywords, normalizeText, termPattern } from "./text.ts";
 
@@ -89,7 +90,11 @@ export function hardFilter(
 		return { pass: false, reason: "antiga" };
 	}
 
-	if (job.level && job.level !== "estágio") {
+	// Structured level when the source gives one, otherwise the title's own
+	// words ("Dev Backend Sr", "Analista III"), so a stray "estágio" in the
+	// description cannot let a senior role through.
+	const level = job.level ?? detectLevel(job.title);
+	if (level && level !== "estágio") {
 		return { pass: false, reason: "não é estágio" };
 	}
 	if (matchKeywords(job.title, prefs.keywordsBlock).length > 0) {
@@ -97,7 +102,7 @@ export function hardFilter(
 	}
 	const fullText = `${job.title}\n${job.description}`;
 	if (
-		job.level !== "estágio" &&
+		level !== "estágio" &&
 		matchKeywords(fullText, prefs.keywordsMust).length === 0
 	) {
 		return { pass: false, reason: "sem palavra obrigatória" };

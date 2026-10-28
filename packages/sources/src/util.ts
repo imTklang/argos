@@ -1,4 +1,4 @@
-import { type Level, type Modality, normalizeText } from "@radar/core";
+import { type Modality, normalizeText } from "@radar/core";
 
 export const USER_AGENT =
 	"radar-estagio/0.1 (+https://github.com/imTklang/radar-estagio)";
@@ -89,41 +89,6 @@ const MODALITY_WORDS: [RegExp, Modality][] = [
 	[/(?<![a-z])(hibrid[oa]|hybrid|semi-?presencial)(?![a-z])/, "híbrido"],
 	[/(?<![a-z-])(presencial|alocad[oa]|on-?site)(?![a-z])/, "presencial"],
 ];
-
-// Level words in titles and labels ("👶 Estágio", "Junior", "Dev Sr").
-// Matched as whole words on normalized text so "pl" or "sr" never hit inside
-// another word.
-const LEVEL_WORDS: [RegExp, Level][] = [
-	[/(?<![a-z])(estagio|estagiari[oa]s?|intern|internship)(?![a-z])/, "estágio"],
-	[/(?<![a-z])trainee(?![a-z])/, "trainee"],
-	[/(?<![a-z])(junior|jr)(?![a-z])/, "júnior"],
-	// "pl" but not "PL/SQL".
-	[/(?<![a-z])(pleno|plena|pl(?!\/))(?![a-z])/, "pleno"],
-	[/(?<![a-z])(senior|sr|iii)(?![a-z])/, "sênior"],
-	[
-		/(?<![a-z])(especialista|staff|principal|tech lead)(?![a-z])/,
-		"especialista",
-	],
-];
-
-export function levelsIn(text: string): Level[] {
-	const normalized = normalizeText(text);
-	return LEVEL_WORDS.filter(([pattern]) => pattern.test(normalized)).map(
-		([, level]) => level,
-	);
-}
-
-/**
- * Title first, then labels: the title is written per posting, labels are
- * often left over from the template. "Estágio ou Júnior" counts as estágio.
- */
-export function issueLevel(title: string, labels: string[]): Level | null {
-	for (const levels of [levelsIn(title), labels.flatMap(levelsIn)]) {
-		if (levels.includes("estágio")) return "estágio";
-		if (levels[0]) return levels[0];
-	}
-	return null;
-}
 
 // When several are named ("Remoto ou Híbrido", or contradictory labels),
 // keep the most flexible one: it is the one the candidate can take.
