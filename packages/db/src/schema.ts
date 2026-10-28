@@ -101,6 +101,16 @@ export const notifications = sqliteTable("notifications", {
 		.default(sql`(unixepoch())`),
 });
 
+export const coverLetters = sqliteTable("cover_letters", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	jobId: integer("job_id")
+		.notNull()
+		.references(() => jobs.id),
+	text: text("text").notNull(),
+	model: text("model").notNull(),
+	createdAt: createdAt(),
+});
+
 export const runs = sqliteTable("runs", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	source: text("source").notNull(),
