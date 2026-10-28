@@ -29,7 +29,7 @@ function Segmented<T extends string>({
 }) {
 	const name = useId();
 	return (
-		<fieldset className="inline-flex rounded-lg border border-line bg-surface p-0.5">
+		<fieldset className="inline-flex rounded-lg border border-control bg-surface p-0.5">
 			<legend className="sr-only">{label}</legend>
 			{options.map(([option, text]) => (
 				// Real radio inputs: arrow keys and screen readers work for free.
@@ -84,7 +84,7 @@ export function JobsPage({ onOpen }: { onOpen: (id: number) => void }) {
 	return (
 		<div className="space-y-4">
 			<div className="space-y-3 rounded-xl border border-line bg-surface p-3">
-				<label className="flex items-center gap-2 rounded-lg border border-line px-3 py-2 focus-within:border-accent">
+				<label className="flex items-center gap-2 rounded-lg border border-control px-3 py-2 focus-within:border-accent">
 					<Search aria-hidden size={16} className="text-muted" />
 					<input
 						type="search"
@@ -107,7 +107,7 @@ export function JobsPage({ onOpen }: { onOpen: (id: number) => void }) {
 								className={`pressable rounded-full border px-2.5 py-0.5 text-sm ${
 									status.includes(value)
 										? "border-accent bg-accent-soft text-accent"
-										: "border-line text-muted"
+										: "border-control text-muted"
 								}`}
 							>
 								{STATUS_LABEL[value]}
@@ -176,7 +176,7 @@ export function JobsPage({ onOpen }: { onOpen: (id: number) => void }) {
 				<button
 					type="button"
 					onClick={() => setLimit((n) => n + PAGE)}
-					className="pressable hoverable w-full rounded-lg border border-line py-2 text-sm"
+					className="pressable hoverable w-full rounded-lg border border-control py-2 text-sm"
 				>
 					Carregar mais
 				</button>

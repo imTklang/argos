@@ -60,7 +60,7 @@ function CoverLetter({
 			<button
 				type="button"
 				onClick={() => generate(false)}
-				className="pressable inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white"
+				className="pressable inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-on-accent"
 			>
 				<Sparkles aria-hidden size={15} /> Gerar rascunho
 			</button>
@@ -80,14 +80,14 @@ function CoverLetter({
 							.then(() => toast.success("Copiado"))
 							.catch(() => toast.error("Não deu para copiar"))
 					}
-					className="pressable hoverable inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-1 text-sm"
+					className="pressable hoverable inline-flex items-center gap-1.5 rounded-md border border-control px-2.5 py-1 text-sm"
 				>
 					<Copy aria-hidden size={14} /> Copiar
 				</button>
 				<button
 					type="button"
 					onClick={() => generate(true)}
-					className="pressable hoverable inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-1 text-sm text-muted"
+					className="pressable hoverable inline-flex items-center gap-1.5 rounded-md border border-control px-2.5 py-1 text-sm text-muted"
 				>
 					<RefreshCw aria-hidden size={14} /> Gerar outro
 				</button>
@@ -128,7 +128,7 @@ function Note({
 			rows={3}
 			placeholder="Ex.: enviei pelo LinkedIn em 28/10, falar com a recrutadora Ana"
 			aria-label="Nota pessoal sobre a vaga"
-			className="w-full resize-y rounded-lg border border-line bg-surface p-2.5 text-sm placeholder:text-muted"
+			className="w-full resize-y rounded-lg border border-control bg-surface p-2.5 text-sm placeholder:text-muted"
 		/>
 	);
 }

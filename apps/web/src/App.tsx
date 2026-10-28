@@ -21,10 +21,13 @@ function tabFromHash(): Tab {
 function Stats() {
 	const { data } = useStats();
 	if (!data) return null;
+	// Progress only: a count of "new" jobs would disagree with the filtered list.
 	const items: [string, number][] = [
-		["novas", data.byStatus.nova],
-		["salvas", data.byStatus.salva],
-		["candidaturas", data.byStatus.candidatei],
+		[data.byStatus.salva === 1 ? "salva" : "salvas", data.byStatus.salva],
+		[
+			data.byStatus.candidatei === 1 ? "candidatura" : "candidaturas",
+			data.byStatus.candidatei,
+		],
 	];
 	return (
 		<dl className="hidden gap-4 text-sm sm:flex">

@@ -67,7 +67,7 @@ function Field({
 }
 
 const inputClass =
-	"w-full rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none";
+	"w-full rounded-lg border border-control bg-surface px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none";
 
 export function PreferencesPage() {
 	const { data, isLoading, error } = usePreferences();
@@ -228,7 +228,7 @@ export function PreferencesPage() {
 				<button
 					type="submit"
 					disabled={save.isPending}
-					className="pressable inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+					className="pressable inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-60"
 				>
 					{save.isPending && (
 						<Loader2 aria-hidden size={15} className="animate-spin" />

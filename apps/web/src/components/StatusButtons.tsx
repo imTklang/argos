@@ -47,7 +47,7 @@ export function StatusButtons({
 						className={`pressable inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-sm ${
 							active
 								? "border-accent bg-accent-soft text-accent"
-								: "hoverable border-line text-muted"
+								: "hoverable border-control text-muted"
 						}`}
 					>
 						<Icon aria-hidden size={14} />
