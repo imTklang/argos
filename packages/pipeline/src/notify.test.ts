@@ -1,5 +1,12 @@
 import type { JobScore, Preferences } from "@radar/core";
-import { createDb, jobScores, jobStatus, jobs, notifications } from "@radar/db";
+import {
+	createDb,
+	eq,
+	jobScores,
+	jobStatus,
+	jobs,
+	notifications,
+} from "@radar/db";
 import { describe, expect, it, vi } from "vitest";
 import {
 	decide,
@@ -127,6 +134,18 @@ describe("pending notifications", () => {
 			[95, true],
 			[80, true],
 		]);
+	});
+
+	it("never notifies a duplicate, even one scored before it was linked", () => {
+		const db = createDb(":memory:");
+		const original = seed(db, 1, 90);
+		const copy = seed(db, 2, 88);
+		db.update(jobs)
+			.set({ duplicateOf: original })
+			.where(eq(jobs.id, copy))
+			.run();
+		expect(pendingAlerts(db, prefs).map((i) => i.jobId)).toEqual([original]);
+		expect(pendingDigest(db, prefs).map((i) => i.jobId)).toEqual([original]);
 	});
 
 	it("leaves out jobs the user already saved or discarded", () => {

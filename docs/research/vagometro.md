@@ -68,7 +68,7 @@ A função de coleta recebe o repositório como parâmetro, e um agendador exter
 | Decidir explicitamente sobre trainee e jovem aprendiz | **Feito**: trainee é descartado como "não é estágio" (programa para formados) |
 | Penalizar estágio que exige "experiência sólida/comprovada" | **Feito** no prompt de pontuação, junto com estágio contratado como PJ/CLT/freela (Lei 11.788) |
 | Termos de modalidade em inglês (remote, hybrid, on-site, home office) | Parcial: só no adapter do GitHub |
-| Detectar repostagem (mesma empresa, título e descrição com ids diferentes) e a mesma vaga em fontes diferentes | Pendente |
+| Detectar repostagem (mesma empresa, título e descrição com ids diferentes) e a mesma vaga em fontes diferentes | **Feito** em 28/10/2026: título normalizado + empresa sem "decorações" + cidade compatível |
 
 **O que o Argos já fazia melhor:** fronteira de palavra em todas as buscas; prazo e idade máxima da vaga; localização com UF → estado; filtro de vaga fora de TI.
 
@@ -88,5 +88,5 @@ A função de coleta recebe o repositório como parâmetro, e um agendador exter
 3. Coleta robusta do GitHub: issues abertas, sem PRs, com `since`, 100 por página e token com `Bearer`. *Feito nesta branch.*
 4. Sinal de "exige experiência sólida" no corpo da vaga, como penalidade para estágio. *Feito (prompt).*
 5. Gupy: ler `isRemoteWork` como reforço da modalidade e validar que o `type` retornado é estágio. *A validação do `type` foi feita; `isRemoteWork` não existe no endpoint `portal.gupy.io/api/job-search/jobs` que usamos (só `workplaceType`).*
-6. Deduplicação semântica entre fontes e repostagens: empresa e título normalizados, mais um hash da descrição.
+6. Deduplicação semântica entre fontes e repostagens: empresa e título normalizados. *Feito (sem hash da descrição, que muda entre fontes).*
 7. Extrair o tipo de contrato (CLT/PJ) por palavra inteira, para sinalizar "estágio" oferecido como PJ. *Feito via prompt, que lê labels e descrição.*

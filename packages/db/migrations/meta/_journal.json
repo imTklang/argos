@@ -36,6 +36,20 @@
 			"when": 1793121190444,
 			"tag": "0004_whole_bill_hollister",
 			"breakpoints": true
+		},
+		{
+			"idx": 5,
+			"version": "6",
+			"when": 1793145272331,
+			"tag": "0005_colossal_proudstar",
+			"breakpoints": true
+		},
+		{
+			"idx": 6,
+			"version": "6",
+			"when": 1793146018816,
+			"tag": "0006_grey_doctor_octopus",
+			"breakpoints": true
 		}
 	]
 }
