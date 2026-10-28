@@ -64,9 +64,9 @@ A função de coleta recebe o repositório como parâmetro, e um agendador exter
 |---|---|
 | Nível vindo de dado estruturado (label no GitHub, `type` no Gupy) antes do texto | **Implementado nesta branch** (campo `level` no `Job`) |
 | Labels do GitHub como sinal de nível e modalidade, com o título valendo mais que labels esquecidos do template | **Implementado nesta branch** |
-| Abreviações de nível: sr, pl, jr, romanos, "líder", "staff", "principal", "plena" | Pendente: hoje "Dev Backend Sr" passa pelo bloqueio de título |
-| Decidir explicitamente sobre trainee e jovem aprendiz | Pendente |
-| Penalizar estágio que exige "experiência sólida/comprovada" | Pendente (hoje fica a cargo da IA) |
+| Abreviações de nível: sr, pl, jr, romanos, "líder", "staff", "principal", "plena" | **Feito** em 28/10/2026: o filtro duro lê o nível no título de qualquer fonte (`detectLevel`) |
+| Decidir explicitamente sobre trainee e jovem aprendiz | **Feito**: trainee é descartado como "não é estágio" (programa para formados) |
+| Penalizar estágio que exige "experiência sólida/comprovada" | **Feito** no prompt de pontuação, junto com estágio contratado como PJ/CLT/freela (Lei 11.788) |
 | Termos de modalidade em inglês (remote, hybrid, on-site, home office) | Parcial: só no adapter do GitHub |
 | Detectar repostagem (mesma empresa, título e descrição com ids diferentes) e a mesma vaga em fontes diferentes | Pendente |
 
@@ -84,9 +84,9 @@ A função de coleta recebe o repositório como parâmetro, e um agendador exter
 ## Ideias para o Argos, por prioridade
 
 1. Nível por labels e título no GitHub, e por `type` no Gupy. *Feito nesta branch.*
-2. Ampliar o bloqueio de nível com abreviações casadas por palavra inteira (sr, pl, III, lead, staff, plena).
+2. Ampliar o bloqueio de nível com abreviações casadas por palavra inteira (sr, pl, III, lead, staff, plena). *Feito.*
 3. Coleta robusta do GitHub: issues abertas, sem PRs, com `since`, 100 por página e token com `Bearer`. *Feito nesta branch.*
-4. Sinal de "exige experiência sólida" no corpo da vaga, como penalidade para estágio.
-5. Gupy: ler `isRemoteWork` como reforço da modalidade e validar que o `type` retornado é estágio.
+4. Sinal de "exige experiência sólida" no corpo da vaga, como penalidade para estágio. *Feito (prompt).*
+5. Gupy: ler `isRemoteWork` como reforço da modalidade e validar que o `type` retornado é estágio. *A validação do `type` foi feita; `isRemoteWork` não existe no endpoint `portal.gupy.io/api/job-search/jobs` que usamos (só `workplaceType`).*
 6. Deduplicação semântica entre fontes e repostagens: empresa e título normalizados, mais um hash da descrição.
-7. Extrair o tipo de contrato (CLT/PJ) por palavra inteira, para sinalizar "estágio" oferecido como PJ.
+7. Extrair o tipo de contrato (CLT/PJ) por palavra inteira, para sinalizar "estágio" oferecido como PJ. *Feito via prompt, que lê labels e descrição.*

@@ -79,7 +79,7 @@ describe("runScan", () => {
 
 		expect(report.sources).toEqual([{ id: "fake", found: 3, inserted: 3 }]);
 		expect(report.rejected).toEqual({
-			"nível bloqueado": 1,
+			"não é estágio": 1,
 			"fora da região": 1,
 		});
 		expect(score).toHaveBeenCalledTimes(1);

@@ -91,6 +91,16 @@ describe("scoreJob", () => {
 		expect(params.messages[0].content).not.toContain("Estágios abertos");
 	});
 
+	it("tells the model about experience and contract deal breakers", async () => {
+		const { client, parse } = fakeClient({ parsed_output: score });
+		await scoreJob(client, { profile, preferences }, job);
+		const instructions = parse.mock.calls[0]?.[0].system[0].text;
+		expect(instructions).toContain(
+			"experiência profissional prévia comprovada",
+		);
+		expect(instructions).toContain("Lei 11.788");
+	});
+
 	it("passes the company's open internship count when known", async () => {
 		const { client, parse } = fakeClient({ parsed_output: score });
 		await scoreJob(client, { profile, preferences }, job, {

@@ -42,10 +42,11 @@ describe("hardFilter", () => {
 	it.each([
 		["expirada", { expiresAt: new Date("2026-10-01T00:00:00Z") }],
 		["antiga", { publishedAt: new Date("2023-07-14T00:00:00Z") }],
-		["nível bloqueado", { title: "Desenvolvedor Backend Sênior" }],
+		// An internship title with a blocked word ("Sênior" mentoring).
+		["nível bloqueado", { title: "Estágio Backend com mentoria Sênior" }],
 		[
 			"sem palavra obrigatória",
-			{ title: "Desenvolvedor Júnior", description: "Node e TypeScript." },
+			{ title: "Desenvolvedor Backend", description: "Node e TypeScript." },
 		],
 		["fora da região", { location: "Anápolis, Goiás" }],
 		[
@@ -67,6 +68,38 @@ describe("hardFilter", () => {
 			pass: false,
 			reason: "não é estágio",
 		});
+	});
+
+	it.each([
+		["Desenvolvedor Backend Sr", "sênior"],
+		["Analista de Sistemas III", "sênior"],
+		["Dev Fullstack Pl", "pleno"],
+		["Back-end Developer JR", "júnior"],
+		["Lead Database Engineer", "especialista"],
+		["Programa Trainee Tecnologia 2027", "trainee"],
+	])(
+		"rejects '%s' (%s) by its title even if the description mentions estágio",
+		(title) => {
+			const senior = job({
+				title,
+				description:
+					"Valorizamos estagiários e estágio com Node.js e TypeScript.",
+			});
+			expect(hardFilter(senior, prefs, now)).toEqual({
+				pass: false,
+				reason: "não é estágio",
+			});
+		},
+	);
+
+	it("keeps internships whose title also names another level", () => {
+		const both = job({ title: "Estágio ou Desenvolvedor Júnior Backend" });
+		expect(hardFilter(both, prefs, now).pass).toBe(true);
+	});
+
+	it("does not read PL/SQL as a level", () => {
+		const plsql = job({ title: "Estágio em Banco de Dados PL/SQL" });
+		expect(hardFilter(plsql, prefs, now).pass).toBe(true);
 	});
 
 	it("lets a known internship skip the mandatory word", () => {

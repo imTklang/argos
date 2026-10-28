@@ -1,4 +1,4 @@
-import type { Job, Level, Modality } from "@radar/core";
+import { detectLevel, type Job, type Level, type Modality } from "@radar/core";
 import { z } from "zod";
 import type { JobSource } from "./index.ts";
 import {
@@ -6,7 +6,6 @@ import {
 	decodeHtmlEntities,
 	sleep as defaultSleep,
 	htmlToText,
-	issueLevel,
 	modalitiesIn,
 	mostFlexible,
 	politeFetch,
@@ -97,7 +96,7 @@ function levelOf(
 	title: string,
 	hints: (string | null | undefined)[],
 ): Level | null {
-	return issueLevel(
+	return detectLevel(
 		title,
 		hints.filter((h): h is string => Boolean(h)),
 	);

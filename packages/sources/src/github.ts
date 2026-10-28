@@ -1,9 +1,8 @@
-import { type Job, normalizeText, STATE_NAMES } from "@radar/core";
+import { detectLevel, type Job, normalizeText, STATE_NAMES } from "@radar/core";
 import { z } from "zod";
 import type { JobSource } from "./index.ts";
 import {
 	sleep as defaultSleep,
-	issueLevel,
 	modalitiesIn,
 	mostFlexible,
 	politeFetch,
@@ -203,7 +202,7 @@ export function createGitHubSource(opts: GitHubOptions): JobSource<GitHubJob> {
 				url: issue.html_url,
 				publishedAt: new Date(issue.created_at),
 				expiresAt: null,
-				level: issueLevel(issue.title, labels),
+				level: detectLevel(issue.title, labels),
 			};
 		},
 	};

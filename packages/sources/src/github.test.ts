@@ -1,4 +1,4 @@
-import { Job } from "@radar/core";
+import { detectLevel, Job } from "@radar/core";
 import { describe, expect, it, vi } from "vitest";
 import fixture from "./__fixtures__/github-issues.json" with { type: "json" };
 import {
@@ -7,7 +7,6 @@ import {
 	type GitHubJob,
 	parseIssueTitle,
 } from "./github.ts";
-import { issueLevel } from "./util.ts";
 
 function jsonResponse(body: unknown, status = 200, headers = {}) {
 	return new Response(JSON.stringify(body), {
@@ -228,25 +227,25 @@ describe("parseIssueTitle", () => {
 	});
 });
 
-describe("issueLevel", () => {
+describe("detectLevel", () => {
 	it("reads the title before labels", () => {
-		expect(issueLevel("Dev Backend Sr", ["Júnior"])).toBe("sênior");
-		expect(issueLevel("Dev Backend", ["Júnior"])).toBe("júnior");
+		expect(detectLevel("Dev Backend Sr", ["Júnior"])).toBe("sênior");
+		expect(detectLevel("Dev Backend", ["Júnior"])).toBe("júnior");
 	});
 
 	it("treats 'estágio ou júnior' as an internship", () => {
-		expect(issueLevel("Desenvolvedor Júnior ou Estagiário", [])).toBe(
+		expect(detectLevel("Desenvolvedor Júnior ou Estagiário", [])).toBe(
 			"estágio",
 		);
 	});
 
 	it("does not take PL/SQL for pleno", () => {
-		expect(issueLevel("Desenvolvedor PL/SQL", [])).toBeNull();
+		expect(detectLevel("Desenvolvedor PL/SQL", [])).toBeNull();
 	});
 
 	it("returns null when nothing says the level", () => {
 		expect(
-			issueLevel("Desenvolvedor Backend", ["Remoto", "Node.js"]),
+			detectLevel("Desenvolvedor Backend", ["Remoto", "Node.js"]),
 		).toBeNull();
 	});
 });
