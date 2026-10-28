@@ -182,9 +182,9 @@ type JobScore = {
 - **Extra (27/10/2026):** estágios remotos no exterior, opcionais (`"abroad": "remote"`) e com prioridade menor que as vagas do Brasil. Fonte nova: Himalayas (API pública; termos exigem link de candidatura inalterado e crédito visível). Remotive descartado (`robots.txt` proíbe `/api/*`).
 
 ### Fase 3 — Dashboard
-- API REST no Fastify (listar vagas, filtrar, mudar status, editar preferências).
-- React: lista de vagas com score e justificativa, filtros, kanban por status.
-- Gerar rascunho de mensagem/carta de apresentação para uma vaga específica (sob demanda).
+- API REST no Fastify (listar vagas, filtrar, mudar status, editar preferências). **Feito** (`pnpm api`, só em 127.0.0.1).
+- React: lista de vagas com score e justificativa, filtros, kanban por status. **Feito** (React + Vite + TanStack Query + Tailwind 4), construído com a skill emil-design-eng e auditado com a apple-hig (contraste medido nos temas claro e escuro).
+- Gerar rascunho de mensagem/carta de apresentação para uma vaga específica (sob demanda). **Feito**, com Claude Sonnet 5.5 (decisão de 28/10/2026), no idioma da vaga.
 
 ### Fase 4 — Deploy (opcional)
 - Postgres, Docker, deploy em Fly.io / Railway / VPS.

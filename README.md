@@ -12,7 +12,8 @@ TypeScript (Node 22+) · pnpm workspaces · SQLite + Drizzle · Zod · Vitest ·
 
 ```
 apps/
-  api/        # worker: varreduras agendadas e bot do Telegram
+  api/        # API REST (Fastify) e worker: varreduras agendadas e bot do Telegram
+  web/        # dashboard React
   cli/        # comandos de linha de comando
 packages/
   ai/         # chamadas ao Claude (extração de perfil, pontuação)
@@ -45,7 +46,13 @@ pnpm cli scan                                  # busca, filtra e pontua vagas de
 pnpm cli scan --source github --max 10         # só algumas fontes, no máximo 10 pontuações
 pnpm worker                                    # varreduras às 8h e 18h + bot do Telegram (Ctrl+C para parar)
 pnpm worker --now --digest                     # roda uma varredura com resumo assim que inicia
+pnpm build:web && pnpm api                     # dashboard em http://localhost:3333 (só nesta máquina)
+pnpm api & pnpm web                            # desenvolvimento do dashboard com recarga automática (Vite)
 ```
+
+## Dashboard
+
+Lista de vagas pontuadas com a análise da IA, filtros (status, Brasil/exterior, nota mínima, busca), kanban por status com arrastar e soltar (também pelo teclado), painel de detalhe com nota pessoal e rascunho de mensagem de apresentação gerado sob demanda pelo Claude Sonnet 5.5, e editor de preferências. A API escuta só em `127.0.0.1`: não há login, então o dashboard não deve ser exposto na rede.
 
 ## Telegram
 
