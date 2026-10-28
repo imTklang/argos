@@ -16,7 +16,7 @@ import { initPreferences } from "./commands/prefs-init.ts";
 import { formatProfile, importProfile } from "./commands/profile-import.ts";
 import { readResume } from "./resume.ts";
 
-const usage = `Radar de Estágio
+const usage = `Argos: radar de estágios
 
 Uso:
   pnpm cli profile import <curriculo.pdf> [--force]   Lê o currículo e gera o perfil

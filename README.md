@@ -1,4 +1,6 @@
-# Radar de Estágio
+# Argos
+
+> O nome vem de Argos Panoptes, o gigante de cem olhos da mitologia grega que nunca dormia.
 
 Assistente pessoal que lê um currículo, varre fontes de vagas de estágio e avisa só das vagas que combinam com o perfil, explicando por quê. A candidatura é sempre manual.
 
@@ -52,7 +54,7 @@ pnpm api & pnpm web                            # desenvolvimento do dashboard co
 
 ## Dashboard
 
-Visual no estilo Apple (macOS no computador, iOS 27 no celular): listas inteligentes como caixas do Mail (Para você, Novas, Salvas, Candidaturas, Descartadas), detalhe da vaga ao lado da lista em telas largas ou em painel nas menores, quadro por status com arrastar e soltar (também pelo teclado) e Ajustes no estilo do app Ajustes do iPhone. O detalhe traz a análise da IA, nota pessoal e rascunho de mensagem de apresentação gerado sob demanda pelo Claude Sonnet 5.5. A API escuta só em `127.0.0.1`: não há login, então o dashboard não deve ser exposto na rede. Guia completo em [docs/dashboard.md](docs/dashboard.md).
+Visual no estilo Apple, com Liquid Glass (macOS no computador, iOS 27 no celular): listas inteligentes como caixas do Mail (Para você, Novas, Salvas, Candidaturas, Descartadas), detalhe da vaga ao lado da lista em telas largas ou em painel nas menores, quadro por status com arrastar e soltar (também pelo teclado) e Ajustes no estilo do app Ajustes do iPhone. O detalhe traz a análise da IA, nota pessoal e rascunho de mensagem de apresentação gerado sob demanda pelo Claude Sonnet 5.5. A API escuta só em `127.0.0.1`: não há login, então o dashboard não deve ser exposto na rede. Guia completo em [docs/dashboard.md](docs/dashboard.md).
 
 ## Telegram
 
@@ -64,4 +66,4 @@ Vagas com nota ≥ `instantAlertScore` (padrão 85) chegam na hora, com botões 
 
 ## Vagas remotas no exterior
 
-Com `"abroad": "remote"` em `data/preferences.json`, o Radar também traz estágios remotos de empresas de fora que aceitam candidatos no Brasil (fonte [Himalayas](https://himalayas.app) e as vagas remotas no exterior das empresas de Greenhouse/Lever/Ashby). Elas ficam em segundo plano: são pontuadas depois das vagas do Brasil, nunca disparam alerta imediato e aparecem no resumo das 18h numa seção própria. A IA confere país aceito, fuso, nível de inglês e sinais de vaga ruim (estágio não remunerado, anúncio em massa).
+Com `"abroad": "remote"` em `data/preferences.json`, o Argos também traz estágios remotos de empresas de fora que aceitam candidatos no Brasil (fonte [Himalayas](https://himalayas.app) e as vagas remotas no exterior das empresas de Greenhouse/Lever/Ashby). Elas ficam em segundo plano: são pontuadas depois das vagas do Brasil, nunca disparam alerta imediato e aparecem no resumo das 18h numa seção própria. A IA confere país aceito, fuso, nível de inglês e sinais de vaga ruim (estágio não remunerado, anúncio em massa).

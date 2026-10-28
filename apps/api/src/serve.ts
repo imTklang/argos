@@ -18,7 +18,7 @@ const app = buildServer({
 // Loopback only: the dashboard edits personal data and has no login.
 app
 	.listen({ host: "127.0.0.1", port })
-	.then((address) => console.log(`Radar de Estágio em ${address}`))
+	.then((address) => console.log(`Argos em ${address}`))
 	.catch((error: unknown) => {
 		console.error(error instanceof Error ? error.message : error);
 		process.exit(1);

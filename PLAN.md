@@ -1,4 +1,4 @@
-# Radar de Estágio — Plano do projeto
+# Argos (Radar de Estágio) — Plano do projeto
 
 > Documento de contexto para o Claude Code. Coloque na raiz do repositório (pode virar `CLAUDE.md` depois).
 > Autor: Enzo (imTklang) — estudante de CC na UNIESP, João Pessoa/PB, procurando o primeiro estágio em backend (Node.js/TypeScript).
