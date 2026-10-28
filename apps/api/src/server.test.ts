@@ -4,7 +4,7 @@ import { join } from "node:path";
 import type { Job, Preferences, Profile } from "@radar/core";
 import { createDb, jobScores, jobs, profiles, runs } from "@radar/db";
 import { describe, expect, it, vi } from "vitest";
-import { buildServer, CLIENT_HEADER } from "./server.ts";
+import { buildServer, CLIENT_HEADER, type ServerOptions } from "./server.ts";
 
 const CLIENT = { [CLIENT_HEADER]: "dashboard" };
 
@@ -32,7 +32,7 @@ const profile: Profile = {
 
 type Seed = Partial<Job> & { score?: number | null; duplicateOf?: number };
 
-async function setup(seed: Seed[] = []) {
+async function setup(seed: Seed[] = [], options: Partial<ServerOptions> = {}) {
 	const db = createDb(":memory:");
 	const dir = await mkdtemp(join(tmpdir(), "radar-api-"));
 	const preferencesPath = join(dir, "preferences.json");
@@ -85,7 +85,12 @@ async function setup(seed: Seed[] = []) {
 		inputTokens: 1,
 		outputTokens: 1,
 	});
-	const app = buildServer({ db, preferencesPath, generateCoverLetter });
+	const app = buildServer({
+		db,
+		preferencesPath,
+		generateCoverLetter,
+		...options,
+	});
 	return { app, db, ids, preferencesPath, generateCoverLetter };
 }
 
@@ -334,5 +339,64 @@ describe("access from outside the dashboard", () => {
 				})
 			).statusCode,
 		).toBe(403);
+	});
+});
+
+describe("read-only demo", () => {
+	it("answers any Host but refuses every write, even from the dashboard", async () => {
+		const { app, ids, generateCoverLetter } = await setup([{}], { demo: true });
+		const read = await app.inject({
+			url: "/api/jobs",
+			headers: { host: "abc.trycloudflare.com" },
+		});
+		expect(read.statusCode).toBe(200);
+		for (const write of [
+			{
+				method: "PATCH" as const,
+				url: `/api/jobs/${ids[0]}/status`,
+				payload: { status: "salva" },
+			},
+			{
+				method: "POST" as const,
+				url: `/api/jobs/${ids[0]}/cover-letter`,
+				payload: {},
+			},
+			{ method: "PUT" as const, url: "/api/preferences", payload: prefs },
+		]) {
+			const res = await app.inject({ ...write, headers: CLIENT });
+			expect(res.statusCode).toBe(403);
+		}
+		expect(generateCoverLetter).not.toHaveBeenCalled();
+	});
+
+	it("hides personal notes and cover letters", async () => {
+		const { app, db, ids, preferencesPath, generateCoverLetter } = await setup([
+			{},
+		]);
+		const id = ids[0];
+		await app.inject({
+			method: "PATCH",
+			url: `/api/jobs/${id}/status`,
+			headers: CLIENT,
+			payload: { status: "salva", note: "falar com a Ana" },
+		});
+		await app.inject({
+			method: "POST",
+			url: `/api/jobs/${id}/cover-letter`,
+			headers: CLIENT,
+		});
+		// The same data, seen through the demo.
+		const demo = buildServer({
+			db,
+			preferencesPath,
+			generateCoverLetter,
+			demo: true,
+		});
+		const detail = (await demo.inject({ url: `/api/jobs/${id}` })).json();
+		expect(detail.status).toBe("salva");
+		expect(detail.note).toBeNull();
+		expect(detail.coverLetter).toBeNull();
+		const list = (await demo.inject({ url: "/api/jobs" })).json();
+		expect(list.items[0].note).toBeNull();
 	});
 });
