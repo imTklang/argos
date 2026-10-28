@@ -6,7 +6,7 @@
 		"typecheck": "tsc -p ."
 	},
 	"dependencies": {
-		"@fastify/static": "10.1.8",
+		"@fastify/static": "10.1.6",
 		"@radar/ai": "workspace:*",
 		"@radar/core": "workspace:*",
 		"@radar/db": "workspace:*",
