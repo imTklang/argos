@@ -13,6 +13,7 @@ import { useCoverLetter, useJob, useUpdateStatus } from "../api.ts";
 import { fromNow, place, sourceLabel } from "../format.ts";
 import { Cell, Group } from "./Group.tsx";
 import { ScoreRing } from "./ScoreRing.tsx";
+import { ScrollEdge } from "./ScrollEdge.tsx";
 import type { DragHandle } from "./Sheet.tsx";
 import { StatusButtons } from "./StatusButtons.tsx";
 
@@ -202,9 +203,10 @@ export function JobDetail({
 
 	return (
 		<article aria-labelledby={titleId}>
-			<header
+			<ScrollEdge
+				as="header"
 				{...handle}
-				className="material sticky top-0 z-10 border-b border-separator px-5 pt-2 pb-4 max-md:touch-none"
+				className="px-5 pt-2 pb-3 max-md:touch-none"
 			>
 				{onClose && (
 					<div
@@ -217,7 +219,7 @@ export function JobDetail({
 					<div className="min-w-0 flex-1">
 						<h2
 							id={titleId}
-							className="text-xl leading-tight font-bold tracking-[-0.015em]"
+							className="text-[22px] leading-tight font-bold tracking-[-0.02em] text-balance"
 						>
 							{job?.title ?? (isLoading ? "Carregando…" : "Vaga")}
 						</h2>
@@ -233,13 +235,13 @@ export function JobDetail({
 							type="button"
 							onClick={onClose}
 							aria-label="Fechar"
-							className="pressable grid size-8 shrink-0 place-items-center rounded-full bg-fill text-muted"
+							className="pressable grid size-9 shrink-0 place-items-center rounded-full bg-fill text-ink"
 						>
 							<X aria-hidden size={16} strokeWidth={2.5} />
 						</button>
 					)}
 				</div>
-			</header>
+			</ScrollEdge>
 
 			{error && <p className="p-5 text-[15px] text-bad">{error.message}</p>}
 
@@ -251,7 +253,7 @@ export function JobDetail({
 							href={job.url}
 							target="_blank"
 							rel="noreferrer"
-							className="pressable flex h-11 items-center justify-center gap-1 rounded-xl bg-accent-fill text-[15px] font-semibold text-on-accent"
+							className="prominent pressable flex h-12 items-center justify-center gap-1 rounded-full text-[15px] font-semibold"
 						>
 							Abrir no {sourceLabel(job.source)}
 							<ArrowUpRight aria-hidden size={17} />

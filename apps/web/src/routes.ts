@@ -15,7 +15,12 @@ type JobList = {
 	/** Starting minimum score; the toolbar can change it. */
 	minScore: "0" | "50" | "70" | "85";
 	empty: string;
+	/** The gray half of the headline, from the number of jobs shown. */
+	tagline: (count: number) => string;
 };
+
+const plural = (n: number, one: string, many: string) =>
+	`${n} ${n === 1 ? one : many}`;
 
 /** Smart lists, like mailboxes: each one is a saved status filter. */
 export const LISTS = {
@@ -26,6 +31,10 @@ export const LISTS = {
 		minScore: "50",
 		empty:
 			"Nada em aberto com nota 50 ou mais. Novas vagas chegam a cada varredura.",
+		tagline: (n) =>
+			n === 0
+				? "Nada novo por enquanto."
+				: `${plural(n, "vaga que combina", "vagas que combinam")} com você.`,
 	},
 	novas: {
 		label: "Novas",
@@ -33,6 +42,8 @@ export const LISTS = {
 		status: ["nova", "vista"],
 		minScore: "0",
 		empty: "Você já olhou todas as vagas novas.",
+		tagline: (n) =>
+			n === 0 ? "Tudo visto." : `${plural(n, "vaga", "vagas")} para olhar.`,
 	},
 	salvas: {
 		label: "Salvas",
@@ -40,6 +51,10 @@ export const LISTS = {
 		status: ["salva"],
 		minScore: "0",
 		empty: "Salve uma vaga para guardá-la aqui.",
+		tagline: (n) =>
+			n === 0
+				? "Nada guardado ainda."
+				: `${plural(n, "vaga guardada", "vagas guardadas")} para depois.`,
 	},
 	candidaturas: {
 		label: "Candidaturas",
@@ -47,6 +62,10 @@ export const LISTS = {
 		status: ["candidatei"],
 		minScore: "0",
 		empty: "Quando você marcar “Candidatei”, a vaga aparece aqui.",
+		tagline: (n) =>
+			n === 0
+				? "Nenhuma enviada ainda."
+				: `${plural(n, "candidatura", "candidaturas")} em andamento.`,
 	},
 	descartadas: {
 		label: "Descartadas",
@@ -54,6 +73,10 @@ export const LISTS = {
 		status: ["descartada"],
 		minScore: "0",
 		empty: "Nenhuma vaga descartada.",
+		tagline: (n) =>
+			n === 0
+				? "Nenhuma por aqui."
+				: `${plural(n, "vaga", "vagas")} fora do páreo.`,
 	},
 } satisfies Record<string, JobList>;
 

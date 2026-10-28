@@ -21,7 +21,7 @@ export function Group({
 					{title}
 				</h3>
 			)}
-			<div className="overflow-hidden rounded-xl bg-surface">{children}</div>
+			<div className="card overflow-hidden rounded-2xl">{children}</div>
 			{footer && <p className="px-4 pt-1.5 text-xs text-muted">{footer}</p>}
 		</section>
 	);

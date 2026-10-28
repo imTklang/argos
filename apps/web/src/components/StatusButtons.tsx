@@ -64,8 +64,8 @@ export function StatusButtons({
 						type="button"
 						aria-pressed={active}
 						onClick={() => change(value)}
-						className={`pressable flex flex-col items-center gap-1 rounded-xl py-2.5 text-[13px] font-medium ${
-							active ? on : "hoverable bg-surface text-ink"
+						className={`pressable flex flex-col items-center gap-1 rounded-2xl py-2.5 text-[13px] font-medium ${
+							active ? on : "card text-ink"
 						}`}
 					>
 						<Icon

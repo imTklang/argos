@@ -29,10 +29,13 @@ export function App() {
 	}, []);
 
 	return (
-		<div className="min-h-dvh md:flex md:h-dvh md:overflow-hidden">
+		// Positioned, so visually hidden inputs stay inside the clipped panes
+		// instead of growing the page and adding a second scrollbar.
+		<div className="relative isolate min-h-dvh md:flex md:h-dvh md:overflow-hidden">
+			<div aria-hidden className="aura" />
 			<Sidebar route={route} />
 			<main
-				className={`min-w-0 flex-1 ${inline ? "md:overflow-hidden" : "md:overflow-y-auto"}`}
+				className={`relative min-w-0 flex-1 ${inline ? "md:overflow-hidden" : "scroll-area md:overflow-y-auto"}`}
 			>
 				{isList(route) && (
 					// A new list starts with its own filters.

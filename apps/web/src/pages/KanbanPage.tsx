@@ -34,7 +34,7 @@ function MiniCard({
 }) {
 	return (
 		<div
-			className={`flex gap-3 rounded-xl bg-surface p-3 ${
+			className={`card flex gap-3 rounded-2xl p-3 ${
 				lifted
 					? "scale-[1.03] shadow-[0_12px_32px_rgb(0_0_0/0.18)]"
 					: "shadow-[0_1px_2px_rgb(0_0_0/0.06)]"
@@ -95,7 +95,7 @@ function Column({
 		<section
 			ref={setNodeRef}
 			aria-label={`${label}: ${jobs.length}`}
-			className={`flex w-[17.5rem] shrink-0 snap-start flex-col rounded-2xl p-2 transition-colors duration-150 ${
+			className={`flex w-[17.5rem] shrink-0 snap-start flex-col rounded-[24px] p-2 transition-colors duration-150 ${
 				isOver ? "bg-accent-soft outline-2 outline-accent" : "bg-fill"
 			}`}
 		>
@@ -142,14 +142,14 @@ export function KanbanPage({ onOpen }: { onOpen: (id: number) => void }) {
 		(data?.items ?? []).filter((job) => holds.includes(job.status));
 
 	return (
-		<div className="pt-6 pb-28 md:pt-5 md:pb-8">
-			<div className="px-4 pb-4">
-				<h1 className="large-title">Quadro</h1>
-				<p className="mt-1 text-[15px] text-muted">
-					Arraste uma vaga para outra coluna para mudar o status. Mostra as 200
-					com maior nota.
-				</p>
-			</div>
+		<div className="pt-8 pb-28 md:pt-7 md:pb-8">
+			<h1 className="headline max-w-3xl px-5 pb-6">
+				Quadro.{" "}
+				<span className="text-muted">
+					Arraste uma vaga para outra coluna e o status muda. As 200 com maior
+					nota.
+				</span>
+			</h1>
 			{isLoading && <p className="px-4 text-[15px] text-muted">Carregando…</p>}
 			{error && <p className="px-4 text-[15px] text-bad">{error.message}</p>}
 			<DndContext
@@ -173,7 +173,7 @@ export function KanbanPage({ onOpen }: { onOpen: (id: number) => void }) {
 					},
 				}}
 			>
-				<div className="flex snap-x gap-3 overflow-x-auto scroll-px-4 px-4 pb-4">
+				<div className="scroll-area flex snap-x gap-3 overflow-x-auto scroll-px-4 px-4 pb-4">
 					{COLUMNS.map(({ status, label, holds }) => (
 						<Column
 							key={status}

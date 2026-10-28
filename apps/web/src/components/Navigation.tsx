@@ -1,13 +1,8 @@
-import {
-	Columns3,
-	type LucideIcon,
-	Radar,
-	Settings,
-	Sparkles,
-} from "lucide-react";
+import { Columns3, type LucideIcon, Settings, Sparkles } from "lucide-react";
 import { useStats } from "../api.ts";
 import { ago } from "../format.ts";
 import { isList, LIST_IDS, LISTS, listCount, type Route } from "../routes.ts";
+import { Logo } from "./Logo.tsx";
 
 function SidebarLink({
 	href,
@@ -27,11 +22,16 @@ function SidebarLink({
 			<a
 				href={href}
 				aria-current={current ? "page" : undefined}
-				className={`flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-[13px] ${
+				className={`flex h-8 items-center gap-2.5 rounded-[10px] px-2.5 text-[13px] ${
 					current ? "bg-fill-strong font-semibold" : "hoverable"
 				}`}
 			>
-				<Icon aria-hidden size={16} className="shrink-0 text-accent" />
+				<Icon
+					aria-hidden
+					size={16}
+					strokeWidth={current ? 2.25 : 1.75}
+					className="shrink-0 text-accent"
+				/>
 				<span className="flex-1 truncate">{label}</span>
 				{count ? (
 					<span className="text-xs text-muted tabular-nums">{count}</span>
@@ -83,19 +83,19 @@ function LastScan() {
 	);
 }
 
-/** macOS-style source list on wide screens. */
+/** macOS-style sidebar: a floating pane of glass on wide screens. */
 export function Sidebar({ route }: { route: Route }) {
 	const { data } = useStats();
 	return (
 		<nav
 			aria-label="Seções"
-			className="material hidden w-60 shrink-0 flex-col border-r border-separator px-3 pb-4 md:flex"
+			className="glass-thick relative m-2 mr-0 hidden w-60 shrink-0 flex-col rounded-[22px] px-3 pb-4 md:flex"
 		>
-			<p className="flex items-center gap-2 px-2.5 pt-5 pb-1 text-[15px] font-semibold">
-				<span className="grid size-7 place-items-center rounded-[8px] bg-accent-fill text-on-accent">
-					<Radar aria-hidden size={16} strokeWidth={2.25} />
+			<p className="flex items-center gap-2.5 px-2 pt-4 pb-1">
+				<Logo size={30} />
+				<span className="text-[19px] font-semibold tracking-[-0.02em]">
+					Argos
 				</span>
-				Radar de Estágio
 			</p>
 			<SidebarGroup title="Vagas">
 				{LIST_IDS.map((id) => (
@@ -136,40 +136,52 @@ const TABS: {
 	href: string;
 	label: string;
 	Icon: LucideIcon;
-	match: (r: Route) => boolean;
+	match: (route: Route) => boolean;
 }[] = [
 	{ href: "#/para-voce", label: "Vagas", Icon: Sparkles, match: isList },
 	{
 		href: "#/quadro",
 		label: "Quadro",
 		Icon: Columns3,
-		match: (r) => r === "quadro",
+		match: (route) => route === "quadro",
 	},
 	{
 		href: "#/ajustes",
 		label: "Ajustes",
 		Icon: Settings,
-		match: (r) => r === "ajustes",
+		match: (route) => route === "ajustes",
 	},
 ];
 
-/** Floating tab bar on phones, as in iOS. */
+/**
+ * Floating glass tab bar on phones, as in iOS 27. The selection is a lens
+ * that slides to the chosen tab and settles with a spring.
+ */
 export function TabBar({ route }: { route: Route }) {
+	const index = Math.max(
+		0,
+		TABS.findIndex((tab) => tab.match(route)),
+	);
 	return (
 		<nav
 			aria-label="Seções"
-			className="material fixed bottom-[max(env(safe-area-inset-bottom),0.75rem)] left-1/2 z-30 -translate-x-1/2 rounded-full border border-separator p-1 shadow-[0_8px_30px_rgb(0_0_0/0.12)] md:hidden"
+			className="glass fixed bottom-[max(env(safe-area-inset-bottom),0.75rem)] left-1/2 z-30 -translate-x-1/2 rounded-full p-1 md:hidden"
 		>
-			<ul className="flex">
+			<ul className="relative flex">
+				<li
+					aria-hidden
+					className="slider-thumb absolute inset-y-0 left-0 w-20 rounded-full bg-fill-strong"
+					style={{ transform: `translateX(${index * 100}%)` }}
+				/>
 				{TABS.map(({ href, label, Icon, match }) => {
 					const current = match(route);
 					return (
-						<li key={href}>
+						<li key={href} className="relative">
 							<a
 								href={href}
 								aria-current={current ? "page" : undefined}
 								className={`pressable flex w-20 flex-col items-center gap-0.5 rounded-full py-1.5 text-[10px] font-semibold ${
-									current ? "bg-fill text-accent" : "text-ink"
+									current ? "text-accent" : "text-ink"
 								}`}
 							>
 								<Icon
@@ -200,10 +212,10 @@ export function ListChips({ route }: { route: Route }) {
 						<a
 							href={`#/${id}`}
 							aria-current={route === id ? "page" : undefined}
-							className={`pressable flex h-8 items-center rounded-full px-3.5 text-[13px] font-medium whitespace-nowrap ${
+							className={`pressable flex h-8 items-center rounded-full px-3.5 text-[13px] whitespace-nowrap ${
 								route === id
-									? "bg-accent-fill text-on-accent font-semibold"
-									: "bg-fill"
+									? "bg-ink font-semibold text-bg"
+									: "card font-medium"
 							}`}
 						>
 							{LISTS[id].label}

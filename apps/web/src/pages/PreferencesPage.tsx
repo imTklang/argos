@@ -4,6 +4,7 @@ import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
 import { usePreferences, useSavePreferences } from "../api.ts";
 import { Group } from "../components/Group.tsx";
+import { ScrollEdge } from "../components/ScrollEdge.tsx";
 
 const MODALITIES: [Modality, string][] = [
 	["remoto", "Remoto"],
@@ -119,30 +120,35 @@ export function PreferencesPage() {
 
 	return (
 		<form onSubmit={submit} className="mx-auto max-w-2xl pb-28 md:pb-10">
-			<div className="material sticky top-0 z-10 flex items-center justify-between gap-3 px-4 pt-6 pb-3 md:pt-5">
-				<h1 className="large-title">Ajustes</h1>
-				<div className="flex items-center gap-2">
-					{dirty && (
-						<button
-							type="button"
-							onClick={() => data && setDraft(data)}
-							className="pressable rounded-full px-3 py-1.5 text-[15px] text-accent"
-						>
-							Desfazer
-						</button>
-					)}
+			<h1 className="headline px-5 pt-8 pb-2 md:pt-7">
+				Ajustes.{" "}
+				<span className="text-muted">
+					O que o Argos procura e quando avisa.
+				</span>
+			</h1>
+			<ScrollEdge className="flex items-center justify-end gap-2 px-4 py-2">
+				{dirty && (
 					<button
-						type="submit"
-						disabled={!dirty || save.isPending}
-						className="pressable inline-flex items-center gap-1.5 rounded-full bg-accent-fill px-4 py-1.5 text-[15px] font-semibold text-on-accent disabled:bg-fill disabled:text-muted"
+						type="button"
+						onClick={() => data && setDraft(data)}
+						className="pressable rounded-full px-3 py-1.5 text-[15px] text-accent"
 					>
-						{save.isPending && (
-							<Loader2 aria-hidden size={15} className="animate-spin" />
-						)}
-						Salvar
+						Desfazer
 					</button>
-				</div>
-			</div>
+				)}
+				<button
+					type="submit"
+					disabled={!dirty || save.isPending}
+					className={`pressable inline-flex items-center gap-1.5 rounded-full px-5 py-1.5 text-[15px] font-semibold ${
+						dirty ? "prominent" : "bg-fill text-muted"
+					}`}
+				>
+					{save.isPending && (
+						<Loader2 aria-hidden size={15} className="animate-spin" />
+					)}
+					Salvar
+				</button>
+			</ScrollEdge>
 
 			<div className="space-y-7 px-4 pt-3">
 				<Group

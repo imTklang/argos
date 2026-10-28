@@ -2,17 +2,16 @@
 
 /*
  * Apple system palette. Text colors use the accessible variants so every
- * pair still meets 4.5:1 (measured on the grouped background, tints and fills).
+ * pair still meets 4.5:1 (measured on the background, tints and fills).
  */
 @theme {
-	--color-bg: #f2f2f7;
+	--color-bg: #f5f5f7;
 	--color-surface: #ffffff;
 	--color-fill: rgb(118 118 128 / 0.12);
 	--color-fill-strong: rgb(118 118 128 / 0.2);
-	--color-separator: rgb(60 60 67 / 0.18);
+	--color-separator: rgb(60 60 67 / 0.14);
 	/* The selected segment in a segmented control. */
 	--color-thumb: #ffffff;
-	--color-material: rgb(242 242 247 / 0.78);
 	--color-ink: #1d1d1f;
 	--color-muted: #636366;
 	/* Decoration only (rings, grabbers): never for text. */
@@ -39,6 +38,57 @@
 	--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 	--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 	--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+	/* A spring (damping 0.82, response 0.42 s) sampled for CSS: ~1% overshoot. */
+	--ease-spring: linear(
+		0,
+		0.043,
+		0.144,
+		0.272,
+		0.405,
+		0.531,
+		0.643,
+		0.737,
+		0.813,
+		0.874,
+		0.919,
+		0.952,
+		0.976,
+		0.992,
+		1.002,
+		1.007,
+		1.01,
+		1.011,
+		1.011,
+		1.01,
+		1.008,
+		1.007,
+		1.005,
+		1.004,
+		1.003,
+		1.002,
+		1.001,
+		1.001,
+		1
+	);
+}
+
+/* Liquid Glass, approximated: fill, rim light and shadow per appearance. */
+:root {
+	--glass-fill: rgb(255 255 255 / 0.56);
+	--glass-fill-thick: rgb(250 250 252 / 0.8);
+	--glass-edge: rgb(0 0 0 / 0.07);
+	--glass-rim: rgb(255 255 255 / 0.95);
+	--glass-rim-low: rgb(255 255 255 / 0.35);
+	--glass-shadow:
+		0 0.5px 1px rgb(0 0 0 / 0.05), 0 12px 32px -8px rgb(0 0 0 / 0.16);
+	/* What the scroll edge fades into, under bars. */
+	--edge-fade: rgb(245 245 247 / 0.92);
+	--card-shadow:
+		0 0.5px 1px rgb(0 0 0 / 0.05), 0 10px 30px -14px rgb(0 0 0 / 0.14);
+	/* Brand color lives in the content layer, where the glass picks it up. */
+	--aura-1: rgb(94 82 230 / 0.16);
+	--aura-2: rgb(31 179 163 / 0.14);
+	--aura-3: rgb(240 195 90 / 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,9 +97,8 @@
 		--color-surface: #1c1c1e;
 		--color-fill: rgb(118 118 128 / 0.24);
 		--color-fill-strong: rgb(118 118 128 / 0.36);
-		--color-separator: rgb(84 84 88 / 0.6);
+		--color-separator: rgb(84 84 88 / 0.5);
 		--color-thumb: #636366;
-		--color-material: rgb(22 22 24 / 0.78);
 		--color-ink: #f5f5f7;
 		--color-muted: #98989d;
 		--color-faint: #48484a;
@@ -67,6 +116,19 @@
 		--color-warn-soft: rgb(255 159 10 / 0.16);
 		--color-bad: #ff6961;
 		--color-bad-soft: rgb(255 105 97 / 0.14);
+
+		--glass-fill: rgb(44 44 50 / 0.5);
+		--glass-fill-thick: rgb(30 30 34 / 0.78);
+		--glass-edge: rgb(255 255 255 / 0.07);
+		--glass-rim: rgb(255 255 255 / 0.3);
+		--glass-rim-low: rgb(255 255 255 / 0.06);
+		--glass-shadow:
+			0 0.5px 1px rgb(0 0 0 / 0.4), 0 16px 40px -8px rgb(0 0 0 / 0.7);
+		--edge-fade: rgb(0 0 0 / 0.88);
+		--card-shadow: 0 0 0 0.5px rgb(255 255 255 / 0.06);
+		--aura-1: rgb(94 82 230 / 0.26);
+		--aura-2: rgb(31 179 163 / 0.16);
+		--aura-3: rgb(240 195 90 / 0.06);
 	}
 }
 
@@ -77,30 +139,123 @@ html {
 	-webkit-tap-highlight-color: transparent;
 }
 
-/* Large titles tighten as they grow; body text stays at 0. */
-.large-title {
-	font-size: 2rem;
-	line-height: 1.1;
+/* A soft wash of the logo's colors, fixed behind everything. */
+.aura {
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background:
+		radial-gradient(60rem 40rem at 0% 0%, var(--aura-1), transparent 70%),
+		radial-gradient(50rem 36rem at 100% 10%, var(--aura-2), transparent 70%),
+		radial-gradient(60rem 30rem at 50% 110%, var(--aura-3), transparent 70%);
+}
+
+/*
+ * Apple's launch-page headline: the name in ink, the rest of the sentence
+ * in gray, both bold and tightly tracked.
+ */
+.headline {
+	font-size: 1.75rem;
+	line-height: 1.14;
 	font-weight: 700;
-	letter-spacing: -0.022em;
+	letter-spacing: -0.024em;
+	text-wrap: balance;
 }
 @media (min-width: 768px) {
-	.large-title {
-		font-size: 1.625rem;
+	.headline {
+		font-size: 1.875rem;
 	}
 }
 
-/* Floating chrome: translucent, with content scrolling underneath. */
-.material {
-	background: var(--color-material);
+/*
+ * Liquid Glass lives only on the floating layer: sidebar, tab bar, toolbar
+ * and sheets. Content stays opaque underneath.
+ */
+/* Needs a positioned element (relative, sticky or fixed) for its rim. */
+.glass,
+.glass-thick {
+	background: var(--glass-fill);
 	/* Written once: the build adds the -webkit- prefix Safari needs. */
-	backdrop-filter: blur(20px) saturate(180%);
+	backdrop-filter: blur(28px) saturate(1.6);
+	box-shadow:
+		0 0 0 0.5px var(--glass-edge),
+		var(--glass-shadow);
 }
-@media (prefers-reduced-transparency: reduce) {
-	.material {
-		background: var(--color-bg);
-		backdrop-filter: none;
-	}
+/* Text-heavy surfaces are thicker so they stay legible. */
+.glass-thick {
+	background: var(--glass-fill-thick);
+	backdrop-filter: blur(40px) saturate(1.8);
+}
+/* The rim: light catching the top edge, a fainter echo at the bottom. */
+.glass::before,
+.glass-thick::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	padding: 1px;
+	pointer-events: none;
+	background: linear-gradient(
+		170deg,
+		var(--glass-rim),
+		transparent 30%,
+		transparent 70%,
+		var(--glass-rim-low)
+	);
+	mask:
+		linear-gradient(#000 0 0) content-box exclude,
+		linear-gradient(#000 0 0);
+}
+
+/*
+ * Scroll edge effect: content fades and softens where it meets a bar,
+ * instead of a hard divider.
+ */
+.scroll-edge {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+.scroll-edge::after {
+	content: "";
+	position: absolute;
+	inset: 0 0 -1.5rem;
+	z-index: -1;
+	pointer-events: none;
+	background: linear-gradient(var(--edge-fade) 55%, transparent);
+	backdrop-filter: blur(6px);
+	mask: linear-gradient(#000 60%, transparent);
+	opacity: 0;
+	transition: opacity 200ms ease;
+}
+.scroll-edge[data-stuck]::after {
+	opacity: 1;
+}
+
+/* Cards in the content layer: opaque, with a soft lift. */
+.card {
+	background: var(--color-surface);
+	box-shadow: var(--card-shadow);
+}
+
+/* The one tinted action per view: color on the background, as Apple does. */
+.prominent {
+	color: var(--color-on-accent);
+	background: linear-gradient(
+		var(--color-accent-fill),
+		color-mix(in oklab, var(--color-accent-fill) 82%, black)
+	);
+	box-shadow:
+		inset 0 1px 0 rgb(255 255 255 / 0.28),
+		0 1px 2px rgb(0 0 0 / 0.16),
+		0 8px 20px -8px
+		color-mix(in oklab, var(--color-accent-fill) 70%, transparent);
+}
+
+/* A selection that slides between options, settling with a spring. */
+.slider-thumb {
+	transition: transform 520ms var(--ease-spring);
 }
 
 /* Pressable things answer the press. */
@@ -121,6 +276,15 @@ html {
 :focus-visible {
 	outline: 2px solid var(--color-accent);
 	outline-offset: 2px;
+}
+
+/* Overlay-style scrollbars, as on macOS: shown while the pointer is over. */
+.scroll-area {
+	scrollbar-width: thin;
+	scrollbar-color: transparent transparent;
+}
+.scroll-area:hover {
+	scrollbar-color: var(--color-fill-strong) transparent;
 }
 
 .no-scrollbar {
@@ -151,7 +315,7 @@ html {
 	box-shadow:
 		0 3px 8px rgb(0 0 0 / 0.15),
 		0 1px 1px rgb(0 0 0 / 0.16);
-	transition: transform 200ms var(--ease-out);
+	transition: transform 420ms var(--ease-spring);
 }
 .switch:checked {
 	background: var(--color-good);
@@ -166,7 +330,7 @@ html {
  */
 .sheet {
 	transform: none;
-	transition: transform 380ms var(--ease-drawer);
+	transition: transform 420ms var(--ease-drawer);
 	@starting-style {
 		transform: translateY(100%);
 	}
@@ -200,9 +364,47 @@ html {
 	opacity: 0;
 }
 
+/* Reduce Transparency: the glass turns solid. */
+@media (prefers-reduced-transparency: reduce) {
+	.glass,
+	.glass-thick {
+		background: var(--color-surface);
+		backdrop-filter: none;
+	}
+	.scroll-edge::after {
+		background: var(--color-bg);
+		backdrop-filter: none;
+		mask: none;
+	}
+	.aura {
+		display: none;
+	}
+}
+
+/* Increase Contrast: solid fills and a real border. */
+@media (prefers-contrast: more) {
+	.glass,
+	.glass-thick {
+		background: var(--color-surface);
+		backdrop-filter: none;
+		box-shadow: 0 0 0 1px var(--color-ink);
+	}
+	.glass::before,
+	.glass-thick::before {
+		display: none;
+	}
+	.card {
+		box-shadow: 0 0 0 1px var(--color-muted);
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.pressable:active:not(:disabled) {
 		transform: none;
+	}
+	.slider-thumb,
+	.switch::after {
+		transition: none;
 	}
 	.sheet,
 	.sheet-root[data-closing] .sheet {

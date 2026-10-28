@@ -1,11 +1,12 @@
 import type { JobFilters } from "@radar/core";
-import { Radar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useJobs } from "../api.ts";
 import { PopUp, SearchField, Segmented } from "../components/Controls.tsx";
 import { JobDetail } from "../components/JobDetail.tsx";
 import { JobRow } from "../components/JobRow.tsx";
+import { Logo } from "../components/Logo.tsx";
 import { ListChips } from "../components/Navigation.tsx";
+import { ScrollEdge } from "../components/ScrollEdge.tsx";
 import { useDebounced } from "../hooks.ts";
 import { LISTS, type ListId } from "../routes.ts";
 
@@ -13,7 +14,7 @@ const PAGE = 30;
 
 function Skeleton() {
 	return (
-		<ul aria-hidden className="overflow-hidden rounded-xl bg-surface">
+		<ul aria-hidden className="card overflow-hidden rounded-2xl">
 			{[0, 1, 2, 3, 4].map((i) => (
 				<li
 					key={i}
@@ -79,69 +80,70 @@ export function JobsPage({
 			aria-labelledby="list-title"
 			className={
 				inline
-					? "h-full w-[26rem] shrink-0 overflow-y-auto border-r border-separator"
-					: "mx-auto max-w-3xl"
+					? "scroll-area relative h-full w-[26rem] shrink-0 overflow-y-auto"
+					: "relative mx-auto max-w-3xl"
 			}
 		>
-			<div className="space-y-3 px-4 pt-6 pb-3 md:pt-5">
-				<div className="flex items-baseline justify-between gap-3">
-					<h1 id="list-title" className="large-title">
-						{config.label}
-					</h1>
-					<p className="text-[13px] text-muted tabular-nums" aria-live="polite">
-						{data
-							? `${data.total} ${data.total === 1 ? "vaga" : "vagas"}${isFetching ? "…" : ""}`
-							: null}
-					</p>
-				</div>
+			<div className="space-y-4 px-5 pt-8 pb-4 md:pt-7">
+				<h1 id="list-title" className="headline">
+					{config.label}.{" "}
+					<span
+						className={`text-muted transition-opacity duration-200 ${isFetching ? "opacity-60" : ""}`}
+						aria-live="polite"
+					>
+						{data ? config.tagline(data.total) : null}
+					</span>
+				</h1>
 				<ListChips route={list} />
 			</div>
 
 			{/* The title scrolls away; search and filters stay at hand. */}
-			<div className="material sticky top-0 z-10 space-y-2.5 border-b border-separator px-4 pt-1 pb-3">
-				<SearchField
-					value={q}
-					onChange={setQ}
-					label="Buscar cargo ou empresa"
-				/>
-				<div className="grid grid-cols-2 gap-2">
-					<Segmented
-						label="Onde"
-						value={scope}
-						onChange={setScope}
-						options={[
-							["all", "Todas"],
-							["brazil", "Brasil"],
-							["abroad", "Exterior"],
-						]}
+			<ScrollEdge className="px-3 pt-1 pb-2">
+				<div className="glass relative space-y-2 rounded-[24px] p-2">
+					<SearchField
+						value={q}
+						onChange={setQ}
+						label="Buscar cargo ou empresa"
 					/>
+					<div className="grid grid-cols-2 gap-2">
+						<Segmented
+							label="Onde"
+							value={scope}
+							onChange={setScope}
+							options={[
+								["all", "Todas"],
+								["brazil", "Brasil"],
+								["abroad", "Exterior"],
+							]}
+						/>
 
-					<PopUp
-						label="Nota mínima"
-						value={minScore}
-						onChange={setMinScore}
-						options={[
-							["0", "Qualquer nota"],
-							["50", "Nota 50+"],
-							["70", "Nota 70+"],
-							["85", "Nota 85+"],
-						]}
-					/>
-					<PopUp
-						label="Ordenar por"
-						value={sort}
-						onChange={setSort}
-						options={[
-							["score", "Maior nota"],
-							["recent", "Mais recentes"],
-						]}
-					/>
+						<PopUp
+							label="Nota mínima"
+							value={minScore}
+							onChange={setMinScore}
+							options={[
+								["0", "Qualquer nota"],
+								["50", "Nota 50+"],
+								["70", "Nota 70+"],
+								["85", "Nota 85+"],
+							]}
+						/>
+						<PopUp
+							label="Ordenar por"
+							value={sort}
+							onChange={setSort}
+							options={[
+								["score", "Maior nota"],
+								["recent", "Mais recentes"],
+							]}
+						/>
+					</div>
 				</div>
-			</div>
+			</ScrollEdge>
 
-			<div className="space-y-4 px-4 pt-4 pb-28 md:pb-8">
+			<div className="space-y-4 px-3 pt-3 pb-28 md:pb-8">
 				{error && (
-					<p className="rounded-xl bg-bad-soft px-4 py-3 text-[15px] text-bad">
+					<p className="rounded-2xl bg-bad-soft px-4 py-3 text-[15px] text-bad">
 						Não deu para carregar as vagas: {error.message}
 					</p>
 				)}
@@ -149,7 +151,7 @@ export function JobsPage({
 
 				{data && data.items.length === 0 && (
 					<div className="flex flex-col items-center gap-2 px-6 py-16 text-center">
-						<Radar aria-hidden size={36} className="text-faint" />
+						<Logo size={44} />
 						<p className="text-[17px] font-semibold">Nenhuma vaga</p>
 						<p className="max-w-xs text-[15px] text-muted">
 							{filtered ? "Nada com esses filtros." : config.empty}
@@ -167,7 +169,7 @@ export function JobsPage({
 				)}
 
 				{data && data.items.length > 0 && (
-					<ul className="overflow-hidden rounded-xl bg-surface">
+					<ul className="card overflow-hidden rounded-2xl">
 						{data.items.map((job) => (
 							<JobRow
 								key={job.id}
@@ -183,7 +185,7 @@ export function JobsPage({
 					<button
 						type="button"
 						onClick={() => setLimit((n) => n + PAGE)}
-						className="pressable hoverable w-full rounded-xl bg-surface py-3 text-[15px] text-accent"
+						className="card pressable w-full rounded-2xl py-3 text-[15px] font-medium text-accent"
 					>
 						Mostrar mais {Math.min(PAGE, data.total - data.items.length)}
 					</button>
@@ -199,7 +201,7 @@ export function JobsPage({
 			{listPane}
 			<section
 				aria-label="Detalhes da vaga"
-				className="h-full min-w-0 flex-1 overflow-y-auto"
+				className="scroll-area relative h-full min-w-0 flex-1 overflow-y-auto"
 			>
 				{selected !== null ? (
 					<div className="mx-auto max-w-3xl">
@@ -207,10 +209,15 @@ export function JobsPage({
 					</div>
 				) : (
 					<div className="grid h-full place-items-center p-8 text-center">
-						<div className="space-y-2">
-							<Radar aria-hidden size={40} className="mx-auto text-faint" />
-							<p className="text-[15px] text-muted">
-								Escolha uma vaga para ver a análise.
+						<div className="space-y-4">
+							<div className="mx-auto w-fit opacity-90">
+								<Logo size={72} />
+							</div>
+							<p className="headline text-[22px]!">
+								Argos.{" "}
+								<span className="text-muted">
+									Escolha uma vaga para ver a análise.
+								</span>
 							</p>
 						</div>
 					</div>

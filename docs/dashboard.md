@@ -1,6 +1,6 @@
-# Dashboard: como funciona
+# Dashboard do Argos: como funciona
 
-O dashboard é onde você revisa as vagas que o Radar encontrou e pontuou, decide o que fazer com cada uma e ajusta o que o Radar procura. Ele roda só no seu computador.
+O dashboard é onde você revisa as vagas que o Argos encontrou e pontuou, decide o que fazer com cada uma e ajusta o que o Argos procura. Ele roda só no seu computador.
 
 ## Como abrir
 
@@ -39,7 +39,7 @@ O visual segue a Apple: macOS no computador e iOS 27 no celular. A tela muda de 
 
 - **Vagas**: as cinco listas inteligentes (abaixo). O número ao lado é quantas vagas há nela.
 - **Organizar › Quadro**: as vagas em colunas por status.
-- **Ajustes**: o que o Radar procura e quando avisa.
+- **Ajustes**: o que o Argos procura e quando avisa.
 - **Varredura há…**: quando o worker terminou a última busca. A bolinha fica verde se todas as fontes responderam e laranja se alguma falhou (o texto diz quantas).
 
 ### Barra de abas (celular)
@@ -150,19 +150,63 @@ Organizado como o app Ajustes do iPhone. Os botões **Salvar** e **Desfazer** fi
 - **Só o dashboard grava**: toda escrita (status, nota, rascunho, ajustes) exige um cabeçalho que só o dashboard envia. Um site aberto em outra aba não consegue mudar seus dados nem gerar rascunhos pagos.
 - **Sem login**: por isso o dashboard não deve ser exposto na rede nem na internet.
 
+## Nome e logo
+
+**Argos** vem de Argos Panoptes, o gigante de cem olhos da mitologia grega que nunca dormia: quando uns olhos fechavam, outros ficavam abertos. Depois que ele morreu, Hera pôs os olhos dele na cauda do pavão. É o que o Argos faz com as vagas: vigia todas as fontes, o tempo todo.
+
+O logo (`apps/web/public/favicon.svg`) junta as duas partes do mito:
+- **o olho**, cuja íris é o "olho" de uma pena de pavão: anéis dourado, verde-azulado e azul profundo;
+- **um anel de pontos em volta**, que são os cem olhos e acendem em sequência como a varredura de um radar, lembrando o que o app faz.
+
+O fundo vai do índigo ao verde-azulado, com uma luz batendo na borda de cima, como os ícones atuais da Apple. O mesmo desenho é o ícone da aba do navegador e o ícone da tela de início do iPhone (`apple-touch-icon.png`).
+
 ## Decisões de design
 
-- **Componentes conhecidos**: barra lateral do macOS, barra de abas flutuante e folha do iOS, lista agrupada, controle segmentado, chaves de liga/desliga e o menu nativo do sistema nos filtros.
-- **Uma marca visual só**: o anel de nota. O resto fica neutro.
-- **Cores**: as cores de sistema da Apple, nas variantes acessíveis. Todo texto passa de 4,5:1 de contraste, medido nos dois temas sobre fundos, tons e preenchimentos.
-- **Tema**: claro e escuro seguem o sistema.
-- **Fonte**: a do sistema (SF Pro no Mac e no iPhone). Os títulos grandes têm espaçamento negativo, como no iOS.
-- **Vidro só no que flutua**: barra lateral, barra de abas e cabeçalhos fixos são translúcidos, e o conteúdo passa por baixo deles. Com "Reduzir transparência" ligado no sistema, eles ficam sólidos.
-- **Movimento** (seguindo a skill emil-design-eng):
-  - os botões encolhem levemente ao toque;
-  - o painel e a folha entram com uma curva de desaceleração forte e saem mais rápido por onde entraram;
-  - nada anima ao trocar de lista, que é algo que se faz muitas vezes por dia;
-  - com "Reduzir movimento" ligado, tudo vira um esmaecimento curto.
+### Liquid Glass
+
+O vidro segue o guia da Apple (HIG, Materials e Liquid Glass) e há duas camadas:
+
+- **Camada funcional, de vidro:** o que flutua e controla. São a barra lateral, a barra de abas, a barra de busca e filtros, e o painel ou a folha da vaga.
+  - O vidro desfoca e satura o que passa por baixo.
+  - Na borda de cima ele tem um brilho fino, como luz batendo, e um eco mais fraco embaixo.
+  - Superfícies com muito texto (barra lateral, folha) usam um vidro mais espesso, para continuar legíveis.
+- **Camada de conteúdo, opaca:** listas, cartões e textos ficam em superfícies sólidas. Vidro em conteúdo é contra a regra da Apple.
+- **Uma cor de fundo para o vidro refletir:** um véu suave nas cores do logo fica parado atrás de tudo. A cor da marca mora no conteúdo, e o vidro só a capta.
+- **Efeito de borda ao rolar:** quando o conteúdo passa por baixo de uma barra fixa, ele esmaece e desfoca em vez de bater numa linha dura. O efeito só aparece enquanto há conteúdo passando por baixo.
+- **Seleção que desliza:** na barra de abas e no controle Todas/Brasil/Exterior, a seleção desliza até a opção escolhida e assenta com uma mola leve, de 1% de sobra, como no iOS 27.
+- **Acessibilidade:**
+  - com "Reduzir transparência" ligado, o vidro fica sólido e o véu some;
+  - com "Aumentar contraste", ganha borda real;
+  - com "Reduzir movimento", nada desliza.
+
+### Visual
+
+- **Títulos de lançamento:** cada tela abre com uma frase no estilo das páginas de produto da Apple. O nome vem em preto e o resto da frase em cinza, os dois em negrito.
+  - Exemplo: "**Para você.** 11 vagas que combinam com você."
+  - O número acompanha os filtros.
+- **Uma ação colorida por tela:** "Abrir no …" é o único botão azul preenchido, com um leve degradê e brilho.
+- **Uma marca visual nos dados:** o anel de nota. O resto fica neutro.
+- **Componentes conhecidos:**
+  - barra lateral flutuante do macOS;
+  - barra de abas flutuante e folha do iOS;
+  - lista agrupada;
+  - controle segmentado;
+  - chaves de liga/desliga;
+  - o menu nativo do sistema nos filtros.
+- **Cores:** as de sistema da Apple, nas variantes acessíveis. Todo texto passa de 4,5:1 de contraste, medido nos dois temas.
+- **Tema:** claro e escuro seguem o sistema.
+- **Fonte:** a do sistema (SF Pro no Mac e no iPhone), com títulos de espaçamento negativo como no iOS.
+- **Rolagem:** cada área rola sozinha (lista, detalhe, página), sem barra de rolagem dupla. As barras são finas e aparecem quando o ponteiro está sobre a área, como no macOS.
+
+### Movimento
+
+Segue a skill emil-design-eng:
+
+- os botões encolhem levemente ao toque;
+- o painel e a folha entram com uma curva de desaceleração forte e saem mais rápido por onde entraram;
+- as seleções deslizam com mola;
+- nada anima ao trocar de lista, que é algo que se faz muitas vezes por dia;
+- com "Reduzir movimento" ligado, tudo vira um esmaecimento curto.
 
 ## Onde está cada coisa no código
 
@@ -178,6 +222,8 @@ Organizado como o app Ajustes do iPhone. Os botões **Salvar** e **Desfazer** fi
 | `apps/web/src/components/Sheet.tsx` | Folha e painel flutuante, com arrastar para fechar |
 | `apps/web/src/components/Navigation.tsx` | Barra lateral, barra de abas e pílulas das listas |
 | `apps/web/src/components/ScoreRing.tsx` | O anel de nota |
-| `apps/web/src/index.css` | Cores, materiais, chaves e animações |
+| `apps/web/src/components/ScrollEdge.tsx` | Barra fixa com o efeito de borda ao rolar |
+| `apps/web/src/components/Logo.tsx`, `apps/web/public/favicon.svg` | O logo do Argos |
+| `apps/web/src/index.css` | Cores, Liquid Glass, chaves e animações |
 | `apps/web/src/api.ts` | Chamadas à API e atualização otimista do status |
 | `apps/api/src/server.ts` | A API REST que o dashboard usa |

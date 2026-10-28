@@ -109,7 +109,7 @@ export function Sheet({
 				aria-label="Fechar"
 				tabIndex={-1}
 				onClick={close}
-				className="scrim absolute inset-0 cursor-default bg-black/30"
+				className="scrim absolute inset-0 cursor-default bg-black/25"
 			/>
 			<div
 				ref={panel}
@@ -117,7 +117,7 @@ export function Sheet({
 				aria-modal="true"
 				aria-labelledby={labelledBy}
 				tabIndex={-1}
-				className="sheet absolute inset-x-0 top-3 bottom-0 overflow-y-auto overscroll-contain rounded-t-[14px] bg-bg shadow-2xl outline-none md:inset-y-2 md:right-2 md:left-auto md:w-[min(34rem,calc(100%-1rem))] md:rounded-2xl"
+				className="sheet glass-thick scroll-area absolute inset-x-0 top-3 bottom-0 overflow-y-auto overscroll-contain rounded-t-[28px] outline-none [--edge-fade:var(--glass-fill-thick)] md:inset-y-2 md:right-2 md:left-auto md:w-[min(34rem,calc(100%-1rem))] md:rounded-[26px]"
 			>
 				{children({ close, handle })}
 			</div>
