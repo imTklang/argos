@@ -25,7 +25,11 @@ export class ApiError extends Error {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
 	const res = await fetch(path, {
 		...init,
-		headers: init?.body ? { "content-type": "application/json" } : undefined,
+		headers: {
+			// Required by the API on writes; see CLIENT_HEADER in apps/api.
+			"x-radar-client": "dashboard",
+			...(init?.body ? { "content-type": "application/json" } : {}),
+		},
 	});
 	const body = await res.json().catch(() => null);
 	if (!res.ok) {

@@ -4,7 +4,9 @@ import { join } from "node:path";
 import type { Job, Preferences, Profile } from "@radar/core";
 import { createDb, jobScores, jobs, profiles, runs } from "@radar/db";
 import { describe, expect, it, vi } from "vitest";
-import { buildServer } from "./server.ts";
+import { buildServer, CLIENT_HEADER } from "./server.ts";
+
+const CLIENT = { [CLIENT_HEADER]: "dashboard" };
 
 const prefs: Preferences = {
 	roles: ["estágio backend"],
@@ -121,6 +123,7 @@ describe("GET /api/jobs", () => {
 		]);
 		await app.inject({
 			method: "PATCH",
+			headers: CLIENT,
 			url: `/api/jobs/${ids[1]}/status`,
 			payload: { status: "salva" },
 		});
@@ -166,11 +169,13 @@ describe("job detail and status", () => {
 		const url = `/api/jobs/${ids[0]}/status`;
 		await app.inject({
 			method: "PATCH",
+			headers: CLIENT,
 			url,
 			payload: { status: "candidatei", note: "Enviado em 28/10" },
 		});
 		const res = await app.inject({
 			method: "PATCH",
+			headers: CLIENT,
 			url,
 			payload: { status: "vista" },
 		});
@@ -179,8 +184,14 @@ describe("job detail and status", () => {
 			note: "Enviado em 28/10",
 		});
 		expect(
-			(await app.inject({ method: "PATCH", url, payload: { status: "x" } }))
-				.statusCode,
+			(
+				await app.inject({
+					method: "PATCH",
+					headers: CLIENT,
+					url,
+					payload: { status: "x" },
+				})
+			).statusCode,
 		).toBe(400);
 	});
 });
@@ -191,10 +202,11 @@ describe("POST /api/jobs/:id/cover-letter", () => {
 		db.insert(profiles).values({ data: profile, resumeHash: "h" }).run();
 		const url = `/api/jobs/${ids[0]}/cover-letter`;
 
-		const first = await app.inject({ method: "POST", url });
-		const second = await app.inject({ method: "POST", url });
+		const first = await app.inject({ method: "POST", headers: CLIENT, url });
+		const second = await app.inject({ method: "POST", headers: CLIENT, url });
 		const again = await app.inject({
 			method: "POST",
+			headers: CLIENT,
 			url,
 			payload: { regenerate: true },
 		});
@@ -217,6 +229,7 @@ describe("POST /api/jobs/:id/cover-letter", () => {
 		const { app, ids } = await setup([{}]);
 		const res = await app.inject({
 			method: "POST",
+			headers: CLIENT,
 			url: `/api/jobs/${ids[0]}/cover-letter`,
 		});
 		expect(res.statusCode).toBe(409);
@@ -233,6 +246,7 @@ describe("preferences", () => {
 		const updated = { ...prefs, minScoreToNotify: 75, abroad: "remote" };
 		const res = await app.inject({
 			method: "PUT",
+			headers: CLIENT,
 			url: "/api/preferences",
 			payload: updated,
 		});
@@ -244,6 +258,7 @@ describe("preferences", () => {
 
 		const bad = await app.inject({
 			method: "PUT",
+			headers: CLIENT,
 			url: "/api/preferences",
 			payload: { ...prefs, minScoreToNotify: 300 },
 		});
@@ -256,6 +271,7 @@ describe("GET /api/stats", () => {
 		const { app, db, ids } = await setup([{}, {}, { duplicateOf: 1 }]);
 		await app.inject({
 			method: "PATCH",
+			headers: CLIENT,
 			url: `/api/jobs/${ids[0]}/status`,
 			payload: { status: "salva" },
 		});
@@ -280,5 +296,43 @@ describe("GET /api/stats", () => {
 		expect(body.lastRuns).toEqual([
 			expect.objectContaining({ source: "gupy", jobsFound: 2 }),
 		]);
+	});
+});
+
+describe("access from outside the dashboard", () => {
+	it("refuses a Host other than localhost (DNS rebinding)", async () => {
+		const { app } = await setup([{}]);
+		const res = await app.inject({
+			url: "/api/jobs",
+			headers: { host: "evil.example:3333" },
+		});
+		expect(res.statusCode).toBe(403);
+		expect(
+			(
+				await app.inject({
+					url: "/api/jobs",
+					headers: { host: "127.0.0.1:3333" },
+				})
+			).statusCode,
+		).toBe(200);
+	});
+
+	it("refuses writes without the dashboard header", async () => {
+		const { app, ids, generateCoverLetter } = await setup([{}]);
+		const res = await app.inject({
+			method: "POST",
+			url: `/api/jobs/${ids[0]}/cover-letter`,
+		});
+		expect(res.statusCode).toBe(403);
+		expect(generateCoverLetter).not.toHaveBeenCalled();
+		expect(
+			(
+				await app.inject({
+					method: "PATCH",
+					url: `/api/jobs/${ids[0]}/status`,
+					payload: { status: "salva" },
+				})
+			).statusCode,
+		).toBe(403);
 	});
 });

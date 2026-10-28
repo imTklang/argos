@@ -49,8 +49,43 @@ const JobsQuery = z.object({
 
 const IdParams = z.object({ id: z.coerce.number().int().positive() });
 
+/** Header the dashboard sends; a cross-site page cannot add it without CORS. */
+export const CLIENT_HEADER = "x-radar-client";
+const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
+const MUTATING = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
+function hostname(host: string | undefined): string {
+	if (!host) return "";
+	// "[::1]:3333" keeps its brackets; "localhost:3333" drops the port.
+	return host.startsWith("[")
+		? host.slice(0, host.indexOf("]") + 1)
+		: (host.split(":")[0] ?? "");
+}
+
 export function buildServer(opts: ServerOptions) {
 	const app = Fastify({ logger: opts.logger ?? false });
+
+	// There is no login, so the API must only answer this machine's dashboard:
+	// - a loopback Host blocks DNS rebinding (an outside page resolving its own
+	//   name to 127.0.0.1 to read the data);
+	// - the custom header on writes forces a CORS preflight that this API never
+	//   grants, so another site cannot trigger paid cover letters or edits.
+	app.addHook("onRequest", async (req, reply) => {
+		if (!LOOPBACK_HOSTS.has(hostname(req.headers.host))) {
+			return reply
+				.code(403)
+				.send({ error: "Acesso permitido só pelo localhost" });
+		}
+		if (
+			MUTATING.has(req.method) &&
+			req.headers[CLIENT_HEADER] !== "dashboard"
+		) {
+			return reply
+				.code(403)
+				.send({ error: "Requisição sem o cabeçalho do dashboard" });
+		}
+	});
+
 	app.setValidatorCompiler(validatorCompiler);
 	app.setSerializerCompiler(serializerCompiler);
 	const api = app.withTypeProvider<ZodTypeProvider>();
