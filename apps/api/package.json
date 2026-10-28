@@ -6,12 +6,16 @@
 		"typecheck": "tsc -p ."
 	},
 	"dependencies": {
+		"@fastify/static": "10.1.8",
 		"@radar/ai": "workspace:*",
 		"@radar/core": "workspace:*",
 		"@radar/db": "workspace:*",
 		"@radar/pipeline": "workspace:*",
 		"@radar/sources": "workspace:*",
+		"fastify": "5.12.7",
+		"fastify-type-provider-zod": "7.0.0",
 		"grammy": "1.46.0",
-		"node-cron": "4.6.0"
+		"node-cron": "4.6.0",
+		"zod": "4.6.7"
 	}
 }
