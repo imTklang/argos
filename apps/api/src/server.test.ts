@@ -94,6 +94,15 @@ async function setup(seed: Seed[] = [], options: Partial<ServerOptions> = {}) {
 	return { app, db, ids, preferencesPath, generateCoverLetter };
 }
 
+describe("GET /api/health", () => {
+	it("answers when the database is reachable", async () => {
+		const { app } = await setup();
+		const res = await app.inject({ url: "/api/health" });
+		expect(res.statusCode).toBe(200);
+		expect(res.json()).toEqual({ ok: true });
+	});
+});
+
 describe("closed postings", () => {
 	it("hides closed or expired jobs unless the user is following them", async () => {
 		const { app, db, ids } = await setup([

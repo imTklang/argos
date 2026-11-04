@@ -9,7 +9,7 @@ import {
 	Preferences,
 	type Profile,
 } from "@radar/core";
-import { coverLetters, type Db } from "@radar/db";
+import { coverLetters, type Db, runs } from "@radar/db";
 import { loadLatestProfile } from "@radar/pipeline";
 import Fastify, { type FastifyError } from "fastify";
 import {
@@ -231,6 +231,12 @@ export function buildServer(opts: ServerOptions) {
 	);
 
 	api.get("/api/stats", () => getStats(opts.db));
+
+	// For container health checks: answers once the database is reachable.
+	api.get("/api/health", () => {
+		opts.db.select({ id: runs.id }).from(runs).limit(1).all();
+		return { ok: true };
+	});
 
 	app.setErrorHandler((error: FastifyError, _req, reply) => {
 		if (error.validation) {
