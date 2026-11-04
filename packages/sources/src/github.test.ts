@@ -67,7 +67,37 @@ describe("github fetchJobs", () => {
 		expect(fetch.mock.calls[0]?.[0]).toContain(
 			"since=2026-10-26T11%3A00%3A00.000Z",
 		);
+		// Closed ones too, so postings taken down get marked.
+		expect(fetch.mock.calls[0]?.[0]).toContain("state=all");
 		expect(fetch.mock.calls[0]?.[1].headers.authorization).toBeUndefined();
+	});
+
+	it("reads a repository it has never stored whole, ignoring since", async () => {
+		const fetch = vi.fn().mockImplementation(async () => jsonResponse([]));
+		const source = createGitHubSource({
+			repos: ["old/repo", "new/repo"],
+			fetch,
+			sleep: noSleep,
+		});
+
+		await source.fetchJobs({
+			...query,
+			since: new Date("2026-10-26T11:00:00Z"),
+			isNew: (repo) => repo === "new/repo",
+		});
+
+		const [oldUrl, newUrl] = fetch.mock.calls.map((call) => String(call[0]));
+		expect(oldUrl).toContain("since=");
+		expect(newUrl).toContain("/repos/new/repo/");
+		expect(newUrl).not.toContain("since=");
+		expect(newUrl).toContain("state=open");
+	});
+
+	it("tells closed issues apart", () => {
+		const source = createGitHubSource({ repos: [], fetch: vi.fn() });
+		const issue = { ...GitHubIssue.parse(fixture[0]), repo: "a/b" };
+		expect(source.isClosed?.({ ...issue, state: "closed" })).toBe(true);
+		expect(source.isClosed?.({ ...issue, state: "open" })).toBe(false);
 	});
 
 	it("pages while pages come back full", async () => {

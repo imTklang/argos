@@ -33,6 +33,8 @@ export type PoliteFetchOptions = {
 	sleep: (ms: number) => Promise<void>;
 	retries?: number;
 	backoffMs?: number;
+	/** Per attempt, so a hung connection cannot hold a scan for minutes. */
+	timeoutMs?: number;
 };
 
 /** Error text that keeps undici's hidden cause ("fetch failed" alone says nothing). */
@@ -52,11 +54,18 @@ export async function politeFetch(
 	headers: Record<string, string>,
 	opts: PoliteFetchOptions,
 ): Promise<Response> {
-	const { fetch, sleep, retries = 3, backoffMs = 10_000 } = opts;
+	const {
+		fetch,
+		sleep,
+		retries = 3,
+		backoffMs = 10_000,
+		timeoutMs = 30_000,
+	} = opts;
 	for (let attempt = 0; ; attempt++) {
 		try {
 			const res = await fetch(url, {
 				headers: { "user-agent": USER_AGENT, ...headers },
+				signal: AbortSignal.timeout(timeoutMs),
 			});
 			const retryable = res.status === 429 || res.status >= 500;
 			if (!retryable || attempt >= retries) return res;
