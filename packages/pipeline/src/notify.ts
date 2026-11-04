@@ -6,6 +6,7 @@ import {
 	eq,
 	gte,
 	isNull,
+	isOpenJob,
 	jobScores,
 	jobStatus,
 	jobs,
@@ -36,6 +37,7 @@ function scoredJobs(
 	minScore: number,
 	excludeKinds: string[],
 	includeAbroad: boolean,
+	now: Date,
 ) {
 	const alreadySent = db
 		.select({ jobId: notifications.jobId })
@@ -61,6 +63,8 @@ function scoredJobs(
 				includeAbroad ? undefined : eq(jobs.abroad, false),
 				// The original was (or will be) notified on its own.
 				isNull(jobs.duplicateOf),
+				// A posting taken down or past its deadline is no use to anyone.
+				isOpenJob(now),
 			),
 		)
 		// Jobs in Brazil first, then by score.
@@ -78,14 +82,22 @@ function scoredJobs(
  * Strong matches not yet alerted. Jobs abroad never interrupt: they wait for
  * the digest, since the user wants them available but not prioritized.
  */
-export function pendingAlerts(db: Db, prefs: Preferences): NotifiableJob[] {
+export function pendingAlerts(
+	db: Db,
+	prefs: Preferences,
+	now = new Date(),
+): NotifiableJob[] {
 	const threshold = prefs.instantAlertScore ?? DEFAULT_INSTANT_ALERT_SCORE;
-	return scoredJobs(db, threshold, ["alert"], false);
+	return scoredJobs(db, threshold, ["alert"], false, now);
 }
 
 /** Jobs above the notify threshold that no message has mentioned yet, Brazil first. */
-export function pendingDigest(db: Db, prefs: Preferences): NotifiableJob[] {
-	return scoredJobs(db, prefs.minScoreToNotify, ["alert", "digest"], true);
+export function pendingDigest(
+	db: Db,
+	prefs: Preferences,
+	now = new Date(),
+): NotifiableJob[] {
+	return scoredJobs(db, prefs.minScoreToNotify, ["alert", "digest"], true, now);
 }
 
 function record(
@@ -101,34 +113,53 @@ function record(
 		.run();
 }
 
-export type NotifyResult = { alerts: number; digest: number };
+export type NotifyResult = {
+	alerts: number;
+	digest: number;
+	/** Messages that could not be sent; their jobs are tried again next run. */
+	errors: string[];
+};
+
+function errorMessage(error: unknown) {
+	return error instanceof Error ? error.message : String(error);
+}
 
 /**
  * Sends instant alerts and, when asked, the digest. Each job is recorded as
  * soon as its message goes out, so a failure halfway never re-sends the ones
- * already delivered.
+ * already delivered. One message that fails does not stop the others or the
+ * digest.
  */
 export async function notify(opts: {
 	db: Db;
 	prefs: Preferences;
 	messenger: Messenger;
 	digest: boolean;
+	now?: Date;
 }): Promise<NotifyResult> {
-	const { db, prefs, messenger } = opts;
-	const result: NotifyResult = { alerts: 0, digest: 0 };
+	const { db, prefs, messenger, now = new Date() } = opts;
+	const result: NotifyResult = { alerts: 0, digest: 0, errors: [] };
 
-	for (const item of pendingAlerts(db, prefs)) {
-		const messageId = await messenger.sendJob(item);
-		record(db, [item], "alert", messenger.channel, messageId);
-		result.alerts++;
+	for (const item of pendingAlerts(db, prefs, now)) {
+		try {
+			const messageId = await messenger.sendJob(item);
+			record(db, [item], "alert", messenger.channel, messageId);
+			result.alerts++;
+		} catch (error) {
+			result.errors.push(`vaga #${item.jobId}: ${errorMessage(error)}`);
+		}
 	}
 
 	if (opts.digest) {
-		const items = pendingDigest(db, prefs);
+		const items = pendingDigest(db, prefs, now);
 		if (items.length > 0) {
-			const messageId = await messenger.sendDigest(items);
-			record(db, items, "digest", messenger.channel, messageId);
-			result.digest = items.length;
+			try {
+				const messageId = await messenger.sendDigest(items);
+				record(db, items, "digest", messenger.channel, messageId);
+				result.digest = items.length;
+			} catch (error) {
+				result.errors.push(`resumo: ${errorMessage(error)}`);
+			}
 		}
 	}
 	return result;

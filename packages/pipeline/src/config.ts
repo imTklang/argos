@@ -1,9 +1,26 @@
 import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Preferences } from "@radar/core";
 import { z } from "zod";
 
-export const SOURCES_CONFIG_PATH = "./config/sources.json";
-export const PREFERENCES_PATH = "./data/preferences.json";
+/** The repository root, so paths work whatever directory starts the process. */
+export const ROOT_DIR = fileURLToPath(new URL("../../../", import.meta.url));
+
+/** A path from the environment or the default, relative paths from the root. */
+function pathFromEnv(name: string, fallback: string): string {
+	return resolve(ROOT_DIR, process.env[name] || fallback);
+}
+
+export const DATABASE_PATH = pathFromEnv("DATABASE_PATH", "data/radar.db");
+export const PREFERENCES_PATH = pathFromEnv(
+	"PREFERENCES_PATH",
+	"data/preferences.json",
+);
+export const SOURCES_CONFIG_PATH = pathFromEnv(
+	"SOURCES_CONFIG_PATH",
+	"config/sources.json",
+);
 
 const Company = z.object({
 	slug: z.string().regex(/^[\w.-]+$/, "slug do board, ex.: btgpactual"),

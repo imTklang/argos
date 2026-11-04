@@ -54,6 +54,10 @@ export type JobHints = {
 	companyInternships?: number;
 };
 
+// Enough for any real posting; a runaway page (a whole site scraped into
+// the description) would cost tokens or be rejected by the API.
+export const MAX_DESCRIPTION_CHARS = 12_000;
+
 function describeJob(job: Job, hints: JobHints): string {
 	const lines = [
 		`Título: ${job.title}`,
@@ -70,7 +74,11 @@ function describeJob(job: Job, hints: JobHints): string {
 	if (job.expiresAt) {
 		lines.push(`Inscrições até: ${job.expiresAt.toISOString().slice(0, 10)}`);
 	}
-	lines.push("", job.description);
+	const description =
+		job.description.length > MAX_DESCRIPTION_CHARS
+			? `${job.description.slice(0, MAX_DESCRIPTION_CHARS)}\n[descrição cortada]`
+			: job.description;
+	lines.push("", description);
 	return `<vaga>\n${lines.join("\n")}\n</vaga>`;
 }
 
