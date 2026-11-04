@@ -36,6 +36,11 @@ export type ServerOptions = {
 	 * personal notes and cover letters hidden.
 	 */
 	demo?: boolean;
+	/**
+	 * Host names accepted besides loopback, e.g. the server's Tailscale name.
+	 * Only list names reachable from a private network: there is no login.
+	 */
+	allowedHosts?: string[];
 };
 
 /** "a,b,c" query values as a list. */
@@ -69,6 +74,12 @@ function hostname(host: string | undefined): string {
 
 export function buildServer(opts: ServerOptions) {
 	const app = Fastify({ logger: opts.logger ?? false });
+	const allowedHosts = new Set([
+		...LOOPBACK_HOSTS,
+		...(opts.allowedHosts ?? []).map((h) => h.trim().toLowerCase()),
+	]);
+	// Cover letters being written, by job, so a double click pays for one.
+	const writing = new Map<number, Promise<unknown>>();
 
 	// There is no login, so the API must only answer this machine's dashboard:
 	// - a loopback Host blocks DNS rebinding (an outside page resolving its own
@@ -82,7 +93,7 @@ export function buildServer(opts: ServerOptions) {
 			}
 			return;
 		}
-		if (!LOOPBACK_HOSTS.has(hostname(req.headers.host))) {
+		if (!allowedHosts.has(hostname(req.headers.host).toLowerCase())) {
 			return reply
 				.code(403)
 				.send({ error: "Acesso permitido só pelo localhost" });
@@ -143,7 +154,11 @@ export function buildServer(opts: ServerOptions) {
 			},
 		},
 		async (req, reply) => {
-			const detail = getJob(opts.db, req.params.id);
+			const id = req.params.id;
+			const pending = writing.get(id);
+			if (pending) return pending;
+
+			const detail = getJob(opts.db, id);
 			if (!detail)
 				return reply.code(404).send({ error: "Vaga não encontrada" });
 			// Generated letters are kept: asking again returns the stored one.
@@ -157,38 +172,51 @@ export function buildServer(opts: ServerOptions) {
 				});
 			}
 			const { description, analysis, ...rest } = detail;
-			const letter = await opts.generateCoverLetter({
-				profile,
-				analysis,
-				job: {
-					source: rest.source,
-					externalId: String(rest.id),
-					title: rest.title,
-					company: rest.company,
-					location: rest.location,
-					modality: rest.modality,
-					description,
-					url: rest.url,
-					publishedAt: null,
-					expiresAt: null,
-				},
-			});
-			const saved = opts.db
-				.insert(coverLetters)
-				.values({ jobId: detail.id, text: letter.text, model: letter.model })
-				.returning()
-				.get();
-			return {
-				text: saved.text,
-				model: saved.model,
-				createdAt: saved.createdAt.toISOString(),
-			};
+			const task = (async () => {
+				const letter = await opts.generateCoverLetter({
+					profile,
+					analysis,
+					job: {
+						source: rest.source,
+						externalId: String(rest.id),
+						title: rest.title,
+						company: rest.company,
+						location: rest.location,
+						modality: rest.modality,
+						description,
+						url: rest.url,
+						publishedAt: null,
+						expiresAt: null,
+					},
+				});
+				const saved = opts.db
+					.insert(coverLetters)
+					.values({ jobId: id, text: letter.text, model: letter.model })
+					.returning()
+					.get();
+				return {
+					text: saved.text,
+					model: saved.model,
+					createdAt: saved.createdAt.toISOString(),
+				};
+			})();
+			writing.set(id, task);
+			try {
+				return await task;
+			} finally {
+				writing.delete(id);
+			}
 		},
 	);
 
-	api.get("/api/preferences", async () =>
-		Preferences.parse(JSON.parse(await readFile(opts.preferencesPath, "utf8"))),
-	);
+	api.get("/api/preferences", async (_req, reply) => {
+		// Cities, keywords and pay say a lot about a person.
+		if (opts.demo)
+			return reply.code(404).send({ error: "Indisponível na demonstração" });
+		return Preferences.parse(
+			JSON.parse(await readFile(opts.preferencesPath, "utf8")),
+		);
+	});
 
 	api.put(
 		"/api/preferences",
@@ -211,7 +239,10 @@ export function buildServer(opts: ServerOptions) {
 				.send({ error: "Dados inválidos", details: error.message });
 		}
 		app.log.error(error);
-		return reply.code(500).send({ error: error.message || "Erro interno" });
+		// Messages can carry file paths; visitors of the demo get none.
+		return reply.code(500).send({
+			error: (!opts.demo && error.message) || "Erro interno",
+		});
 	});
 
 	if (opts.webRoot && existsSync(opts.webRoot)) {

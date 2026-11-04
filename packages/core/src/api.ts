@@ -18,6 +18,11 @@ export type JobListItem = {
 	analysis: JobScore | null;
 	status: JobStatus;
 	note: string | null;
+	/**
+	 * Taken down, past its deadline or not seen for too long. Such jobs are
+	 * listed only when saved or applied to, so the user keeps their history.
+	 */
+	closed: boolean;
 	/** The same opening seen on other sources or reposted. */
 	alsoOn: { source: string; url: string }[];
 };

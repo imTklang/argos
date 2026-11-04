@@ -2,7 +2,7 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Job, Preferences, Profile } from "@radar/core";
-import { createDb, jobScores, jobs, profiles, runs } from "@radar/db";
+import { createDb, inArray, jobScores, jobs, profiles, runs } from "@radar/db";
 import { describe, expect, it, vi } from "vitest";
 import { buildServer, CLIENT_HEADER, type ServerOptions } from "./server.ts";
 
@@ -93,6 +93,37 @@ async function setup(seed: Seed[] = [], options: Partial<ServerOptions> = {}) {
 	});
 	return { app, db, ids, preferencesPath, generateCoverLetter };
 }
+
+describe("closed postings", () => {
+	it("hides closed or expired jobs unless the user is following them", async () => {
+		const { app, db, ids } = await setup([
+			{},
+			{ expiresAt: new Date("2020-01-01T00:00:00Z") },
+			{},
+			{},
+		]);
+		db.update(jobs)
+			.set({ closedAt: new Date() })
+			.where(inArray(jobs.id, [ids[2] ?? 0, ids[3] ?? 0]))
+			.run();
+		await app.inject({
+			method: "PATCH",
+			headers: CLIENT,
+			url: `/api/jobs/${ids[3]}/status`,
+			payload: { status: "salva" },
+		});
+
+		const all = (await app.inject({ url: "/api/jobs" })).json();
+		expect(all.items.map((j: { id: number }) => j.id).sort()).toEqual(
+			[ids[0], ids[3]].sort(),
+		);
+		const saved = all.items.find((j: { id: number }) => j.id === ids[3]);
+		expect(saved.closed).toBe(true);
+
+		const stats = (await app.inject({ url: "/api/stats" })).json();
+		expect(stats.byStatus).toMatchObject({ nova: 1, salva: 1 });
+	});
+});
 
 describe("GET /api/jobs", () => {
 	it("lists scored originals best first, with duplicates as alsoOn", async () => {
@@ -230,6 +261,21 @@ describe("POST /api/jobs/:id/cover-letter", () => {
 		).toBe("Olá, time da Acme");
 	});
 
+	it("writes one letter when asked twice at once", async () => {
+		const { app, db, ids, generateCoverLetter } = await setup([{}]);
+		db.insert(profiles).values({ data: profile, resumeHash: "h" }).run();
+		const url = `/api/jobs/${ids[0]}/cover-letter`;
+
+		const [a, b] = await Promise.all([
+			app.inject({ method: "POST", headers: CLIENT, url }),
+			app.inject({ method: "POST", headers: CLIENT, url }),
+		]);
+
+		expect(a.json().text).toBe("Olá, time da Acme");
+		expect(b.json().text).toBe("Olá, time da Acme");
+		expect(generateCoverLetter).toHaveBeenCalledOnce();
+	});
+
 	it("asks for a profile first", async () => {
 		const { app, ids } = await setup([{}]);
 		const res = await app.inject({
@@ -322,6 +368,22 @@ describe("access from outside the dashboard", () => {
 		).toBe(200);
 	});
 
+	it("accepts the host names configured for a private network", async () => {
+		const { app } = await setup([{}], {
+			allowedHosts: ["argos.tail1234.ts.net"],
+		});
+		const ok = await app.inject({
+			url: "/api/jobs",
+			headers: { host: "Argos.tail1234.ts.net" },
+		});
+		const other = await app.inject({
+			url: "/api/jobs",
+			headers: { host: "argos.example.com" },
+		});
+		expect(ok.statusCode).toBe(200);
+		expect(other.statusCode).toBe(403);
+	});
+
 	it("refuses writes without the dashboard header", async () => {
 		const { app, ids, generateCoverLetter } = await setup([{}]);
 		const res = await app.inject({
@@ -343,6 +405,13 @@ describe("access from outside the dashboard", () => {
 });
 
 describe("read-only demo", () => {
+	it("hides the preferences", async () => {
+		const { app } = await setup([{}], { demo: true });
+		const res = await app.inject({ url: "/api/preferences" });
+		expect(res.statusCode).toBe(404);
+		expect(res.body).not.toContain("João Pessoa");
+	});
+
 	it("answers any Host but refuses every write, even from the dashboard", async () => {
 		const { app, ids, generateCoverLetter } = await setup([{}], { demo: true });
 		const read = await app.inject({

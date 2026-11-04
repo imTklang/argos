@@ -3,9 +3,12 @@ import { Anthropic, scoreJob } from "@radar/ai";
 import { createDb } from "@radar/db";
 import {
 	createSources,
+	DATABASE_PATH,
 	loadLatestProfile,
 	readPreferences,
 	readSourcesConfig,
+	ScanBusyError,
+	TIMEZONE,
 } from "@radar/pipeline";
 import { Bot } from "grammy";
 import cron from "node-cron";
@@ -16,9 +19,6 @@ import {
 	registerHandlers,
 } from "./telegram.ts";
 
-// Times are in João Pessoa's offset; America/Fortaleza has the same UTC-3 and
-// no daylight saving.
-const TIMEZONE = "America/Fortaleza";
 const SCHEDULES = [
 	{ cron: "0 8 * * *", digest: false },
 	{ cron: "0 18 * * *", digest: true },
@@ -50,7 +50,7 @@ async function main() {
 	}
 	const chatId = process.env.TELEGRAM_CHAT_ID || undefined;
 
-	const db = createDb(process.env.DATABASE_PATH ?? "./data/radar.db");
+	const db = createDb(DATABASE_PATH);
 	const bot = new Bot(token);
 	registerHandlers(bot, db, chatId);
 	const messenger = chatId ? createTelegramMessenger(bot.api, chatId) : null;
@@ -84,6 +84,8 @@ async function main() {
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
 				log(`Varredura falhou: ${message}`);
+				// A CLI scan running now is not a failure worth a message.
+				if (error instanceof ScanBusyError) return;
 				// Unattended runs should not fail silently.
 				await messenger
 					?.sendText(`⚠️ Varredura falhou: ${escapeHtml(message)}`)
@@ -102,6 +104,8 @@ async function main() {
 	const stop = async () => {
 		log("Encerrando...");
 		for (const task of tasks) await task.stop();
+		// Let a running scan finish so its scores and spending are saved.
+		await cycle.idle();
 		await bot.stop();
 		process.exit(0);
 	};

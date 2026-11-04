@@ -15,9 +15,11 @@ import {
 	gte,
 	inArray,
 	isNull,
+	isOpenJob,
 	jobScores,
 	jobStatus,
 	jobs,
+	or,
 	runs,
 	sql,
 } from "@radar/db";
@@ -26,9 +28,24 @@ function iso(date: Date | null): string | null {
 	return date ? date.toISOString() : null;
 }
 
-/** Only scored originals: duplicates live inside their original's alsoOn. */
-function baseConditions(filters: JobFilters) {
-	const conditions = [isNull(jobs.duplicateOf)];
+// Statuses whose jobs stay listed after the posting closes: the user is
+// following them.
+const TRACKED: JobStatus[] = ["salva", "candidatei"];
+
+/** Open postings, plus closed ones the user saved or applied to. */
+function visible(now: Date) {
+	return or(
+		isOpenJob(now),
+		inArray(sql`coalesce(${jobStatus.status}, 'nova')`, TRACKED),
+	);
+}
+
+/**
+ * Only scored originals (duplicates live inside their original's alsoOn)
+ * that are still worth showing.
+ */
+function baseConditions(filters: JobFilters, now: Date) {
+	const conditions = [isNull(jobs.duplicateOf), visible(now)];
 	if (filters.status?.length) {
 		conditions.push(
 			inArray(sql`coalesce(${jobStatus.status}, 'nova')`, filters.status),
@@ -50,9 +67,14 @@ function baseConditions(filters: JobFilters) {
 	return and(...conditions);
 }
 
-function selectJobs(db: Db) {
+function selectJobs(db: Db, now: Date) {
 	return db
-		.select({ job: jobs, score: jobScores, status: jobStatus })
+		.select({
+			job: jobs,
+			score: jobScores,
+			status: jobStatus,
+			open: sql<number>`coalesce(${isOpenJob(now)}, 0)`,
+		})
 		.from(jobScores)
 		.innerJoin(jobs, eq(jobs.id, jobScores.jobId))
 		.leftJoin(jobStatus, eq(jobStatus.jobId, jobs.id));
@@ -79,7 +101,7 @@ function alsoOnFor(db: Db, ids: number[]) {
 }
 
 function toItem(row: Row, alsoOn: JobListItem["alsoOn"]): JobListItem {
-	const { job, score, status } = row;
+	const { job, score, status, open } = row;
 	return {
 		id: job.id,
 		title: job.title,
@@ -96,6 +118,7 @@ function toItem(row: Row, alsoOn: JobListItem["alsoOn"]): JobListItem {
 		analysis: score.analysis,
 		status: status?.status ?? "nova",
 		note: status?.note ?? null,
+		closed: !open,
 		alsoOn,
 	};
 }
@@ -103,8 +126,9 @@ function toItem(row: Row, alsoOn: JobListItem["alsoOn"]): JobListItem {
 export function listJobs(
 	db: Db,
 	filters: JobFilters,
+	now = new Date(),
 ): { items: JobListItem[]; total: number } {
-	const where = baseConditions(filters);
+	const where = baseConditions(filters, now);
 	const total =
 		db
 			.select({ n: sql<number>`count(*)` })
@@ -120,7 +144,7 @@ export function listJobs(
 			: // Unscored jobs (null) last.
 				[sql`${jobScores.score} is null`, desc(jobScores.score), desc(jobs.id)];
 
-	const rows = selectJobs(db)
+	const rows = selectJobs(db, now)
 		.where(where)
 		.orderBy(...order)
 		.limit(filters.limit ?? 50)
@@ -136,8 +160,8 @@ export function listJobs(
 	};
 }
 
-export function getJob(db: Db, id: number): JobDetail | null {
-	const row = selectJobs(db).where(eq(jobs.id, id)).get();
+export function getJob(db: Db, id: number, now = new Date()): JobDetail | null {
+	const row = selectJobs(db, now).where(eq(jobs.id, id)).get();
 	if (!row) return null;
 	const letter = db
 		.select()
@@ -183,7 +207,7 @@ export function setStatus(
 	return true;
 }
 
-export function getStats(db: Db): Stats {
+export function getStats(db: Db, now = new Date()): Stats {
 	const byStatus: Record<JobStatus, number> = {
 		nova: 0,
 		vista: 0,
@@ -199,7 +223,7 @@ export function getStats(db: Db): Stats {
 		.from(jobScores)
 		.innerJoin(jobs, eq(jobs.id, jobScores.jobId))
 		.leftJoin(jobStatus, eq(jobStatus.jobId, jobs.id))
-		.where(isNull(jobs.duplicateOf))
+		.where(and(isNull(jobs.duplicateOf), visible(now)))
 		.groupBy(sql`coalesce(${jobStatus.status}, 'nova')`)
 		.all();
 	for (const { status, n } of counts) byStatus[status] = n;

@@ -15,11 +15,39 @@ const DECISIONS: Record<string, Decision> = {
 	discard: "descartada",
 };
 
+/** Text safe inside Telegram HTML, attribute values (href="...") included. */
 export function escapeHtml(text: string): string {
 	return text
 		.replace(/&/g, "&amp;")
 		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;");
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#39;");
+}
+
+const MAX_SEND_ATTEMPTS = 3;
+
+/**
+ * Retries a Telegram call that hit the rate limit (429), waiting as long as
+ * Telegram asks. Other errors are thrown at once.
+ */
+export async function withRateLimitRetry<T>(
+	call: () => Promise<T>,
+	sleep: (ms: number) => Promise<void> = (ms) =>
+		new Promise((resolve) => setTimeout(resolve, ms)),
+): Promise<T> {
+	for (let attempt = 1; ; attempt++) {
+		try {
+			return await call();
+		} catch (error) {
+			const { error_code, parameters } = (error ?? {}) as {
+				error_code?: number;
+				parameters?: { retry_after?: number };
+			};
+			if (error_code !== 429 || attempt >= MAX_SEND_ATTEMPTS) throw error;
+			await sleep((parameters?.retry_after ?? 1) * 1000);
+		}
+	}
 }
 
 function where(item: NotifiableJob): string {
@@ -131,11 +159,14 @@ export function handleDecision(
 export function createTelegramMessenger(
 	api: Pick<Api, "sendMessage">,
 	chatId: string,
+	opts: { sleep?: (ms: number) => Promise<void> } = {},
 ): Messenger {
+	const send = (...args: Parameters<Api["sendMessage"]>) =>
+		withRateLimitRetry(() => api.sendMessage(...args), opts.sleep);
 	return {
 		channel: "telegram",
 		async sendJob(item) {
-			const message = await api.sendMessage(chatId, formatJob(item), {
+			const message = await send(chatId, formatJob(item), {
 				parse_mode: "HTML",
 				link_preview_options: { is_disabled: true },
 				reply_markup: decisionKeyboard(item.jobId),
@@ -145,7 +176,7 @@ export function createTelegramMessenger(
 		async sendDigest(items) {
 			let first: string | undefined;
 			for (const page of formatDigest(items)) {
-				const message = await api.sendMessage(chatId, page, {
+				const message = await send(chatId, page, {
 					parse_mode: "HTML",
 					link_preview_options: { is_disabled: true },
 				});
@@ -154,9 +185,7 @@ export function createTelegramMessenger(
 			return first ?? "";
 		},
 		async sendText(text) {
-			const message = await api.sendMessage(chatId, text, {
-				parse_mode: "HTML",
-			});
+			const message = await send(chatId, text, { parse_mode: "HTML" });
 			return String(message.message_id);
 		},
 	};
