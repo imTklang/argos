@@ -33,6 +33,11 @@ export function JobRow({
 						<span className="min-w-0 flex-1 truncate text-[15px] font-semibold">
 							{job.title}
 						</span>
+						{job.closed && (
+							<span className="shrink-0 rounded-full bg-fill px-2 py-px text-xs text-muted">
+								Encerrada
+							</span>
+						)}
 						{job.publishedAt && (
 							<span className="shrink-0 text-xs text-muted">
 								{fromNow(job.publishedAt)}

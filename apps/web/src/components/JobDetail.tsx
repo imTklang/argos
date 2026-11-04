@@ -199,7 +199,7 @@ export function JobDetail({
 	const sources = job
 		? [...new Set(job.alsoOn.map((copy) => sourceLabel(copy.source)))]
 		: [];
-	const deadline = job ? fromNow(job.expiresAt) : null;
+	const deadline = job && !job.closed ? fromNow(job.expiresAt) : null;
 
 	return (
 		<article aria-labelledby={titleId}>
@@ -248,6 +248,11 @@ export function JobDetail({
 			{job && (
 				<div className="space-y-6 px-4 pt-5 pb-10 md:px-5">
 					<div className="space-y-3">
+						{job.closed && (
+							<p className="rounded-2xl bg-fill px-4 py-3 text-[15px] text-muted">
+								Esta vaga foi encerrada ou passou do prazo de inscrição.
+							</p>
+						)}
 						<StatusButtons jobId={job.id} status={job.status} />
 						<a
 							href={job.url}

@@ -20,6 +20,7 @@ const job: JobListItem = {
 	url: "https://himalayas.app/jobs/7",
 	publishedAt: null,
 	expiresAt: null,
+	closed: false,
 	score: 78,
 	analysis: {
 		score: 78,
