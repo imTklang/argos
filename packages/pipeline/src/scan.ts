@@ -488,7 +488,7 @@ export function formatScanReport(report: ScanReport, minScore: number): string {
 		lines.push(
 			source.error
 				? `  ${source.id}: falhou (${source.error})`
-				: `  ${source.id}: ${source.found} vagas, ${source.inserted} novas`,
+				: `  ${source.id}: ${source.found} vagas, ${source.inserted} novas${source.closed ? `, ${source.closed} encerradas` : ""}`,
 		);
 	}
 	if (report.duplicates > 0) {

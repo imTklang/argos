@@ -464,6 +464,7 @@ describe("runScan closures", () => {
 		});
 
 		expect(report.sources[0]?.closed).toBe(1);
+		expect(formatScanReport(report, 70)).toContain("1 encerradas");
 		const byId = Object.fromEntries(
 			db
 				.select()
