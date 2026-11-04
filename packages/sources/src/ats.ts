@@ -52,6 +52,9 @@ function createAtsSource<T>(spec: BoardSpec<T>, opts: AtsOptions) {
 
 	const source: JobSource<AtsPosting<T>> = {
 		id: spec.id,
+		// Any board error fails the whole fetch, so a successful one lists
+		// every open posting of the configured companies.
+		snapshot: true,
 
 		// Boards return every open posting in one response; there is no
 		// pagination and no "since", so each scan reads them whole.

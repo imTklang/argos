@@ -9,7 +9,7 @@ import {
 	Preferences,
 	type Profile,
 } from "@radar/core";
-import { coverLetters, type Db } from "@radar/db";
+import { coverLetters, type Db, runs } from "@radar/db";
 import { loadLatestProfile } from "@radar/pipeline";
 import Fastify, { type FastifyError } from "fastify";
 import {
@@ -31,6 +31,16 @@ export type ServerOptions = {
 	/** Built dashboard (apps/web/dist) to serve at "/", when present. */
 	webRoot?: string;
 	logger?: boolean;
+	/**
+	 * Read-only demo for sharing through a tunnel: any Host, no writes, and
+	 * personal notes and cover letters hidden.
+	 */
+	demo?: boolean;
+	/**
+	 * Host names accepted besides loopback, e.g. the server's Tailscale name.
+	 * Only list names reachable from a private network: there is no login.
+	 */
+	allowedHosts?: string[];
 };
 
 /** "a,b,c" query values as a list. */
@@ -64,6 +74,12 @@ function hostname(host: string | undefined): string {
 
 export function buildServer(opts: ServerOptions) {
 	const app = Fastify({ logger: opts.logger ?? false });
+	const allowedHosts = new Set([
+		...LOOPBACK_HOSTS,
+		...(opts.allowedHosts ?? []).map((h) => h.trim().toLowerCase()),
+	]);
+	// Cover letters being written, by job, so a double click pays for one.
+	const writing = new Map<number, Promise<unknown>>();
 
 	// There is no login, so the API must only answer this machine's dashboard:
 	// - a loopback Host blocks DNS rebinding (an outside page resolving its own
@@ -71,7 +87,13 @@ export function buildServer(opts: ServerOptions) {
 	// - the custom header on writes forces a CORS preflight that this API never
 	//   grants, so another site cannot trigger paid cover letters or edits.
 	app.addHook("onRequest", async (req, reply) => {
-		if (!LOOPBACK_HOSTS.has(hostname(req.headers.host))) {
+		if (opts.demo) {
+			if (MUTATING.has(req.method)) {
+				return reply.code(403).send({ error: "Demonstração: só leitura" });
+			}
+			return;
+		}
+		if (!allowedHosts.has(hostname(req.headers.host).toLowerCase())) {
 			return reply
 				.code(403)
 				.send({ error: "Acesso permitido só pelo localhost" });
@@ -90,13 +112,17 @@ export function buildServer(opts: ServerOptions) {
 	app.setSerializerCompiler(serializerCompiler);
 	const api = app.withTypeProvider<ZodTypeProvider>();
 
-	api.get("/api/jobs", { schema: { querystring: JobsQuery } }, (req) =>
-		listJobs(opts.db, req.query),
-	);
+	api.get("/api/jobs", { schema: { querystring: JobsQuery } }, (req) => {
+		const page = listJobs(opts.db, req.query);
+		return opts.demo
+			? { ...page, items: page.items.map((job) => ({ ...job, note: null })) }
+			: page;
+	});
 
 	api.get("/api/jobs/:id", { schema: { params: IdParams } }, (req, reply) => {
 		const job = getJob(opts.db, req.params.id);
-		return job ?? reply.code(404).send({ error: "Vaga não encontrada" });
+		if (!job) return reply.code(404).send({ error: "Vaga não encontrada" });
+		return opts.demo ? { ...job, note: null, coverLetter: null } : job;
 	});
 
 	api.patch(
@@ -128,7 +154,11 @@ export function buildServer(opts: ServerOptions) {
 			},
 		},
 		async (req, reply) => {
-			const detail = getJob(opts.db, req.params.id);
+			const id = req.params.id;
+			const pending = writing.get(id);
+			if (pending) return pending;
+
+			const detail = getJob(opts.db, id);
 			if (!detail)
 				return reply.code(404).send({ error: "Vaga não encontrada" });
 			// Generated letters are kept: asking again returns the stored one.
@@ -142,38 +172,51 @@ export function buildServer(opts: ServerOptions) {
 				});
 			}
 			const { description, analysis, ...rest } = detail;
-			const letter = await opts.generateCoverLetter({
-				profile,
-				analysis,
-				job: {
-					source: rest.source,
-					externalId: String(rest.id),
-					title: rest.title,
-					company: rest.company,
-					location: rest.location,
-					modality: rest.modality,
-					description,
-					url: rest.url,
-					publishedAt: null,
-					expiresAt: null,
-				},
-			});
-			const saved = opts.db
-				.insert(coverLetters)
-				.values({ jobId: detail.id, text: letter.text, model: letter.model })
-				.returning()
-				.get();
-			return {
-				text: saved.text,
-				model: saved.model,
-				createdAt: saved.createdAt.toISOString(),
-			};
+			const task = (async () => {
+				const letter = await opts.generateCoverLetter({
+					profile,
+					analysis,
+					job: {
+						source: rest.source,
+						externalId: String(rest.id),
+						title: rest.title,
+						company: rest.company,
+						location: rest.location,
+						modality: rest.modality,
+						description,
+						url: rest.url,
+						publishedAt: null,
+						expiresAt: null,
+					},
+				});
+				const saved = opts.db
+					.insert(coverLetters)
+					.values({ jobId: id, text: letter.text, model: letter.model })
+					.returning()
+					.get();
+				return {
+					text: saved.text,
+					model: saved.model,
+					createdAt: saved.createdAt.toISOString(),
+				};
+			})();
+			writing.set(id, task);
+			try {
+				return await task;
+			} finally {
+				writing.delete(id);
+			}
 		},
 	);
 
-	api.get("/api/preferences", async () =>
-		Preferences.parse(JSON.parse(await readFile(opts.preferencesPath, "utf8"))),
-	);
+	api.get("/api/preferences", async (_req, reply) => {
+		// Cities, keywords and pay say a lot about a person.
+		if (opts.demo)
+			return reply.code(404).send({ error: "Indisponível na demonstração" });
+		return Preferences.parse(
+			JSON.parse(await readFile(opts.preferencesPath, "utf8")),
+		);
+	});
 
 	api.put(
 		"/api/preferences",
@@ -189,6 +232,12 @@ export function buildServer(opts: ServerOptions) {
 
 	api.get("/api/stats", () => getStats(opts.db));
 
+	// For container health checks: answers once the database is reachable.
+	api.get("/api/health", () => {
+		opts.db.select({ id: runs.id }).from(runs).limit(1).all();
+		return { ok: true };
+	});
+
 	app.setErrorHandler((error: FastifyError, _req, reply) => {
 		if (error.validation) {
 			return reply
@@ -196,7 +245,10 @@ export function buildServer(opts: ServerOptions) {
 				.send({ error: "Dados inválidos", details: error.message });
 		}
 		app.log.error(error);
-		return reply.code(500).send({ error: error.message || "Erro interno" });
+		// Messages can carry file paths; visitors of the demo get none.
+		return reply.code(500).send({
+			error: (!opts.demo && error.message) || "Erro interno",
+		});
 	});
 
 	if (opts.webRoot && existsSync(opts.webRoot)) {

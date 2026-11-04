@@ -1,9 +1,18 @@
 import type { JobScoreResult } from "@radar/ai";
 import type { Job, Preferences } from "@radar/core";
-import { createDb, jobScores, jobStatus, runs } from "@radar/db";
+import {
+	acquireLock,
+	createDb,
+	eq,
+	jobScores,
+	jobStatus,
+	jobs,
+	runs,
+} from "@radar/db";
 import type { JobSource } from "@radar/sources";
 import { describe, expect, it, vi } from "vitest";
-import { formatScanReport, runScan } from "./scan.ts";
+import { formatScanReport, runScan, ScanBusyError } from "./scan.ts";
+import { startOfDay } from "./time.ts";
 
 const now = new Date("2026-10-27T12:00:00Z");
 
@@ -330,5 +339,232 @@ describe("scoped scans", () => {
 		expect(report.pending).toBe(1);
 		expect(score).toHaveBeenCalledTimes(1);
 		expect(report.scored[0]?.job.source).toBe("b");
+	});
+});
+
+describe("runScan across processes", () => {
+	it("refuses to start while another scan holds the lock", async () => {
+		const db = createDb(":memory:");
+		const other = acquireLock(db, "scan");
+		expect(other).not.toBeNull();
+
+		await expect(
+			runScan({
+				...options,
+				db,
+				sources: [fakeSource([makeJob(1)])],
+				score: vi.fn(),
+			}),
+		).rejects.toBeInstanceOf(ScanBusyError);
+
+		other?.release();
+		const report = await runScan({
+			...options,
+			db,
+			sources: [fakeSource([makeJob(1)])],
+			score: vi.fn().mockResolvedValue(scoreOf(80)),
+		});
+		expect(report.scored).toHaveLength(1);
+	});
+
+	it("saves the spending after each job, not only at the end", async () => {
+		const db = createDb(":memory:");
+		const score = vi
+			.fn()
+			.mockResolvedValueOnce(scoreOf(80))
+			.mockImplementationOnce(async () => {
+				// Mid-scan, the first job's tokens are already on record.
+				const run = db
+					.select()
+					.from(runs)
+					.where(eq(runs.source, "scoring"))
+					.get();
+				expect(run?.inputTokens).toBe(1000);
+				return scoreOf(70);
+			});
+
+		await runScan({
+			...options,
+			db,
+			sources: [fakeSource([makeJob(1), makeJob(2)])],
+			score,
+			concurrency: 1,
+		});
+		expect(score).toHaveBeenCalledTimes(2);
+	});
+});
+
+describe("runScan with one bad job", () => {
+	it("skips a job the API rejects and scores the rest", async () => {
+		const db = createDb(":memory:");
+		const rejected = Object.assign(new Error("400 prompt is too long"), {
+			status: 400,
+		});
+		const score = vi
+			.fn()
+			.mockRejectedValueOnce(rejected)
+			.mockResolvedValue(scoreOf(80));
+
+		const report = await runScan({
+			...options,
+			db,
+			sources: [fakeSource([makeJob(1), makeJob(2), makeJob(3)])],
+			score,
+			concurrency: 1,
+		});
+
+		expect(report.scoringError).toBeUndefined();
+		expect(report.scored).toHaveLength(2);
+		// The rejected one waits for the next scan instead of a null score.
+		expect(report.deferred).toBe(1);
+		expect(db.select().from(jobScores).all()).toHaveLength(2);
+	});
+
+	it("stops when every job is rejected the same way", async () => {
+		const db = createDb(":memory:");
+		const rejected = Object.assign(new Error("400 bad model"), { status: 400 });
+		const score = vi.fn().mockRejectedValue(rejected);
+
+		const report = await runScan({
+			...options,
+			db,
+			sources: [fakeSource([1, 2, 3, 4, 5].map((id) => makeJob(id)))],
+			score,
+			concurrency: 1,
+		});
+
+		expect(report.scoringError).toMatch(/bad model/);
+		expect(score).toHaveBeenCalledTimes(3);
+		expect(report.deferred).toBe(5);
+	});
+});
+
+describe("runScan closures", () => {
+	it("marks postings gone from a snapshot source as closed", async () => {
+		const db = createDb(":memory:");
+		const score = vi.fn().mockResolvedValue(scoreOf(80));
+		const source = (items: Job[]): JobSource<Job> => ({
+			...fakeSource(items),
+			snapshot: true,
+		});
+
+		await runScan({
+			...options,
+			db,
+			sources: [source([makeJob(1), makeJob(2)])],
+			score,
+		});
+		// Timestamps are whole seconds; the next fetch must be a later one.
+		await new Promise((resolve) => setTimeout(resolve, 1100));
+		const report = await runScan({
+			...options,
+			db,
+			sources: [source([makeJob(1)])],
+			score,
+		});
+
+		expect(report.sources[0]?.closed).toBe(1);
+		expect(formatScanReport(report, 70)).toContain("1 encerradas");
+		const byId = Object.fromEntries(
+			db
+				.select()
+				.from(jobs)
+				.all()
+				.map((j) => [j.externalId, j.closedAt]),
+		);
+		expect(byId["1"]).toBeNull();
+		expect(byId["2"]).toBeInstanceOf(Date);
+	});
+
+	it("closes a stored posting the source reports closed, and skips new closed ones", async () => {
+		const db = createDb(":memory:");
+		const score = vi.fn().mockResolvedValue(scoreOf(80));
+		type Raw = Job & { closed?: boolean };
+		const source = (items: Raw[]): JobSource<Raw> => ({
+			id: "fake",
+			fetchJobs: async () => items,
+			normalize: ({ closed: _closed, ...job }) => job,
+			isClosed: (raw) => raw.closed === true,
+		});
+
+		await runScan({ ...options, db, sources: [source([makeJob(1)])], score });
+		const report = await runScan({
+			...options,
+			db,
+			sources: [
+				source([
+					{ ...makeJob(1), closed: true },
+					{ ...makeJob(2), closed: true },
+				]),
+			],
+			score,
+		});
+
+		expect(report.sources[0]?.inserted).toBe(0);
+		const stored = db.select().from(jobs).all();
+		expect(stored).toHaveLength(1);
+		expect(stored[0]?.closedAt).toBeInstanceOf(Date);
+	});
+
+	it("updates the deadline and description of a posting seen again", async () => {
+		const db = createDb(":memory:");
+		const score = vi.fn().mockResolvedValue(scoreOf(80));
+		const deadline = new Date("2026-12-01T00:00:00Z");
+
+		await runScan({
+			...options,
+			db,
+			sources: [fakeSource([makeJob(1)])],
+			score,
+		});
+		await runScan({
+			...options,
+			db,
+			sources: [
+				fakeSource([
+					makeJob(1, { description: "Nova descrição", expiresAt: deadline }),
+				]),
+			],
+			score,
+		});
+
+		const stored = db.select().from(jobs).get();
+		expect(stored?.description).toBe("Nova descrição");
+		expect(stored?.expiresAt).toEqual(deadline);
+	});
+
+	it("asks an incremental source to read new scopes whole", async () => {
+		const db = createDb(":memory:");
+		const seen: boolean[] = [];
+		const source: JobSource<Job> = {
+			id: "github",
+			fetchJobs: async (query) => {
+				seen.push(query.isNew?.("a/repo") ?? false);
+				return [makeJob(1, { source: "github", externalId: "a/repo#1" })];
+			},
+			normalize: (job) => job,
+		};
+		const score = vi.fn().mockResolvedValue(scoreOf(80));
+
+		await runScan({ ...options, db, sources: [source], score });
+		await runScan({ ...options, db, sources: [source], score });
+
+		expect(seen).toEqual([true, false]);
+	});
+});
+
+describe("startOfDay", () => {
+	it("is midnight in João Pessoa, not on the server's clock", () => {
+		// 01:30 UTC on the 5th is still 22:30 on the 4th in UTC-3.
+		const day = startOfDay(
+			new Date("2026-11-05T01:30:00Z"),
+			"America/Fortaleza",
+		);
+		expect(day.toISOString()).toBe("2026-11-04T03:00:00.000Z");
+	});
+
+	it("handles a zone ahead of UTC", () => {
+		const day = startOfDay(new Date("2026-11-04T20:00:00Z"), "Asia/Tokyo");
+		expect(day.toISOString()).toBe("2026-11-04T15:00:00.000Z");
 	});
 });

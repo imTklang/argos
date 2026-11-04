@@ -1,98 +1,69 @@
-import { Radar } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useStats } from "./api.ts";
-import { JobDrawer } from "./components/JobDrawer.tsx";
+import { JobDetail } from "./components/JobDetail.tsx";
+import { Sidebar, TabBar } from "./components/Navigation.tsx";
+import { Sheet } from "./components/Sheet.tsx";
+import { useMediaQuery } from "./hooks.ts";
 import { JobsPage } from "./pages/JobsPage.tsx";
 import { KanbanPage } from "./pages/KanbanPage.tsx";
 import { PreferencesPage } from "./pages/PreferencesPage.tsx";
-
-const TABS = [
-	["vagas", "Vagas"],
-	["kanban", "Kanban"],
-	["preferencias", "Preferências"],
-] as const;
-type Tab = (typeof TABS)[number][0];
-
-function tabFromHash(): Tab {
-	const hash = window.location.hash.replace("#", "");
-	return TABS.some(([id]) => id === hash) ? (hash as Tab) : "vagas";
-}
-
-function Stats() {
-	const { data } = useStats();
-	if (!data) return null;
-	// Progress only: a count of "new" jobs would disagree with the filtered list.
-	const items: [string, number][] = [
-		[data.byStatus.salva === 1 ? "salva" : "salvas", data.byStatus.salva],
-		[
-			data.byStatus.candidatei === 1 ? "candidatura" : "candidaturas",
-			data.byStatus.candidatei,
-		],
-	];
-	return (
-		<dl className="hidden gap-4 text-sm sm:flex">
-			{items.map(([label, value]) => (
-				<div key={label} className="flex items-baseline gap-1">
-					<dt className="sr-only">{label}</dt>
-					<dd className="font-semibold tabular-nums">{value}</dd>
-					<span aria-hidden className="text-muted">
-						{label}
-					</span>
-				</div>
-			))}
-		</dl>
-	);
-}
+import { isList, type Route, routeFromHash } from "./routes.ts";
 
 export function App() {
-	const [tab, setTab] = useState<Tab>(tabFromHash);
+	const [route, setRoute] = useState<Route>(() =>
+		routeFromHash(window.location.hash),
+	);
 	const [openJob, setOpenJob] = useState<number | null>(null);
-	// Stable so the drawer's Escape listener is not re-bound every render.
+	// Stable so the sheet's Escape listener is not re-bound every render.
 	const closeJob = useCallback(() => setOpenJob(null), []);
+	// Wide enough for sidebar, list and details side by side, as in Mail.
+	const wide = useMediaQuery("(min-width: 1280px)");
+	const inline = wide && isList(route);
 
 	useEffect(() => {
-		const onHash = () => setTab(tabFromHash());
+		const onHash = () => {
+			setRoute(routeFromHash(window.location.hash));
+			setOpenJob(null);
+		};
 		window.addEventListener("hashchange", onHash);
 		return () => window.removeEventListener("hashchange", onHash);
 	}, []);
 
 	return (
-		<div className="min-h-dvh">
-			<header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
-				<div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-					<h1 className="flex items-center gap-2 font-semibold">
-						<Radar aria-hidden size={20} className="text-accent" />
-						Radar de Estágio
-					</h1>
-					<Stats />
-				</div>
-				<nav className="mx-auto flex max-w-5xl gap-1 px-4" aria-label="Seções">
-					{TABS.map(([id, label]) => (
-						<a
-							key={id}
-							href={`#${id}`}
-							aria-current={tab === id ? "page" : undefined}
-							className={`-mb-px border-b-2 px-3 py-2 text-sm ${
-								tab === id
-									? "border-accent font-medium text-ink"
-									: "border-transparent text-muted hover:text-ink"
-							}`}
-						>
-							{label}
-						</a>
-					))}
-				</nav>
-			</header>
-
+		// Positioned, so visually hidden inputs stay inside the clipped panes
+		// instead of growing the page and adding a second scrollbar.
+		<div className="relative isolate min-h-dvh md:flex md:h-dvh md:overflow-hidden">
+			<div aria-hidden className="aura" />
+			<Sidebar route={route} />
 			<main
-				className={`mx-auto px-4 py-5 ${tab === "kanban" ? "max-w-none" : "max-w-5xl"}`}
+				className={`relative min-w-0 flex-1 ${inline ? "md:overflow-hidden" : "scroll-area md:overflow-y-auto"}`}
 			>
-				{tab === "vagas" && <JobsPage onOpen={setOpenJob} />}
-				{tab === "kanban" && <KanbanPage onOpen={setOpenJob} />}
-				{tab === "preferencias" && <PreferencesPage />}
+				{isList(route) && (
+					// A new list starts with its own filters.
+					<JobsPage
+						key={route}
+						list={route}
+						inline={inline}
+						selected={openJob}
+						onOpen={setOpenJob}
+					/>
+				)}
+				{route === "quadro" && <KanbanPage onOpen={setOpenJob} />}
+				{route === "ajustes" && <PreferencesPage />}
 			</main>
+			<TabBar route={route} />
 
-			{openJob !== null && <JobDrawer jobId={openJob} onClose={closeJob} />}
+			{openJob !== null && !inline && (
+				<Sheet labelledBy="sheet-title" onClose={closeJob}>
+					{({ close, handle }) => (
+						<JobDetail
+							jobId={openJob}
+							titleId="sheet-title"
+							onClose={close}
+							handle={handle}
+						/>
+					)}
+				</Sheet>
+			)}
 		</div>
 	);
 }

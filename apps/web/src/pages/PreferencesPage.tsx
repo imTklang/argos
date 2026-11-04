@@ -3,6 +3,8 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
 import { usePreferences, useSavePreferences } from "../api.ts";
+import { Group } from "../components/Group.tsx";
+import { ScrollEdge } from "../components/ScrollEdge.tsx";
 
 const MODALITIES: [Modality, string][] = [
 	["remoto", "Remoto"],
@@ -19,24 +21,19 @@ type ListField =
 
 const LISTS: { field: ListField; label: string; hint: string }[] = [
 	{
-		field: "keywordsMust",
-		label: "Palavras obrigatórias",
-		hint: "Pelo menos uma precisa aparecer na vaga.",
-	},
-	{
 		field: "keywordsBonus",
 		label: "Suas tecnologias",
-		hint: "Contam a favor; também servem para achar vagas com título genérico.",
+		hint: "Contam a favor e ajudam a achar vagas com título genérico.",
+	},
+	{
+		field: "keywordsMust",
+		label: "Palavras obrigatórias",
+		hint: "Pelo menos uma precisa aparecer na vaga (vagas de estágio passam mesmo sem).",
 	},
 	{
 		field: "keywordsBlock",
 		label: "Palavras bloqueadas no título",
-		hint: "Ex.: sênior, pleno, vendas.",
-	},
-	{
-		field: "locations",
-		label: "Cidades e estados aceitos",
-		hint: "Para vagas presenciais e híbridas. Siglas de estado valem (PB).",
+		hint: "Ex.: vendas, comercial. Sênior e pleno já são descartados sozinhos.",
 	},
 	{
 		field: "roles",
@@ -45,29 +42,30 @@ const LISTS: { field: ListField; label: string; hint: string }[] = [
 	},
 ];
 
-function Field({
+/** A settings row: label on the left, control on the right. */
+function Row({
 	label,
-	hint,
 	children,
 }: {
 	label: string;
-	hint?: string;
 	children: (id: string) => React.ReactNode;
 }) {
 	const id = useId();
 	return (
-		<div className="space-y-1">
-			<label htmlFor={id} className="block text-sm font-medium">
+		<div className="flex min-h-11 items-center gap-3 border-b border-separator py-1.5 pr-4 pl-4 last:border-b-0">
+			<label htmlFor={id} className="flex-1 text-[15px]">
 				{label}
 			</label>
-			{hint && <p className="text-xs text-muted">{hint}</p>}
 			{children(id)}
 		</div>
 	);
 }
 
-const inputClass =
-	"w-full rounded-lg border border-control bg-surface px-2.5 py-1.5 text-sm focus:border-accent focus:outline-none";
+const numberClass =
+	"w-24 rounded-lg bg-fill px-2.5 py-1.5 text-right text-[15px] tabular-nums outline-none focus:outline-2 focus:outline-accent";
+
+const listClass =
+	"block w-full resize-y bg-transparent px-4 py-3 font-mono text-[13px] leading-relaxed outline-none";
 
 export function PreferencesPage() {
 	const { data, isLoading, error } = usePreferences();
@@ -78,13 +76,16 @@ export function PreferencesPage() {
 	}, [data]);
 
 	if (isLoading || !draft) {
-		return error ? (
-			<p className="text-sm text-bad">{error.message}</p>
-		) : (
-			<p className="text-sm text-muted">Carregando…</p>
+		return (
+			<p
+				className={`px-4 pt-6 text-[15px] ${error ? "text-bad" : "text-muted"}`}
+			>
+				{error ? error.message : "Carregando…"}
+			</p>
 		);
 	}
 
+	const dirty = JSON.stringify(draft) !== JSON.stringify(data);
 	const set = <K extends keyof Preferences>(key: K, value: Preferences[K]) =>
 		setDraft({ ...draft, [key]: value });
 	const number = (value: string) => (value === "" ? undefined : Number(value));
@@ -93,155 +94,186 @@ export function PreferencesPage() {
 		event.preventDefault();
 		save.mutate(draft, {
 			onSuccess: () =>
-				toast.success(
-					"Preferências salvas. Valem a partir da próxima varredura.",
-				),
+				toast.success("Ajustes salvos. Valem a partir da próxima varredura."),
 			onError: (e) => toast.error(`Não deu para salvar: ${e.message}`),
 		});
 	};
 
+	const list = (field: ListField, label: string) => (
+		<textarea
+			aria-label={label}
+			rows={4}
+			value={draft[field].join("\n")}
+			onChange={(e) =>
+				set(
+					field,
+					e.target.value.split("\n").map((line) => line.trimStart()),
+				)
+			}
+			// Blank lines are dropped only on blur so typing stays natural.
+			onBlur={() =>
+				set(field, draft[field].map((l) => l.trim()).filter(Boolean))
+			}
+			className={listClass}
+		/>
+	);
+
 	return (
-		<form
-			onSubmit={submit}
-			className="space-y-6 rounded-xl border border-line bg-surface p-5"
-		>
-			<div className="grid gap-5 md:grid-cols-2">
-				{LISTS.map(({ field, label, hint }) => (
-					<Field key={field} label={label} hint={hint}>
-						{(id) => (
-							<textarea
-								id={id}
-								rows={5}
-								value={draft[field].join("\n")}
-								onChange={(e) =>
-									set(
-										field,
-										e.target.value.split("\n").map((line) => line.trimStart()),
-									)
-								}
-								// Blank lines are dropped only on save so typing stays natural.
-								onBlur={() =>
-									set(field, draft[field].map((l) => l.trim()).filter(Boolean))
-								}
-								className={`${inputClass} resize-y font-mono text-[13px]`}
-							/>
-						)}
-					</Field>
-				))}
-			</div>
-
-			<fieldset className="space-y-2">
-				<legend className="text-sm font-medium">Modalidades</legend>
-				<div className="flex flex-wrap gap-4">
-					{MODALITIES.map(([value, label]) => (
-						<label
-							key={value}
-							className="inline-flex items-center gap-2 text-sm"
-						>
-							<input
-								type="checkbox"
-								checked={draft.modality.includes(value)}
-								onChange={(e) =>
-									set(
-										"modality",
-										e.target.checked
-											? [...draft.modality, value]
-											: draft.modality.filter((m) => m !== value),
-									)
-								}
-								className="size-4 accent-[var(--color-accent)]"
-							/>
-							{label}
-						</label>
-					))}
-				</div>
-				<label className="mt-2 inline-flex items-center gap-2 text-sm">
-					<input
-						type="checkbox"
-						checked={draft.abroad === "remote"}
-						onChange={(e) =>
-							set("abroad", e.target.checked ? "remote" : "none")
-						}
-						className="size-4 accent-[var(--color-accent)]"
-					/>
-					Incluir estágios remotos no exterior (com prioridade menor que os do
-					Brasil)
-				</label>
-			</fieldset>
-
-			<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-				<Field label="Nota para o resumo diário" hint="0 a 100">
-					{(id) => (
-						<input
-							id={id}
-							type="number"
-							min={0}
-							max={100}
-							required
-							value={draft.minScoreToNotify}
-							onChange={(e) => set("minScoreToNotify", Number(e.target.value))}
-							className={inputClass}
-						/>
-					)}
-				</Field>
-				<Field label="Nota para alerta imediato" hint="Padrão 85">
-					{(id) => (
-						<input
-							id={id}
-							type="number"
-							min={0}
-							max={100}
-							value={draft.instantAlertScore ?? ""}
-							placeholder="85"
-							onChange={(e) => set("instantAlertScore", number(e.target.value))}
-							className={inputClass}
-						/>
-					)}
-				</Field>
-				<Field label="Máximo de horas por semana">
-					{(id) => (
-						<input
-							id={id}
-							type="number"
-							min={1}
-							value={draft.maxHoursPerWeek ?? ""}
-							onChange={(e) => set("maxHoursPerWeek", number(e.target.value))}
-							className={inputClass}
-						/>
-					)}
-				</Field>
-				<Field label="Bolsa mínima (R$)">
-					{(id) => (
-						<input
-							id={id}
-							type="number"
-							min={0}
-							value={draft.minStipend ?? ""}
-							onChange={(e) => set("minStipend", number(e.target.value))}
-							className={inputClass}
-						/>
-					)}
-				</Field>
-			</div>
-
-			<div className="flex items-center gap-3">
+		<form onSubmit={submit} className="mx-auto max-w-2xl pb-28 md:pb-10">
+			<h1 className="headline px-5 pt-8 pb-2 md:pt-7">
+				Ajustes.{" "}
+				<span className="text-muted">
+					O que o Argos procura e quando avisa.
+				</span>
+			</h1>
+			<ScrollEdge className="flex items-center justify-end gap-2 px-4 py-2">
+				{dirty && (
+					<button
+						type="button"
+						onClick={() => data && setDraft(data)}
+						className="pressable rounded-full px-3 py-1.5 text-[15px] text-accent"
+					>
+						Desfazer
+					</button>
+				)}
 				<button
 					type="submit"
-					disabled={save.isPending}
-					className="pressable inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-60"
+					disabled={!dirty || save.isPending}
+					className={`pressable inline-flex items-center gap-1.5 rounded-full px-5 py-1.5 text-[15px] font-semibold ${
+						dirty ? "prominent" : "bg-fill text-muted"
+					}`}
 				>
 					{save.isPending && (
 						<Loader2 aria-hidden size={15} className="animate-spin" />
 					)}
-					Salvar preferências
+					Salvar
 				</button>
-				<button
-					type="button"
-					onClick={() => data && setDraft(data)}
-					className="pressable hoverable rounded-md px-3 py-2 text-sm text-muted"
+			</ScrollEdge>
+
+			<div className="space-y-7 px-4 pt-3">
+				<Group
+					title="Notificações no Telegram"
+					footer="O resumo diário traz as vagas a partir da primeira nota; a partir da segunda, o alerta chega na hora."
 				>
-					Desfazer alterações
-				</button>
+					<Row label="Nota para o resumo diário">
+						{(id) => (
+							<input
+								id={id}
+								type="number"
+								min={0}
+								max={100}
+								required
+								value={draft.minScoreToNotify}
+								onChange={(e) =>
+									set("minScoreToNotify", Number(e.target.value))
+								}
+								className={numberClass}
+							/>
+						)}
+					</Row>
+					<Row label="Nota para alerta imediato">
+						{(id) => (
+							<input
+								id={id}
+								type="number"
+								min={0}
+								max={100}
+								value={draft.instantAlertScore ?? ""}
+								placeholder="85"
+								onChange={(e) =>
+									set("instantAlertScore", number(e.target.value))
+								}
+								className={numberClass}
+							/>
+						)}
+					</Row>
+				</Group>
+
+				<Group
+					title="Modalidade"
+					footer="Estágios no exterior entram só se forem remotos e ficam abaixo dos do Brasil."
+				>
+					{MODALITIES.map(([value, label]) => (
+						<Row key={value} label={label}>
+							{(id) => (
+								<input
+									id={id}
+									type="checkbox"
+									role="switch"
+									aria-checked={draft.modality.includes(value)}
+									checked={draft.modality.includes(value)}
+									onChange={(e) =>
+										set(
+											"modality",
+											e.target.checked
+												? [...draft.modality, value]
+												: draft.modality.filter((m) => m !== value),
+										)
+									}
+									className="switch"
+								/>
+							)}
+						</Row>
+					))}
+					<Row label="Remoto no exterior">
+						{(id) => (
+							<input
+								id={id}
+								type="checkbox"
+								role="switch"
+								aria-checked={draft.abroad === "remote"}
+								checked={draft.abroad === "remote"}
+								onChange={(e) =>
+									set("abroad", e.target.checked ? "remote" : "none")
+								}
+								className="switch"
+							/>
+						)}
+					</Row>
+				</Group>
+
+				<Group
+					title="Cidades e estados aceitos"
+					footer="Para vagas presenciais e híbridas. Uma por linha; siglas de estado valem (PB)."
+				>
+					{list("locations", "Cidades e estados aceitos")}
+				</Group>
+
+				<Group
+					title="Bolsa e carga horária"
+					footer="Deixe vazio para não filtrar."
+				>
+					<Row label="Bolsa mínima (R$)">
+						{(id) => (
+							<input
+								id={id}
+								type="number"
+								min={0}
+								value={draft.minStipend ?? ""}
+								onChange={(e) => set("minStipend", number(e.target.value))}
+								className={numberClass}
+							/>
+						)}
+					</Row>
+					<Row label="Máximo de horas por semana">
+						{(id) => (
+							<input
+								id={id}
+								type="number"
+								min={1}
+								value={draft.maxHoursPerWeek ?? ""}
+								onChange={(e) => set("maxHoursPerWeek", number(e.target.value))}
+								className={numberClass}
+							/>
+						)}
+					</Row>
+				</Group>
+
+				{LISTS.map(({ field, label, hint }) => (
+					<Group key={field} title={label} footer={`${hint} Uma por linha.`}>
+						{list(field, label)}
+					</Group>
+				))}
 			</div>
 		</form>
 	);

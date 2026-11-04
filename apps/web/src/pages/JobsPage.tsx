@@ -1,68 +1,63 @@
-import type { JobFilters, JobStatus } from "@radar/core";
-import { Search } from "lucide-react";
-import { useEffect, useId, useState } from "react";
+import type { JobFilters } from "@radar/core";
+import { useEffect, useState } from "react";
 import { useJobs } from "../api.ts";
-import { JobCard } from "../components/JobCard.tsx";
-import { STATUS_LABEL, STATUSES } from "../format.ts";
+import { PopUp, SearchField, Segmented } from "../components/Controls.tsx";
+import { JobDetail } from "../components/JobDetail.tsx";
+import { JobRow } from "../components/JobRow.tsx";
+import { Logo } from "../components/Logo.tsx";
+import { ListChips } from "../components/Navigation.tsx";
+import { ScrollEdge } from "../components/ScrollEdge.tsx";
+import { useDebounced } from "../hooks.ts";
+import { LISTS, type ListId } from "../routes.ts";
 
 const PAGE = 30;
 
-function useDebounced<T>(value: T, ms: number): T {
-	const [debounced, setDebounced] = useState(value);
-	useEffect(() => {
-		const timer = setTimeout(() => setDebounced(value), ms);
-		return () => clearTimeout(timer);
-	}, [value, ms]);
-	return debounced;
-}
-
-function Segmented<T extends string>({
-	label,
-	value,
-	options,
-	onChange,
-}: {
-	label: string;
-	value: T;
-	options: [T, string][];
-	onChange: (value: T) => void;
-}) {
-	const name = useId();
+function Skeleton() {
 	return (
-		<fieldset className="inline-flex rounded-lg border border-control bg-surface p-0.5">
-			<legend className="sr-only">{label}</legend>
-			{options.map(([option, text]) => (
-				// Real radio inputs: arrow keys and screen readers work for free.
-				<label key={option} className="pressable cursor-pointer">
-					<input
-						type="radio"
-						name={name}
-						value={option}
-						checked={value === option}
-						onChange={() => onChange(option)}
-						className="peer sr-only"
-					/>
-					<span className="block rounded-md px-2.5 py-1 text-sm text-muted peer-checked:bg-sunken peer-checked:font-medium peer-checked:text-ink peer-focus-visible:outline-2 peer-focus-visible:outline-accent">
-						{text}
+		<ul aria-hidden className="card overflow-hidden rounded-2xl">
+			{[0, 1, 2, 3, 4].map((i) => (
+				<li
+					key={i}
+					className="flex gap-3 border-b border-separator p-4 last:border-b-0"
+				>
+					<span className="size-[38px] shrink-0 rounded-full bg-fill" />
+					<span className="flex-1 space-y-2 pt-1">
+						<span className="block h-3.5 w-3/5 rounded bg-fill" />
+						<span className="block h-3 w-2/5 rounded bg-fill" />
 					</span>
-				</label>
+				</li>
 			))}
-		</fieldset>
+		</ul>
 	);
 }
 
-export function JobsPage({ onOpen }: { onOpen: (id: number) => void }) {
+/**
+ * One smart list. On wide screens the selected job opens beside the list,
+ * like Mail; otherwise the app shows it in a sheet.
+ */
+export function JobsPage({
+	list,
+	inline,
+	selected,
+	onOpen,
+}: {
+	list: ListId;
+	inline: boolean;
+	selected: number | null;
+	onOpen: (id: number) => void;
+}) {
+	const config = LISTS[list];
 	const [q, setQ] = useState("");
-	// Open work by default: new, seen and saved.
-	const [status, setStatus] = useState<JobStatus[]>(["nova", "vista", "salva"]);
 	const [scope, setScope] = useState<"all" | "brazil" | "abroad">("all");
-	const [minScore, setMinScore] = useState<"0" | "50" | "70" | "85">("50");
+	const [minScore, setMinScore] = useState<"0" | "50" | "70" | "85">(
+		config.minScore,
+	);
 	const [sort, setSort] = useState<"score" | "recent">("score");
 	const [limit, setLimit] = useState(PAGE);
 
 	const filters: JobFilters = {
 		q: useDebounced(q, 250),
-		status,
+		status: config.status,
 		scope,
 		minScore: minScore === "0" ? undefined : Number(minScore),
 		sort,
@@ -70,117 +65,164 @@ export function JobsPage({ onOpen }: { onOpen: (id: number) => void }) {
 	};
 	// A new filter starts from the first page again.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: reset on filter change
-	useEffect(() => setLimit(PAGE), [filters.q, status, scope, minScore, sort]);
+	useEffect(() => setLimit(PAGE), [filters.q, scope, minScore, sort]);
 
 	const { data, isLoading, isFetching, error } = useJobs(filters);
+	const filtered = q !== "" || scope !== "all" || minScore !== config.minScore;
+	const clear = () => {
+		setQ("");
+		setScope("all");
+		setMinScore(config.minScore);
+	};
 
-	const toggleStatus = (value: JobStatus) =>
-		setStatus((current) =>
-			current.includes(value)
-				? current.filter((s) => s !== value)
-				: [...current, value],
-		);
-
-	return (
-		<div className="space-y-4">
-			<div className="space-y-3 rounded-xl border border-line bg-surface p-3">
-				<label className="flex items-center gap-2 rounded-lg border border-control px-3 py-2 focus-within:border-accent">
-					<Search aria-hidden size={16} className="text-muted" />
-					<input
-						type="search"
-						value={q}
-						onChange={(e) => setQ(e.target.value)}
-						placeholder="Buscar por cargo ou empresa"
-						aria-label="Buscar por cargo ou empresa"
-						className="w-full bg-transparent text-sm outline-none placeholder:text-muted"
-					/>
-				</label>
-				<div className="flex flex-wrap items-center gap-2">
-					<fieldset className="flex flex-wrap gap-1">
-						<legend className="sr-only">Status</legend>
-						{STATUSES.map((value) => (
-							<button
-								key={value}
-								type="button"
-								aria-pressed={status.includes(value)}
-								onClick={() => toggleStatus(value)}
-								className={`pressable rounded-full border px-2.5 py-0.5 text-sm ${
-									status.includes(value)
-										? "border-accent bg-accent-soft text-accent"
-										: "border-control text-muted"
-								}`}
-							>
-								{STATUS_LABEL[value]}
-							</button>
-						))}
-					</fieldset>
-					<Segmented
-						label="Onde"
-						value={scope}
-						onChange={setScope}
-						options={[
-							["all", "Todas"],
-							["brazil", "Brasil"],
-							["abroad", "Exterior"],
-						]}
-					/>
-					<Segmented
-						label="Nota mínima"
-						value={minScore}
-						onChange={setMinScore}
-						options={[
-							["0", "Qualquer"],
-							["50", "50+"],
-							["70", "70+"],
-							["85", "85+"],
-						]}
-					/>
-					<Segmented
-						label="Ordenar por"
-						value={sort}
-						onChange={setSort}
-						options={[
-							["score", "Nota"],
-							["recent", "Recentes"],
-						]}
-					/>
-				</div>
+	const listPane = (
+		<section
+			aria-labelledby="list-title"
+			className={
+				inline
+					? "scroll-area relative h-full w-[26rem] shrink-0 overflow-y-auto"
+					: "relative mx-auto max-w-3xl"
+			}
+		>
+			<div className="space-y-4 px-5 pt-8 pb-4 md:pt-7">
+				<h1 id="list-title" className="headline">
+					{config.label}.{" "}
+					<span
+						className={`text-muted transition-opacity duration-200 ${isFetching ? "opacity-60" : ""}`}
+						aria-live="polite"
+					>
+						{data ? config.tagline(data.total) : null}
+					</span>
+				</h1>
+				<ListChips route={list} />
 			</div>
 
-			<p className="text-sm text-muted" aria-live="polite">
-				{isLoading
-					? "Carregando…"
-					: data
-						? `${data.total} ${data.total === 1 ? "vaga" : "vagas"}${isFetching ? " · atualizando…" : ""}`
-						: null}
-			</p>
+			{/* The title scrolls away; search and filters stay at hand. */}
+			<ScrollEdge className="px-3 pt-1 pb-2">
+				<div className="glass relative space-y-2 rounded-[24px] p-2">
+					<SearchField
+						value={q}
+						onChange={setQ}
+						label="Buscar cargo ou empresa"
+					/>
+					<div className="grid grid-cols-2 gap-2">
+						<Segmented
+							label="Onde"
+							value={scope}
+							onChange={setScope}
+							options={[
+								["all", "Todas"],
+								["brazil", "Brasil"],
+								["abroad", "Exterior"],
+							]}
+						/>
 
-			{error && <p className="text-sm text-bad">{error.message}</p>}
-
-			{data && data.items.length === 0 && (
-				<div className="rounded-xl border border-dashed border-line p-8 text-center text-sm text-muted">
-					Nenhuma vaga com esses filtros. Tente baixar a nota mínima ou incluir
-					outros status.
+						<PopUp
+							label="Nota mínima"
+							value={minScore}
+							onChange={setMinScore}
+							options={[
+								["0", "Qualquer nota"],
+								["50", "Nota 50+"],
+								["70", "Nota 70+"],
+								["85", "Nota 85+"],
+							]}
+						/>
+						<PopUp
+							label="Ordenar por"
+							value={sort}
+							onChange={setSort}
+							options={[
+								["score", "Maior nota"],
+								["recent", "Mais recentes"],
+							]}
+						/>
+					</div>
 				</div>
-			)}
+			</ScrollEdge>
 
-			<ul className="space-y-3">
-				{data?.items.map((job) => (
-					<li key={job.id}>
-						<JobCard job={job} onOpen={onOpen} />
-					</li>
-				))}
-			</ul>
+			<div className="space-y-4 px-3 pt-3 pb-28 md:pb-8">
+				{error && (
+					<p className="rounded-2xl bg-bad-soft px-4 py-3 text-[15px] text-bad">
+						Não deu para carregar as vagas: {error.message}
+					</p>
+				)}
+				{isLoading && <Skeleton />}
 
-			{data && data.items.length < data.total && (
-				<button
-					type="button"
-					onClick={() => setLimit((n) => n + PAGE)}
-					className="pressable hoverable w-full rounded-lg border border-control py-2 text-sm"
-				>
-					Carregar mais
-				</button>
-			)}
+				{data && data.items.length === 0 && (
+					<div className="flex flex-col items-center gap-2 px-6 py-16 text-center">
+						<Logo size={44} />
+						<p className="text-[17px] font-semibold">Nenhuma vaga</p>
+						<p className="max-w-xs text-[15px] text-muted">
+							{filtered ? "Nada com esses filtros." : config.empty}
+						</p>
+						{filtered && (
+							<button
+								type="button"
+								onClick={clear}
+								className="pressable mt-2 rounded-full bg-fill px-4 py-1.5 text-[15px] font-medium text-accent"
+							>
+								Limpar filtros
+							</button>
+						)}
+					</div>
+				)}
+
+				{data && data.items.length > 0 && (
+					<ul className="card overflow-hidden rounded-2xl">
+						{data.items.map((job) => (
+							<JobRow
+								key={job.id}
+								job={job}
+								selected={inline && selected === job.id}
+								onOpen={onOpen}
+							/>
+						))}
+					</ul>
+				)}
+
+				{data && data.items.length < data.total && (
+					<button
+						type="button"
+						onClick={() => setLimit((n) => n + PAGE)}
+						className="card pressable w-full rounded-2xl py-3 text-[15px] font-medium text-accent"
+					>
+						Mostrar mais {Math.min(PAGE, data.total - data.items.length)}
+					</button>
+				)}
+			</div>
+		</section>
+	);
+
+	if (!inline) return listPane;
+
+	return (
+		<div className="flex h-full">
+			{listPane}
+			<section
+				aria-label="Detalhes da vaga"
+				className="scroll-area relative h-full min-w-0 flex-1 overflow-y-auto"
+			>
+				{selected !== null ? (
+					<div className="mx-auto max-w-3xl">
+						<JobDetail key={selected} jobId={selected} titleId="pane-title" />
+					</div>
+				) : (
+					<div className="grid h-full place-items-center p-8 text-center">
+						<div className="space-y-4">
+							<div className="mx-auto w-fit opacity-90">
+								<Logo size={72} />
+							</div>
+							<p className="headline text-[22px]!">
+								Argos.{" "}
+								<span className="text-muted">
+									Escolha uma vaga para ver a análise.
+								</span>
+							</p>
+						</div>
+					</div>
+				)}
+			</section>
 		</div>
 	);
 }

@@ -18,7 +18,7 @@ createRoot(root).render(
 	<StrictMode>
 		<QueryClientProvider client={client}>
 			<App />
-			<Toaster position="bottom-right" richColors closeButton theme="system" />
+			<Toaster position="top-center" richColors theme="system" />
 		</QueryClientProvider>
 	</StrictMode>,
 );

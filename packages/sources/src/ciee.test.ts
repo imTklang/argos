@@ -24,7 +24,7 @@ describe("ciee fetchJobs", () => {
 		const [url, init] = fetch.mock.calls[0] ?? [];
 		expect(url).toContain("tipoVaga=ESTAGIO");
 		expect(url).toContain("nivelEnsino=SU");
-		expect(init.headers["user-agent"]).toMatch(/radar-estagio/);
+		expect(init.headers["user-agent"]).toMatch(/argos\//);
 	});
 
 	it("pages until the last page and waits between requests", async () => {

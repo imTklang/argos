@@ -32,7 +32,7 @@ describe("himalayas fetchJobs", () => {
 		expect(url).toContain("employment_type=Intern");
 		expect(url).toContain("page=1");
 		expect(fetch.mock.calls[2]?.[0]).toContain("page=3");
-		expect(init.headers["user-agent"]).toMatch(/radar-estagio/);
+		expect(init.headers["user-agent"]).toMatch(/argos\//);
 		expect(init.headers.authorization).toBeUndefined();
 		expect(sleep).toHaveBeenCalledWith(1500);
 	});

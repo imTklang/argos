@@ -1,5 +1,5 @@
 {
-	"name": "radar-estagio",
+	"name": "argos",
 	"private": true,
 	"type": "module",
 	"packageManager": "pnpm@12.8.1",
@@ -17,6 +17,7 @@
 		"cli": "tsx --env-file-if-exists=.env apps/cli/src/index.ts",
 		"worker": "tsx --env-file-if-exists=.env apps/api/src/worker.ts",
 		"api": "tsx --env-file-if-exists=.env apps/api/src/serve.ts",
+		"demo": "ARGOS_DEMO=1 API_PORT=3334 tsx --env-file-if-exists=.env apps/api/src/serve.ts",
 		"web": "pnpm --filter @radar/web dev",
 		"build:web": "pnpm --filter @radar/web build"
 	},
