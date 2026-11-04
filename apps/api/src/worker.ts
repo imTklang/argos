@@ -101,7 +101,9 @@ async function main() {
 		}),
 	);
 
+	let stopping = false;
 	const stop = async () => {
+		stopping = true;
 		log("Encerrando...");
 		for (const task of tasks) await task.stop();
 		// Let a running scan finish so its scores and spending are saved.
@@ -121,7 +123,12 @@ async function main() {
 	if (values.now) void cycle(values.digest);
 
 	// Long polling keeps the process alive and receives the button presses.
-	await bot.start({ drop_pending_updates: false });
+	try {
+		await bot.start({ drop_pending_updates: false });
+	} catch (error) {
+		// bot.stop() interrupts the long poll; that is not a failure.
+		if (!stopping) throw error;
+	}
 }
 
 main().catch((error: unknown) => {
