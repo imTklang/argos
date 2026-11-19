@@ -1,0 +1,12 @@
+# Streams every change of the SQLite database to a bucket, so a lost server
+# loses at most a few seconds. Credentials come from .env (LITESTREAM_*).
+dbs:
+  - path: /data/radar.db
+    replicas:
+      - type: s3
+        bucket: ${LITESTREAM_BUCKET}
+        path: argos/radar.db
+        endpoint: ${LITESTREAM_ENDPOINT}
+        access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
+        secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}
+        retention: 720h

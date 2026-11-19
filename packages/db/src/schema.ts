@@ -57,6 +57,11 @@ export const jobs = sqliteTable(
 		// hash(company + title + url): dedup across sources
 		hash: text("hash").notNull().unique(),
 		createdAt: createdAt(),
+		// Last time a fetch returned this posting.
+		lastSeenAt: integer("last_seen_at", { mode: "timestamp" }),
+		// When the source showed the posting was taken down (closed issue,
+		// gone from an ATS board). Null while it is open or unknown.
+		closedAt: integer("closed_at", { mode: "timestamp" }),
 	},
 	(t) => [
 		uniqueIndex("jobs_source_external_id").on(t.source, t.externalId),
@@ -64,17 +69,22 @@ export const jobs = sqliteTable(
 	],
 );
 
-export const jobScores = sqliteTable("job_scores", {
-	id: integer("id").primaryKey({ autoIncrement: true }),
-	jobId: integer("job_id")
-		.notNull()
-		.references(() => jobs.id),
-	// null when the model output failed validation twice
-	score: integer("score"),
-	analysis: text("analysis", { mode: "json" }).$type<JobScore>(),
-	model: text("model").notNull(),
-	createdAt: createdAt(),
-});
+export const jobScores = sqliteTable(
+	"job_scores",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		jobId: integer("job_id")
+			.notNull()
+			.references(() => jobs.id),
+		// null when the model output failed validation twice
+		score: integer("score"),
+		analysis: text("analysis", { mode: "json" }).$type<JobScore>(),
+		model: text("model").notNull(),
+		createdAt: createdAt(),
+	},
+	// One score per job, even when two scans overlap.
+	(t) => [uniqueIndex("job_scores_job_id").on(t.jobId)],
+);
 
 export const jobStatus = sqliteTable("job_status", {
 	jobId: integer("job_id")
@@ -120,4 +130,15 @@ export const runs = sqliteTable("runs", {
 	errors: text("errors", { mode: "json" }).$type<string[]>(),
 	inputTokens: integer("input_tokens").notNull().default(0),
 	outputTokens: integer("output_tokens").notNull().default(0),
+});
+
+/**
+ * Named locks shared by every process on the database, so a CLI scan and
+ * the worker never run at once. A holder refreshes heartbeatAt while it
+ * works; a lock whose heartbeat went stale belongs to a process that died.
+ */
+export const locks = sqliteTable("locks", {
+	name: text("name").primaryKey(),
+	holder: text("holder").notNull(),
+	heartbeatAt: integer("heartbeat_at", { mode: "timestamp" }).notNull(),
 });

@@ -31,6 +31,7 @@ export type CycleResult = {
 	report: ScanReport;
 	alerts: number;
 	digest: number;
+	errors: string[];
 };
 
 /** One scheduled run: scan every source, then notify. */
@@ -48,7 +49,7 @@ export async function runCycle(opts: CycleOptions): Promise<CycleResult> {
 
 	if (!opts.messenger) {
 		opts.log("TELEGRAM_CHAT_ID não configurado: nada foi enviado.");
-		return { report, alerts: 0, digest: 0 };
+		return { report, alerts: 0, digest: 0, errors: [] };
 	}
 	const sent = await notify({
 		db: opts.db,
@@ -57,25 +58,39 @@ export async function runCycle(opts: CycleOptions): Promise<CycleResult> {
 		digest: opts.digest,
 	});
 	opts.log(`Telegram: ${sent.alerts} alertas, ${sent.digest} vagas no resumo.`);
-	return { report, ...sent };
+	for (const error of sent.errors) opts.log(`Telegram falhou: ${error}`);
+	return {
+		report,
+		alerts: sent.alerts,
+		digest: sent.digest,
+		errors: sent.errors,
+	};
 }
 
-/** Runs at most one call at a time; a call that overlaps a running one is skipped. */
+/**
+ * Runs at most one call at a time; a call that overlaps a running one is
+ * skipped. idle() resolves once the running call, if any, has finished.
+ */
 export function exclusive<A extends unknown[], T>(
 	task: (...args: A) => Promise<T>,
 	onSkip: () => void,
-): (...args: A) => Promise<T | undefined> {
-	let running = false;
-	return async (...args) => {
-		if (running) {
+): ((...args: A) => Promise<T | undefined>) & { idle(): Promise<void> } {
+	let current: Promise<T> | null = null;
+	const run = async (...args: A) => {
+		if (current) {
 			onSkip();
 			return undefined;
 		}
-		running = true;
+		current = task(...args);
 		try {
-			return await task(...args);
+			return await current;
 		} finally {
-			running = false;
+			current = null;
 		}
 	};
+	return Object.assign(run, {
+		idle: async () => {
+			await current?.catch(() => {});
+		},
+	});
 }

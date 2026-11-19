@@ -20,6 +20,8 @@ export const GitHubIssue = z.object({
 	body: z.string().nullable(),
 	created_at: z.string(),
 	labels: z.array(z.object({ name: z.string() })),
+	// Open issues are listed postings; a closed one was filled or withdrawn.
+	state: z.enum(["open", "closed"]).default("open"),
 	// Present only when the "issue" is a pull request.
 	pull_request: z.unknown().optional(),
 });
@@ -138,15 +140,18 @@ export function createGitHubSource(opts: GitHubOptions): JobSource<GitHubJob> {
 			for (const repo of repos) {
 				for (let page = 1; page <= MAX_PAGES; page++) {
 					if (requests++ > 0) await sleep(delayMs);
+					// A repo read for the first time is read whole; after that, only
+					// issues updated since the last good scan, closed ones included
+					// so postings taken down get marked.
+					const since = query.isNew?.(repo) ? undefined : query.since;
 					const params = new URLSearchParams({
-						state: "open",
+						state: since ? "all" : "open",
 						sort: "updated",
 						direction: "desc",
 						per_page: String(PER_PAGE),
 						page: String(page),
 					});
-					// Issues updated since the last good scan: new postings and edits.
-					if (query.since) params.set("since", query.since.toISOString());
+					if (since) params.set("since", since.toISOString());
 
 					const res = await politeFetch(
 						`${API}/repos/${repo}/issues?${params}`,
@@ -177,6 +182,8 @@ export function createGitHubSource(opts: GitHubOptions): JobSource<GitHubJob> {
 			}
 			return jobs;
 		},
+
+		isClosed: (issue) => issue.state === "closed",
 
 		normalize(issue): Job {
 			const { title, company, tag } = parseIssueTitle(issue.title);

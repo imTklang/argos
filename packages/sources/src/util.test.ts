@@ -18,6 +18,33 @@ describe("politeFetch", () => {
 		expect(sleep.mock.calls).toEqual([[10_000], [20_000]]);
 	});
 
+	it("gives up on a connection that hangs", async () => {
+		// A fetch that only ends when its signal aborts.
+		const fetch = vi.fn(
+			(_url: string, init: RequestInit) =>
+				new Promise<Response>((_, reject) => {
+					init.signal?.addEventListener("abort", () =>
+						reject(init.signal?.reason),
+					);
+				}),
+		);
+		const sleep = vi.fn().mockResolvedValue(undefined);
+
+		await expect(
+			politeFetch(
+				"https://x",
+				{},
+				{
+					fetch: fetch as unknown as typeof globalThis.fetch,
+					sleep,
+					retries: 1,
+					timeoutMs: 20,
+				},
+			),
+		).rejects.toThrow(/timeout|aborted/i);
+		expect(fetch).toHaveBeenCalledTimes(2);
+	});
+
 	it("does not retry client errors", async () => {
 		const fetch = vi.fn().mockResolvedValue(new Response("", { status: 404 }));
 		const sleep = vi.fn();
@@ -46,7 +73,7 @@ describe("politeFetch", () => {
 		await politeFetch("https://x", { accept: "a" }, { fetch, sleep: vi.fn() });
 		expect(fetch.mock.calls[0]?.[1].headers).toMatchObject({
 			accept: "a",
-			"user-agent": expect.stringMatching(/radar-estagio/),
+			"user-agent": expect.stringMatching(/argos\//),
 		});
 	});
 });

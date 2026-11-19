@@ -50,7 +50,7 @@ describe("solides fetchJobs", () => {
 		const [url, init] = fetch.mock.calls[0] ?? [];
 		expect(url).toContain("contractsType=estagio");
 		expect(url).toContain("take=20");
-		expect(init.headers["user-agent"]).toMatch(/radar-estagio/);
+		expect(init.headers["user-agent"]).toMatch(/argos\//);
 	});
 
 	it("follows totalPages", async () => {

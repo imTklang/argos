@@ -4,6 +4,7 @@ import { Anthropic, extractProfile, scoreJob } from "@radar/ai";
 import { createDb } from "@radar/db";
 import {
 	createSources,
+	DATABASE_PATH,
 	formatScanReport,
 	loadLatestProfile,
 	PREFERENCES_PATH,
@@ -16,7 +17,7 @@ import { initPreferences } from "./commands/prefs-init.ts";
 import { formatProfile, importProfile } from "./commands/profile-import.ts";
 import { readResume } from "./resume.ts";
 
-const usage = `Radar de Estágio
+const usage = `Argos: radar de estágios
 
 Uso:
   pnpm cli profile import <curriculo.pdf> [--force]   Lê o currículo e gera o perfil
@@ -24,7 +25,7 @@ Uso:
   pnpm cli scan [--max N] [--source ID]...            Busca e pontua vagas (fontes: gupy, solides, ciee, github, greenhouse, lever, ashby, himalayas)`;
 
 function openDb() {
-	return createDb(process.env.DATABASE_PATH ?? "./data/radar.db");
+	return createDb(DATABASE_PATH);
 }
 
 function hasAnthropicCredentials() {

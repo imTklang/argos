@@ -50,6 +50,13 @@
 			"when": 1793146018816,
 			"tag": "0006_grey_doctor_octopus",
 			"breakpoints": true
+		},
+		{
+			"idx": 7,
+			"version": "6",
+			"when": 1793801379844,
+			"tag": "0007_minor_doctor_octopus",
+			"breakpoints": true
 		}
 	]
 }

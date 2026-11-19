@@ -8,6 +8,7 @@ import {
 	type Preferences,
 } from "@radar/core";
 import {
+	acquireLock,
 	and,
 	type Db,
 	desc,
@@ -19,18 +20,27 @@ import {
 	jobScores,
 	jobStatus,
 	jobs,
+	type Lock,
 	runs,
 	sql,
 } from "@radar/db";
 import type { JobSource } from "@radar/sources";
 import { markDuplicates } from "./dedupe.ts";
+import { startOfDay } from "./time.ts";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export type ScannedJob = { jobId: number; job: Job; result: JobScoreResult };
 
 export type ScanReport = {
-	sources: { id: string; found: number; inserted: number; error?: string }[];
+	sources: {
+		id: string;
+		found: number;
+		inserted: number;
+		/** Stored postings this fetch showed were taken down. */
+		closed?: number;
+		error?: string;
+	}[];
 	/** New jobs linked to a job already seen (another source or a repost). */
 	duplicates: number;
 	pending: number;
@@ -105,24 +115,80 @@ async function collect(
 		inserted: 0,
 	};
 
+	const fetchedAt = new Date();
 	try {
 		const raw = await source.fetchJobs({
 			keywords: preferences.roles,
 			locations: preferences.locations,
 			modality: preferences.modality,
 			since,
+			isNew: (scope) =>
+				!db
+					.select({ id: jobs.id })
+					.from(jobs)
+					.where(
+						and(
+							eq(jobs.source, source.id),
+							sql`substr(${jobs.externalId}, 1, ${scope.length + 1}) = ${`${scope}#`}`,
+						),
+					)
+					.limit(1)
+					.get(),
 		});
 		report.found = raw.length;
 		db.transaction((tx) => {
 			for (const item of raw) {
 				const job = source.normalize(item);
+				const stored = tx
+					.select({ id: jobs.id })
+					.from(jobs)
+					.where(
+						and(
+							eq(jobs.source, job.source),
+							eq(jobs.externalId, job.externalId),
+						),
+					)
+					.get();
+				const closed = source.isClosed?.(item) ?? false;
+
+				if (stored) {
+					// Keep what can change at the source current. Title and company
+					// stay: they make up the hash that deduplicates across sources.
+					tx.update(jobs)
+						.set({
+							description: job.description,
+							expiresAt: job.expiresAt,
+							lastSeenAt: fetchedAt,
+							closedAt: closed ? fetchedAt : null,
+						})
+						.where(eq(jobs.id, stored.id))
+						.run();
+					continue;
+				}
+				// A posting first seen already closed is not worth keeping.
+				if (closed) continue;
 				const inserted = tx
 					.insert(jobs)
-					.values({ ...job, hash: jobHash(job) })
+					.values({ ...job, hash: jobHash(job), lastSeenAt: fetchedAt })
 					.onConflictDoNothing()
 					.returning({ id: jobs.id })
 					.get();
 				if (inserted) report.inserted++;
+			}
+
+			// A complete listing that no longer has a posting means it closed.
+			if (source.snapshot) {
+				report.closed = tx
+					.update(jobs)
+					.set({ closedAt: fetchedAt })
+					.where(
+						and(
+							eq(jobs.source, source.id),
+							isNull(jobs.closedAt),
+							sql`coalesce(${jobs.lastSeenAt}, ${jobs.createdAt}) < ${Math.floor(fetchedAt.getTime() / 1000)}`,
+						),
+					)
+					.run().changes;
 			}
 		});
 	} catch (error) {
@@ -141,7 +207,47 @@ async function collect(
 	return report;
 }
 
+/** Thrown when another process (CLI or worker) is already scanning. */
+export class ScanBusyError extends Error {
+	constructor() {
+		super(
+			"Outra varredura já está em andamento; tente de novo quando ela terminar.",
+		);
+		this.name = "ScanBusyError";
+	}
+}
+
+/**
+ * Errors caused by one job's content (HTTP 400 or 413 from the API), which
+ * would not repeat for the next job. Anything else (auth, rate limit,
+ * outage) would, so it stops the scoring.
+ */
+function isJobError(error: unknown): boolean {
+	const status = (error as { status?: unknown } | null)?.status;
+	return status === 400 || status === 413;
+}
+
+// Per-job errors in a row that mean the request itself is broken.
+const MAX_JOB_ERRORS_IN_A_ROW = 3;
+
+// Tokens a job is assumed to cost before any job of the scan has finished.
+const DEFAULT_TOKENS_PER_JOB = 8_000;
+
+/**
+ * Collects every source, then filters and scores the new jobs. Only one scan
+ * runs at a time across processes; a second one throws ScanBusyError.
+ */
 export async function runScan(opts: ScanOptions): Promise<ScanReport> {
+	const lock = acquireLock(opts.db, "scan");
+	if (!lock) throw new ScanBusyError();
+	try {
+		return await scan(opts, lock);
+	} finally {
+		lock.release();
+	}
+}
+
+async function scan(opts: ScanOptions, lock: Lock): Promise<ScanReport> {
 	const {
 		db,
 		sources,
@@ -167,6 +273,7 @@ export async function runScan(opts: ScanOptions): Promise<ScanReport> {
 	};
 
 	for (const source of sources) {
+		lock.heartbeat();
 		log(`Buscando vagas em ${source.id}...`);
 		report.sources.push(await collect(db, source, preferences));
 	}
@@ -243,9 +350,7 @@ export async function runScan(opts: ScanOptions): Promise<ScanReport> {
 			.map((row) => [`${row.source}|${row.company}`, row.total]),
 	);
 
-	const startOfDay = new Date(now);
-	startOfDay.setHours(0, 0, 0, 0);
-	const usedToday = tokensUsedSince(db, startOfDay);
+	const usedToday = tokensUsedSince(db, startOfDay(now));
 	const scoringRun = db
 		.insert(runs)
 		.values({ source: "scoring", startedAt: new Date() })
@@ -257,13 +362,22 @@ export async function runScan(opts: ScanOptions): Promise<ScanReport> {
 	}
 	const queue = [...candidates];
 	let started = 0;
+	let finished = 0;
+	let inFlight = 0;
+	let jobErrorsInARow = 0;
+	const skipped: typeof candidates = [];
+	const spent = () => report.inputTokens + report.outputTokens;
 	const worker = async () => {
 		while (queue.length > 0 && !report.scoringError) {
-			const spent = usedToday + report.inputTokens + report.outputTokens;
-			if (started >= maxScored || spent >= dailyTokenLimit) return;
+			// Jobs still running count at the average cost so far, so parallel
+			// workers do not all start past the budget together.
+			const perJob = finished > 0 ? spent() / finished : DEFAULT_TOKENS_PER_JOB;
+			const committed = usedToday + spent() + inFlight * perJob;
+			if (started >= maxScored || committed >= dailyTokenLimit) return;
 			const next = queue.shift();
 			if (!next) return;
 			started++;
+			inFlight++;
 
 			let result: JobScoreResult;
 			try {
@@ -274,29 +388,57 @@ export async function runScan(opts: ScanOptions): Promise<ScanReport> {
 						) ?? 0,
 				});
 			} catch (error) {
-				// API-level failures (auth, outage) would repeat for every job.
+				inFlight--;
+				started--;
+				if (isJobError(error) && ++jobErrorsInARow < MAX_JOB_ERRORS_IN_A_ROW) {
+					// This job alone is the problem: try it again next scan and
+					// go on with the others.
+					log(`Vaga #${next.id} não pôde ser pontuada: ${errorMessage(error)}`);
+					skipped.push(next);
+					continue;
+				}
 				report.scoringError = errorMessage(error);
 				queue.unshift(next);
 				return;
 			}
+			inFlight--;
+			finished++;
+			jobErrorsInARow = 0;
 			report.inputTokens += result.inputTokens;
 			report.outputTokens += result.outputTokens;
-			db.insert(jobScores)
-				.values({
-					jobId: next.id,
-					score: result.score?.score ?? null,
-					analysis: result.score,
-					model: result.model,
-				})
-				.run();
-			db.insert(jobStatus)
-				.values({ jobId: next.id })
-				.onConflictDoNothing()
-				.run();
-			report.scored.push({ jobId: next.id, job: next.job, result });
+			db.transaction((tx) => {
+				const saved = tx
+					.insert(jobScores)
+					.values({
+						jobId: next.id,
+						score: result.score?.score ?? null,
+						analysis: result.score,
+						model: result.model,
+					})
+					.onConflictDoNothing()
+					.returning({ id: jobScores.id })
+					.get();
+				tx.insert(jobStatus)
+					.values({ jobId: next.id })
+					.onConflictDoNothing()
+					.run();
+				// Spending is saved per job, so a crash mid-scan still counts
+				// toward the daily limit.
+				tx.update(runs)
+					.set({
+						inputTokens: report.inputTokens,
+						outputTokens: report.outputTokens,
+					})
+					.where(eq(runs.id, scoringRun.id))
+					.run();
+				if (saved)
+					report.scored.push({ jobId: next.id, job: next.job, result });
+			});
+			lock.heartbeat();
 		}
 	};
 	await Promise.all(Array.from({ length: concurrency }, worker));
+	queue.push(...skipped);
 	report.deferred = queue.length;
 
 	db.update(runs)
@@ -346,7 +488,7 @@ export function formatScanReport(report: ScanReport, minScore: number): string {
 		lines.push(
 			source.error
 				? `  ${source.id}: falhou (${source.error})`
-				: `  ${source.id}: ${source.found} vagas, ${source.inserted} novas`,
+				: `  ${source.id}: ${source.found} vagas, ${source.inserted} novas${source.closed ? `, ${source.closed} encerradas` : ""}`,
 		);
 	}
 	if (report.duplicates > 0) {

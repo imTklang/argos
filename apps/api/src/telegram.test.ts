@@ -9,6 +9,7 @@ import {
 	formatJob,
 	handleDecision,
 	parseDecision,
+	withRateLimitRetry,
 } from "./telegram.ts";
 
 const score: JobScore = {
@@ -220,10 +221,43 @@ describe("createTelegramMessenger", () => {
 	});
 });
 
+describe("withRateLimitRetry", () => {
+	it("waits as long as Telegram asks and tries again", async () => {
+		const sleep = vi.fn(async () => {});
+		const call = vi
+			.fn()
+			.mockRejectedValueOnce({
+				error_code: 429,
+				parameters: { retry_after: 3 },
+			})
+			.mockResolvedValue("ok");
+
+		expect(await withRateLimitRetry(call, sleep)).toBe("ok");
+		expect(sleep).toHaveBeenCalledWith(3000);
+	});
+
+	it("throws other errors at once", async () => {
+		const sleep = vi.fn(async () => {});
+		const call = vi.fn().mockRejectedValue({ error_code: 400 });
+
+		await expect(withRateLimitRetry(call, sleep)).rejects.toEqual({
+			error_code: 400,
+		});
+		expect(call).toHaveBeenCalledOnce();
+		expect(sleep).not.toHaveBeenCalled();
+	});
+});
+
 describe("escapeHtml", () => {
 	it("escapes the characters Telegram HTML cares about", () => {
 		expect(escapeHtml(`<a href="x">&</a>`)).toBe(
-			`&lt;a href="x"&gt;&amp;&lt;/a&gt;`,
+			`&lt;a href=&quot;x&quot;&gt;&amp;&lt;/a&gt;`,
+		);
+	});
+
+	it("keeps a quote in a URL from closing the href", () => {
+		expect(escapeHtml(`https://x.com/?q="a"&b='c'`)).toBe(
+			"https://x.com/?q=&quot;a&quot;&amp;b=&#39;c&#39;",
 		);
 	});
 });
