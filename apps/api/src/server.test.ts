@@ -185,6 +185,9 @@ describe("GET /api/jobs", () => {
 			"Backend Intern",
 		]);
 		expect(await titles("q=beta")).toEqual(["Estágio 1"]);
+		// "%" and "_" are literal, not wildcards that match everything.
+		expect(await titles("q=%25")).toEqual([]);
+		expect(await titles("q=_")).toEqual([]);
 	});
 
 	it("rejects invalid filters", async () => {
@@ -238,6 +241,27 @@ describe("job detail and status", () => {
 				})
 			).statusCode,
 		).toBe(400);
+	});
+
+	it("saves a note alone without touching the status", async () => {
+		const { app, ids } = await setup([{}, {}]);
+		const patch = (id: number | undefined, payload: object) =>
+			app.inject({
+				method: "PATCH",
+				headers: CLIENT,
+				url: `/api/jobs/${id}/status`,
+				payload,
+			});
+		await patch(ids[0], { status: "salva" });
+		expect((await patch(ids[0], { note: "Ligar dia 3" })).json()).toMatchObject(
+			{ status: "salva", note: "Ligar dia 3" },
+		);
+		// A job with no status row yet starts as "nova".
+		expect((await patch(ids[1], { note: "Ver depois" })).json()).toMatchObject({
+			status: "nova",
+			note: "Ver depois",
+		});
+		expect((await patch(ids[0], {})).statusCode).toBe(400);
 	});
 });
 

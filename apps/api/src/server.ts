@@ -130,10 +130,14 @@ export function buildServer(opts: ServerOptions) {
 		{
 			schema: {
 				params: IdParams,
-				body: z.object({
-					status: JobStatus,
-					note: z.string().max(2000).nullable().optional(),
-				}),
+				body: z
+					.object({
+						status: JobStatus.optional(),
+						note: z.string().max(2000).nullable().optional(),
+					})
+					.refine((b) => b.status !== undefined || b.note !== undefined, {
+						message: "Informe status ou note",
+					}),
 			},
 		},
 		(req, reply) => {

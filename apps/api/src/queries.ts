@@ -59,9 +59,14 @@ function baseConditions(filters: JobFilters, now: Date) {
 	if (filters.scope === "brazil") conditions.push(eq(jobs.abroad, false));
 	if (filters.scope === "abroad") conditions.push(eq(jobs.abroad, true));
 	if (filters.q?.trim()) {
-		const like = `%${filters.q.trim().toLowerCase()}%`;
+		// "%" and "_" typed in the search are literal, not wildcards.
+		const term = filters.q
+			.trim()
+			.toLowerCase()
+			.replace(/[\\%_]/g, "\\$&");
+		const like = `%${term}%`;
 		conditions.push(
-			sql`(lower(${jobs.title}) like ${like} or lower(${jobs.company}) like ${like})`,
+			sql`(lower(${jobs.title}) like ${like} escape '\\' or lower(${jobs.company}) like ${like} escape '\\')`,
 		);
 	}
 	return and(...conditions);
@@ -183,10 +188,14 @@ export function getJob(db: Db, id: number, now = new Date()): JobDetail | null {
 	};
 }
 
+/**
+ * Changes the status, the note or both; a field left undefined keeps its
+ * value, so saving a note never undoes a status change made meanwhile.
+ */
 export function setStatus(
 	db: Db,
 	id: number,
-	status: JobStatus,
+	status: JobStatus | undefined,
 	note: string | null | undefined,
 ): boolean {
 	const exists = db
@@ -196,12 +205,12 @@ export function setStatus(
 		.get();
 	if (!exists) return false;
 	const values = {
-		status,
 		updatedAt: new Date(),
+		...(status !== undefined ? { status } : {}),
 		...(note !== undefined ? { note } : {}),
 	};
 	db.insert(jobStatus)
-		.values({ jobId: id, ...values })
+		.values({ jobId: id, status: status ?? "nova", ...values })
 		.onConflictDoUpdate({ target: jobStatus.jobId, set: values })
 		.run();
 	return true;
