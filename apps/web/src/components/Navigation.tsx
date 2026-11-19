@@ -58,6 +58,8 @@ function SidebarGroup({
 	);
 }
 
+const STALE_AFTER_MS = 24 * 60 * 60 * 1000;
+
 /** When the worker last looked for jobs, and whether any source failed. */
 function LastScan() {
 	const { data } = useStats();
@@ -68,16 +70,19 @@ function LastScan() {
 		.at(-1);
 	if (!data || !finished) return null;
 	const failed = data.lastRuns.filter((run) => run.errors?.length).length;
+	// Scans run at 8h and 18h; a day without one means the worker is down.
+	const stale = Date.now() - new Date(finished).getTime() > STALE_AFTER_MS;
 	return (
 		<p className="flex items-center gap-2 px-2.5 text-xs text-muted">
 			<span
 				aria-hidden
-				className={`size-2 rounded-full ${failed ? "bg-warn" : "bg-good"}`}
+				className={`size-2 rounded-full ${failed || stale ? "bg-warn" : "bg-good"}`}
 			/>
 			<span>
 				Varredura {ago(finished)}
 				{failed > 0 &&
 					` · ${failed} ${failed === 1 ? "fonte falhou" : "fontes falharam"}`}
+				{stale && " · worker parado?"}
 			</span>
 		</p>
 	);

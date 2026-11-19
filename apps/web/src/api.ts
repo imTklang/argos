@@ -79,7 +79,8 @@ export function useStats() {
 	});
 }
 
-type StatusChange = { id: number; status: JobStatus; note?: string | null };
+/** A field left out keeps its value on the server. */
+type StatusChange = { id: number; status?: JobStatus; note?: string | null };
 
 /**
  * Status changes show up at once in every cached list and roll back if the
@@ -104,7 +105,9 @@ export function useUpdateStatus() {
 								job.id === change.id
 									? {
 											...job,
-											status: change.status,
+											...(change.status !== undefined
+												? { status: change.status }
+												: {}),
 											...(change.note !== undefined
 												? { note: change.note }
 												: {}),

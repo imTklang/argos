@@ -30,6 +30,15 @@ export function JobRow({
 				</span>
 				<span className="min-w-0 flex-1 border-b border-separator py-3 pr-4 group-last:border-b-0">
 					<span className="flex items-baseline gap-2">
+						{job.status === "nova" && (
+							<>
+								<span
+									aria-hidden
+									className="size-2 shrink-0 self-center rounded-full bg-accent"
+								/>
+								<span className="sr-only">Não vista, </span>
+							</>
+						)}
 						<span className="min-w-0 flex-1 truncate text-[15px] font-semibold">
 							{job.title}
 						</span>

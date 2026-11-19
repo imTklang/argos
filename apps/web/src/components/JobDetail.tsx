@@ -115,15 +115,7 @@ function CoverLetter({
 	);
 }
 
-function Note({
-	jobId,
-	status,
-	note,
-}: {
-	jobId: number;
-	status: Parameters<typeof StatusButtons>[0]["status"];
-	note: string | null;
-}) {
+function Note({ jobId, note }: { jobId: number; note: string | null }) {
 	const [value, setValue] = useState(note ?? "");
 	const update = useUpdateStatus();
 	useEffect(() => setValue(note ?? ""), [note]);
@@ -135,8 +127,10 @@ function Note({
 			// Saved when leaving the field, so typing never fires requests.
 			onBlur={() => {
 				if (value === (note ?? "")) return;
+				// Only the note: clicking a status button blurs this field first,
+				// and resending the old status could undo that click.
 				update.mutate(
-					{ id: jobId, status, note: value || null },
+					{ id: jobId, note: value || null },
 					{
 						onSuccess: () => toast.success("Nota salva"),
 						onError: (error) =>
@@ -196,6 +190,13 @@ export function JobDetail({
 	handle?: DragHandle;
 }) {
 	const { data: job, isLoading, error } = useJob(jobId);
+	const markSeen = useUpdateStatus().mutate;
+	// Opening a new job marks it seen, like reading a message in Mail.
+	useEffect(() => {
+		if (job?.id === jobId && job.status === "nova") {
+			markSeen({ id: jobId, status: "vista" });
+		}
+	}, [job?.id, job?.status, jobId, markSeen]);
 	const sources = job
 		? [...new Set(job.alsoOn.map((copy) => sourceLabel(copy.source)))]
 		: [];
@@ -312,7 +313,7 @@ export function JobDetail({
 					)}
 
 					<Group title="Sua nota" footer="Salva quando você sai do campo.">
-						<Note jobId={job.id} status={job.status} note={job.note} />
+						<Note jobId={job.id} note={job.note} />
 					</Group>
 
 					<Group

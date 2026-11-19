@@ -70,7 +70,8 @@ describe("routes", () => {
 			byStatus: { nova: 4, vista: 1, salva: 2, candidatei: 3, descartada: 9 },
 			lastRuns: [],
 		};
-		expect(listCount(stats, "novas")).toBe(5);
+		// Unopened only, like an unread count.
+		expect(listCount(stats, "novas")).toBe(4);
 		expect(listCount(stats, "candidaturas")).toBe(3);
 		expect(listCount(stats, "para-voce")).toBeNull();
 		expect(listCount(undefined, "salvas")).toBeNull();

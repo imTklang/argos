@@ -41,7 +41,7 @@ export const LISTS = {
 		Icon: CircleDot,
 		status: ["nova", "vista"],
 		minScore: "0",
-		empty: "Você já olhou todas as vagas novas.",
+		empty: "Nenhuma vaga esperando uma decisão sua.",
 		tagline: (n) =>
 			n === 0 ? "Tudo visto." : `${plural(n, "vaga", "vagas")} para olhar.`,
 	},
@@ -97,9 +97,11 @@ export function routeFromHash(hash: string): Route {
 
 /**
  * Badge count for the sidebar. "Para você" has none: it also filters by
- * score, so a raw status count would disagree with the list.
+ * score, so a raw status count would disagree with the list. "Novas" counts
+ * only the unopened ones, like an unread count in Mail.
  */
 export function listCount(stats: Stats | undefined, id: ListId): number | null {
 	if (!stats || id === "para-voce" || id === "descartadas") return null;
+	if (id === "novas") return stats.byStatus.nova;
 	return LISTS[id].status.reduce((sum, s) => sum + stats.byStatus[s], 0);
 }
