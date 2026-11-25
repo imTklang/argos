@@ -27,16 +27,32 @@ config/       # fontes: empresas (Greenhouse, Lever, Ashby) e repositórios do G
 data/         # banco e currículo (fora do git)
 ```
 
-## Rodando
+## Use para você
+
+O Argos foi feito para o meu perfil, mas tudo que é pessoal fica fora do código: currículo, preferências e fontes. Você precisa de:
+
+- **Node 22+** e **pnpm** (`corepack enable` instala o pnpm na versão certa);
+- uma **chave da API da Anthropic** ([console.anthropic.com](https://console.anthropic.com)) com crédito. A pontuação usa o Claude Haiku e cada varredura mostra o custo estimado no fim, em geral centavos de dólar. `SCAN_MAX_JOBS` e `DAILY_TOKEN_LIMIT` no `.env` limitam o gasto;
+- opcional: um **token do GitHub** (só leitura) para a fonte de repositórios de vagas e um **bot do Telegram** para receber os avisos (veja [Telegram](#telegram)). Sem o Telegram, as vagas ficam só no dashboard.
 
 ```sh
-pnpm install
-cp .env.example .env   # preencha as chaves
-pnpm test
-pnpm lint
-pnpm typecheck
-pnpm cli
+git clone https://github.com/imTklang/argos.git && cd argos
+corepack enable && pnpm install
+cp .env.example .env                              # coloque ANTHROPIC_API_KEY (e o resto, se quiser)
+cp ~/Downloads/seu-curriculo.pdf data/curriculo.pdf
+pnpm cli profile import ./data/curriculo.pdf      # o Claude lê o currículo e mostra o perfil
+pnpm cli prefs init                               # gera data/preferences.json
 ```
+
+Antes da primeira varredura, **revise `data/preferences.json`** (ou a tela Ajustes do dashboard): as cidades, os cargos (`roles`, o primeiro é o preferido) e as palavras-chave vêm com valores de exemplo. Também vale trocar as empresas em `config/sources.json` pelas que interessam a você e ajustar `ARGOS_TIMEZONE` se não estiver em UTC-3.
+
+```sh
+pnpm cli scan --max 10           # primeira varredura, com no máximo 10 vagas pontuadas
+pnpm build:web && pnpm api       # dashboard em http://localhost:3333
+pnpm worker                      # varreduras às 8h e às 18h (ou veja "Sempre ligado no Mac" e "Deploy")
+```
+
+Para contribuir: `pnpm test`, `pnpm lint` e `pnpm typecheck` precisam passar (a CI roda os três).
 
 ## Comandos
 
@@ -82,3 +98,7 @@ Vagas com nota ≥ `instantAlertScore` (padrão 85) chegam na hora, com botões 
 ## Vagas remotas no exterior
 
 Com `"abroad": "remote"` em `data/preferences.json`, o Argos também traz estágios remotos de empresas de fora que aceitam candidatos no Brasil (fonte [Himalayas](https://himalayas.app) e as vagas remotas no exterior das empresas de Greenhouse/Lever/Ashby). Elas ficam em segundo plano: são pontuadas depois das vagas do Brasil, nunca disparam alerta imediato e aparecem no resumo das 18h numa seção própria. A IA confere país aceito, fuso, nível de inglês e sinais de vaga ruim (estágio não remunerado, anúncio em massa).
+
+## Licença
+
+[MIT](LICENSE). Use, modifique e distribua à vontade, mantendo o aviso de copyright.
