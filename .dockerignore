@@ -1,0 +1,13 @@
+# Never in the image: secrets, personal data and local builds.
+.env
+.env.*
+!.env.example
+data/
+*.pdf
+.git
+.github
+.claude
+**/node_modules
+**/dist
+coverage
+.DS_Store

@@ -4,7 +4,7 @@ import { createDb } from "@radar/db";
 import type { Messenger } from "@radar/pipeline";
 import type { JobSource } from "@radar/sources";
 import { describe, expect, it, vi } from "vitest";
-import { exclusive, runCycle } from "./cycle.ts";
+import { exclusive, lastSlot, missedSlot, runCycle } from "./cycle.ts";
 
 const preferences: Preferences = {
 	roles: [],
@@ -165,5 +165,42 @@ describe("exclusive", () => {
 		);
 		await expect(run()).rejects.toThrow("x");
 		expect(await run()).toBe("ok");
+	});
+});
+
+describe("missed scheduled scans", () => {
+	const schedule = [
+		{ hour: 8, digest: false },
+		{ hour: 18, digest: true },
+	];
+	const tz = "America/Fortaleza"; // UTC-3, no daylight saving
+	// Local wall-clock time in Fortaleza as an instant.
+	const at = (day: number, hour: number, minute = 0) =>
+		new Date(Date.UTC(2026, 10, day, hour + 3, minute));
+
+	it("finds the latest slot, yesterday's evening before 8h", () => {
+		expect(lastSlot(at(20, 12), schedule, tz)).toEqual({
+			at: at(20, 8),
+			digest: false,
+		});
+		expect(lastSlot(at(20, 18), schedule, tz)).toEqual({
+			at: at(20, 18),
+			digest: true,
+		});
+		expect(lastSlot(at(20, 6), schedule, tz)).toEqual({
+			at: at(19, 18),
+			digest: true,
+		});
+	});
+
+	it("reports a slot only when no run started after it", () => {
+		expect(missedSlot(null, at(20, 9), schedule, tz)?.at).toEqual(at(20, 8));
+		// Asleep at 18h, woke up at 23h: the evening scan and digest are due.
+		expect(missedSlot(at(20, 8, 1), at(20, 23), schedule, tz)).toEqual({
+			at: at(20, 18),
+			digest: true,
+		});
+		expect(missedSlot(at(20, 18, 2), at(20, 23), schedule, tz)).toBeNull();
+		expect(missedSlot(at(20, 8), at(20, 9), schedule, tz)).toBeNull();
 	});
 });

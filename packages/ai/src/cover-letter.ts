@@ -1,5 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { Job, JobScore, Profile } from "@radar/core";
+import { MAX_DESCRIPTION_CHARS } from "./score.ts";
 
 export const COVER_LETTER_MODEL = "claude-sonnet-5-5";
 
@@ -50,7 +51,7 @@ export async function generateCoverLetter(
 				role: "user",
 				content: [
 					`<perfil>\n${JSON.stringify(profile, null, 2)}\n</perfil>`,
-					`<vaga>\nTítulo: ${job.title}\nEmpresa: ${job.company}\nLocal: ${job.location ?? "não informado"}\n\n${job.description}\n</vaga>`,
+					`<vaga>\nTítulo: ${job.title}\nEmpresa: ${job.company}\nLocal: ${job.location ?? "não informado"}\n\n${job.description.slice(0, MAX_DESCRIPTION_CHARS)}\n</vaga>`,
 					fit ? `<aderencia>\n${fit}\n</aderencia>` : "",
 				]
 					.filter(Boolean)

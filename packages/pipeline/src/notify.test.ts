@@ -167,8 +167,8 @@ describe("notify", () => {
 		const first = await notify({ db, prefs, messenger, digest: true });
 		const second = await notify({ db, prefs, messenger, digest: true });
 
-		expect(first).toEqual({ alerts: 1, digest: 1 });
-		expect(second).toEqual({ alerts: 0, digest: 0 });
+		expect(first).toEqual({ alerts: 1, digest: 1, errors: [] });
+		expect(second).toEqual({ alerts: 0, digest: 0, errors: [] });
 		// The alerted job is not repeated in the digest.
 		expect(sent[1]?.items.map((i) => i.job.title)).toEqual(["Estágio 2"]);
 		expect(db.select().from(notifications).all()).toHaveLength(2);
@@ -182,10 +182,12 @@ describe("notify", () => {
 		expect(await notify({ db, prefs, messenger, digest: false })).toEqual({
 			alerts: 0,
 			digest: 0,
+			errors: [],
 		});
 		expect(await notify({ db, prefs, messenger, digest: true })).toEqual({
 			alerts: 0,
 			digest: 1,
+			errors: [],
 		});
 	});
 
@@ -198,11 +200,46 @@ describe("notify", () => {
 			.mockResolvedValueOnce("1")
 			.mockRejectedValueOnce(new Error("telegram fora do ar"));
 
-		await expect(
-			notify({ db, prefs, messenger, digest: false }),
-		).rejects.toThrow(/fora do ar/);
+		const result = await notify({ db, prefs, messenger, digest: false });
 
+		expect(result.alerts).toBe(1);
+		expect(result.errors).toEqual([expect.stringMatching(/fora do ar/)]);
 		expect(pendingAlerts(db, prefs).map((i) => i.score.score)).toEqual([90]);
+	});
+});
+
+describe("notify resilience", () => {
+	it("still sends the digest when an alert fails", async () => {
+		const db = createDb(":memory:");
+		seed(db, 1, 95);
+		seed(db, 2, 75);
+		const { messenger } = fakeMessenger();
+		vi.mocked(messenger.sendJob).mockRejectedValue(new Error("400 parse"));
+
+		const result = await notify({ db, prefs, messenger, digest: true });
+
+		expect(result.alerts).toBe(0);
+		expect(result.errors).toHaveLength(1);
+		expect(messenger.sendDigest).toHaveBeenCalledOnce();
+		// The failed alert is tried again next time.
+		expect(pendingAlerts(db, prefs)).toHaveLength(1);
+	});
+
+	it("leaves out closed and expired postings", () => {
+		const db = createDb(":memory:");
+		const closed = seed(db, 1, 95);
+		const expired = seed(db, 2, 95);
+		seed(db, 3, 95);
+		const now = new Date("2026-11-04T12:00:00Z");
+		db.update(jobs).set({ closedAt: now }).where(eq(jobs.id, closed)).run();
+		db.update(jobs)
+			.set({ expiresAt: new Date("2026-11-01T00:00:00Z") })
+			.where(eq(jobs.id, expired))
+			.run();
+
+		expect(pendingAlerts(db, prefs, now).map((i) => i.job.externalId)).toEqual([
+			"3",
+		]);
 	});
 });
 

@@ -38,7 +38,7 @@ describe("gupy fetchJobs", () => {
 		const [url, init] = fetch.mock.calls[0] ?? [];
 		expect(url).toContain("type=vacancy_type_internship");
 		expect(url).toContain("limit=100");
-		expect(init.headers["user-agent"]).toMatch(/radar-estagio/);
+		expect(init.headers["user-agent"]).toMatch(/argos\//);
 	});
 
 	it("pages until a short page and waits between requests", async () => {

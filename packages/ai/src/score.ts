@@ -13,12 +13,12 @@ const INSTRUCTIONS = `Você avalia vagas de estágio para um estudante específi
 O perfil e as preferências do estudante estão abaixo. A vaga vem na mensagem do usuário.
 
 Como pontuar:
-- 85–100: estágio de desenvolvimento (de preferência backend) cuja stack se sobrepõe bastante ao perfil, sem impedimentos.
-- 70–84: estágio de desenvolvimento ou TI com boa parte da stack em comum, ou backend com stack diferente mas aprendível.
-- 40–69: estágio de TI fora de desenvolvimento (suporte, dados, infraestrutura) ou com pouca sobreposição de stack.
+- 85–100: estágio na área que o estudante procura (o primeiro item de "roles" nas preferências é o preferido) cuja stack se sobrepõe bastante ao perfil, sem impedimentos.
+- 70–84: estágio de desenvolvimento ou TI com boa parte da stack em comum, ou na área procurada com stack diferente mas aprendível.
+- 40–69: estágio de TI fora das áreas procuradas ou com pouca sobreposição de stack.
 - 0–39: fora de tecnologia, ou com um impedimento claro.
 
-Impedimentos (dealBreakers) são requisitos que o estudante não cumpre de forma objetiva: curso diferente de Ciência da Computação ou correlatos,
+Impedimentos (dealBreakers) são requisitos que o estudante não cumpre de forma objetiva: curso que não é o do perfil nem correlato a ele,
 período mínimo acima do atual, formatura antes da prevista, carga horária acima do máximo, idioma exigido que não está no perfil, local presencial fora da região.
 Cada impedimento derruba a nota para no máximo 39. Não invente impedimentos que a vaga não declara, e na dúvida não marque impedimento.
 Ao comparar datas, semestre "AAAA/1" é de janeiro a junho e "AAAA/2" é de julho a dezembro: formatura em Jul/2028 é 2028/2.
@@ -54,6 +54,10 @@ export type JobHints = {
 	companyInternships?: number;
 };
 
+// Enough for any real posting; a runaway page (a whole site scraped into
+// the description) would cost tokens or be rejected by the API.
+export const MAX_DESCRIPTION_CHARS = 12_000;
+
 function describeJob(job: Job, hints: JobHints): string {
 	const lines = [
 		`Título: ${job.title}`,
@@ -70,7 +74,11 @@ function describeJob(job: Job, hints: JobHints): string {
 	if (job.expiresAt) {
 		lines.push(`Inscrições até: ${job.expiresAt.toISOString().slice(0, 10)}`);
 	}
-	lines.push("", job.description);
+	const description =
+		job.description.length > MAX_DESCRIPTION_CHARS
+			? `${job.description.slice(0, MAX_DESCRIPTION_CHARS)}\n[descrição cortada]`
+			: job.description;
+	lines.push("", description);
 	return `<vaga>\n${lines.join("\n")}\n</vaga>`;
 }
 

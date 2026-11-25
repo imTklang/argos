@@ -48,9 +48,7 @@ describe("ATS fetchJobs", () => {
 		expect(fetch.mock.calls[0]?.[0]).toBe(
 			"https://boards-api.greenhouse.io/v1/boards/btgpactual/jobs?content=true",
 		);
-		expect(fetch.mock.calls[0]?.[1].headers["user-agent"]).toMatch(
-			/radar-estagio/,
-		);
+		expect(fetch.mock.calls[0]?.[1].headers["user-agent"]).toMatch(/argos\//);
 		expect(sleep).toHaveBeenCalledTimes(1);
 		expect(postings).toHaveLength(greenhouseFixture.jobs.length * 2);
 		expect(postings[0]?.company).toEqual(btg);

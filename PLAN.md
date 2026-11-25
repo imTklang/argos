@@ -1,4 +1,4 @@
-# Radar de Estágio — Plano do projeto
+# Argos (Radar de Estágio) — Plano do projeto
 
 > Documento de contexto para o Claude Code. Coloque na raiz do repositório (pode virar `CLAUDE.md` depois).
 > Autor: Enzo (imTklang) — estudante de CC na UNIESP, João Pessoa/PB, procurando o primeiro estágio em backend (Node.js/TypeScript).
@@ -40,7 +40,7 @@ Não é objetivo: candidatar-se automaticamente. A candidatura é sempre manual.
 Estrutura sugerida (monorepo simples com pnpm workspaces):
 
 ```
-radar-estagio/
+argos/
   apps/
     api/        # Fastify + jobs agendados
     web/        # React (fase 3)
@@ -175,7 +175,7 @@ type JobScore = {
 - **Checkpoint:** rodar `cli scan` e trazer vagas reais e relevantes.
 
 ### Fase 2 — Automação e notificações
-- node-cron (ex.: 8h e 18h, horário de Fortaleza/UTC-3). **Feito:** `pnpm worker`, iniciado manualmente (sem launchd, por decisão de 27/10/2026).
+- node-cron (ex.: 8h e 18h, horário de Fortaleza/UTC-3). **Feito:** `pnpm worker`; desde 25/11/2026 roda sempre pelo launchd (`scripts/launchd/install.sh`), com recuperação das varreduras perdidas com o Mac dormindo.
 - Bot do Telegram: digest diário + alerta imediato para score ≥ 85; botões "salvar / descartar". **Feito.**
 - Adapters Greenhouse/Lever com lista de empresas-alvo. **Feito**, mais Ashby (Nubank); empresas em `config/sources.json`.
 - Leitura dos e-mails de alerta do LinkedIn. **Adiada** por decisão de 27/10/2026.

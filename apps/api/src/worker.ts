@@ -1,28 +1,40 @@
 import { parseArgs } from "node:util";
 import { Anthropic, scoreJob } from "@radar/ai";
-import { createDb } from "@radar/db";
+import { createDb, type Db, eq, runs, sql } from "@radar/db";
 import {
 	createSources,
+	DATABASE_PATH,
 	loadLatestProfile,
 	readPreferences,
 	readSourcesConfig,
+	ScanBusyError,
+	TIMEZONE,
 } from "@radar/pipeline";
 import { Bot } from "grammy";
 import cron from "node-cron";
-import { exclusive, runCycle } from "./cycle.ts";
+import { exclusive, missedSlot, runCycle, type Slot } from "./cycle.ts";
 import {
 	createTelegramMessenger,
 	escapeHtml,
 	registerHandlers,
 } from "./telegram.ts";
 
-// Times are in João Pessoa's offset; America/Fortaleza has the same UTC-3 and
-// no daylight saving.
-const TIMEZONE = "America/Fortaleza";
-const SCHEDULES = [
-	{ cron: "0 8 * * *", digest: false },
-	{ cron: "0 18 * * *", digest: true },
+const SCHEDULES: Slot[] = [
+	{ hour: 8, digest: false },
+	{ hour: 18, digest: true },
 ];
+// How often to look for a scan missed while the computer was asleep.
+const CATCH_UP_EVERY_MS = 10 * 60 * 1000;
+
+/** When the last scan reached scoring, from any process (CLI or worker). */
+function lastScanStart(db: Db): Date | null {
+	const row = db
+		.select({ at: sql<number | null>`max(${runs.startedAt})` })
+		.from(runs)
+		.where(eq(runs.source, "scoring"))
+		.get();
+	return row?.at ? new Date(row.at * 1000) : null;
+}
 
 function intFromEnv(name: string, fallback: number) {
 	const value = Number.parseInt(process.env[name] ?? "", 10);
@@ -42,23 +54,25 @@ async function main() {
 		},
 	});
 
-	const token = process.env.TELEGRAM_BOT_TOKEN;
-	if (!token) {
-		throw new Error(
-			"TELEGRAM_BOT_TOKEN não configurado. Crie o bot no @BotFather e coloque o token no .env.",
-		);
-	}
+	// Telegram is optional: without it the scans still fill the dashboard.
+	const token = process.env.TELEGRAM_BOT_TOKEN || undefined;
 	const chatId = process.env.TELEGRAM_CHAT_ID || undefined;
 
-	const db = createDb(process.env.DATABASE_PATH ?? "./data/radar.db");
-	const bot = new Bot(token);
-	registerHandlers(bot, db, chatId);
-	const messenger = chatId ? createTelegramMessenger(bot.api, chatId) : null;
+	const db = createDb(DATABASE_PATH);
+	const bot = token ? new Bot(token) : null;
+	if (bot) registerHandlers(bot, db, chatId);
+	const messenger =
+		bot && chatId ? createTelegramMessenger(bot.api, chatId) : null;
 	const client = new Anthropic();
+
+	// Started in this process, so a run that fails before scoring is not
+	// retried every few minutes by the catch-up check.
+	let lastAttempt: Date | null = null;
 
 	// One lock for scheduled and manual runs alike.
 	const cycle = exclusive(
 		async (digest: boolean) => {
+			lastAttempt = new Date();
 			try {
 				const preferences = await readPreferences();
 				const profile = loadLatestProfile(db);
@@ -84,6 +98,8 @@ async function main() {
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
 				log(`Varredura falhou: ${message}`);
+				// A CLI scan running now is not a failure worth a message.
+				if (error instanceof ScanBusyError) return;
 				// Unattended runs should not fail silently.
 				await messenger
 					?.sendText(`⚠️ Varredura falhou: ${escapeHtml(message)}`)
@@ -94,30 +110,62 @@ async function main() {
 	);
 
 	const tasks = SCHEDULES.map((s) =>
-		cron.schedule(s.cron, () => void cycle(s.digest), {
+		cron.schedule(`0 ${s.hour} * * *`, () => void cycle(s.digest), {
 			timezone: TIMEZONE,
 		}),
 	);
 
+	// A computer asleep at 8h or 18h misses the cron; run that scan on waking.
+	const catchUp = () => {
+		const starts = [lastScanStart(db), lastAttempt].filter(
+			(d): d is Date => d !== null,
+		);
+		const last = starts.length
+			? new Date(Math.max(...starts.map(Number)))
+			: null;
+		const missed = missedSlot(last, new Date(), SCHEDULES, TIMEZONE);
+		if (!missed) return;
+		log("Varredura agendada perdida (computador dormindo?); rodando agora.");
+		void cycle(missed.digest);
+	};
+	const catchUpTimer = setInterval(catchUp, CATCH_UP_EVERY_MS);
+
+	let stopping = false;
 	const stop = async () => {
+		stopping = true;
 		log("Encerrando...");
+		clearInterval(catchUpTimer);
 		for (const task of tasks) await task.stop();
-		await bot.stop();
+		// Let a running scan finish so its scores and spending are saved.
+		await cycle.idle();
+		await bot?.stop();
 		process.exit(0);
 	};
 	process.once("SIGINT", stop);
 	process.once("SIGTERM", stop);
 
 	log(`Worker ativo. Varreduras às 8h e às 18h (${TIMEZONE}); resumo às 18h.`);
-	if (!chatId) {
+	if (!bot) {
+		log(
+			"Sem TELEGRAM_BOT_TOKEN: as vagas ficam só no dashboard. Veja o README para ligar o Telegram.",
+		);
+	} else if (!chatId) {
 		log(
 			"TELEGRAM_CHAT_ID vazio: envie /start ao bot para descobrir o ID do chat.",
 		);
 	}
 	if (values.now) void cycle(values.digest);
+	else catchUp();
 
+	// Without a bot, the cron tasks and the catch-up timer keep it alive.
+	if (!bot) return;
 	// Long polling keeps the process alive and receives the button presses.
-	await bot.start({ drop_pending_updates: false });
+	try {
+		await bot.start({ drop_pending_updates: false });
+	} catch (error) {
+		// bot.stop() interrupts the long poll; that is not a failure.
+		if (!stopping) throw error;
+	}
 }
 
 main().catch((error: unknown) => {
