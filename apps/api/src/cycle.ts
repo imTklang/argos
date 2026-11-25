@@ -7,8 +7,11 @@ import {
 	notify,
 	runScan,
 	type ScanReport,
+	startOfDay,
 } from "@radar/pipeline";
 import type { JobSource } from "@radar/sources";
+
+const HOUR_MS = 60 * 60 * 1000;
 
 export type CycleOptions = {
 	db: Db;
@@ -93,4 +96,42 @@ export function exclusive<A extends unknown[], T>(
 			await current?.catch(() => {});
 		},
 	});
+}
+
+/** A daily scan at `hour` o'clock; `digest` also sends the daily summary. */
+export type Slot = { hour: number; digest: boolean };
+
+/** The most recent scheduled scan at or before `now`, in `timeZone`. */
+export function lastSlot(
+	now: Date,
+	schedule: Slot[],
+	timeZone: string,
+): { at: Date; digest: boolean } | null {
+	const today = startOfDay(now, timeZone);
+	const yesterday = startOfDay(new Date(today.getTime() - 1), timeZone);
+	let latest: { at: Date; digest: boolean } | null = null;
+	for (const day of [yesterday, today]) {
+		for (const slot of schedule) {
+			const at = new Date(day.getTime() + slot.hour * HOUR_MS);
+			if (at <= now && (!latest || at > latest.at)) {
+				latest = { at, digest: slot.digest };
+			}
+		}
+	}
+	return latest;
+}
+
+/**
+ * The scheduled scan that should have run but did not, e.g. because the
+ * computer was asleep at that hour, or null when the last run covers it.
+ */
+export function missedSlot(
+	lastRun: Date | null,
+	now: Date,
+	schedule: Slot[],
+	timeZone: string,
+): { at: Date; digest: boolean } | null {
+	const slot = lastSlot(now, schedule, timeZone);
+	if (!slot) return null;
+	return !lastRun || lastRun < slot.at ? slot : null;
 }

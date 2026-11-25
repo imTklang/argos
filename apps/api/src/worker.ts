@@ -1,6 +1,6 @@
 import { parseArgs } from "node:util";
 import { Anthropic, scoreJob } from "@radar/ai";
-import { createDb } from "@radar/db";
+import { createDb, type Db, eq, runs, sql } from "@radar/db";
 import {
 	createSources,
 	DATABASE_PATH,
@@ -12,17 +12,29 @@ import {
 } from "@radar/pipeline";
 import { Bot } from "grammy";
 import cron from "node-cron";
-import { exclusive, runCycle } from "./cycle.ts";
+import { exclusive, missedSlot, runCycle, type Slot } from "./cycle.ts";
 import {
 	createTelegramMessenger,
 	escapeHtml,
 	registerHandlers,
 } from "./telegram.ts";
 
-const SCHEDULES = [
-	{ cron: "0 8 * * *", digest: false },
-	{ cron: "0 18 * * *", digest: true },
+const SCHEDULES: Slot[] = [
+	{ hour: 8, digest: false },
+	{ hour: 18, digest: true },
 ];
+// How often to look for a scan missed while the computer was asleep.
+const CATCH_UP_EVERY_MS = 10 * 60 * 1000;
+
+/** When the last scan reached scoring, from any process (CLI or worker). */
+function lastScanStart(db: Db): Date | null {
+	const row = db
+		.select({ at: sql<number | null>`max(${runs.startedAt})` })
+		.from(runs)
+		.where(eq(runs.source, "scoring"))
+		.get();
+	return row?.at ? new Date(row.at * 1000) : null;
+}
 
 function intFromEnv(name: string, fallback: number) {
 	const value = Number.parseInt(process.env[name] ?? "", 10);
@@ -56,9 +68,14 @@ async function main() {
 	const messenger = chatId ? createTelegramMessenger(bot.api, chatId) : null;
 	const client = new Anthropic();
 
+	// Started in this process, so a run that fails before scoring is not
+	// retried every few minutes by the catch-up check.
+	let lastAttempt: Date | null = null;
+
 	// One lock for scheduled and manual runs alike.
 	const cycle = exclusive(
 		async (digest: boolean) => {
+			lastAttempt = new Date();
 			try {
 				const preferences = await readPreferences();
 				const profile = loadLatestProfile(db);
@@ -96,15 +113,31 @@ async function main() {
 	);
 
 	const tasks = SCHEDULES.map((s) =>
-		cron.schedule(s.cron, () => void cycle(s.digest), {
+		cron.schedule(`0 ${s.hour} * * *`, () => void cycle(s.digest), {
 			timezone: TIMEZONE,
 		}),
 	);
+
+	// A computer asleep at 8h or 18h misses the cron; run that scan on waking.
+	const catchUp = () => {
+		const starts = [lastScanStart(db), lastAttempt].filter(
+			(d): d is Date => d !== null,
+		);
+		const last = starts.length
+			? new Date(Math.max(...starts.map(Number)))
+			: null;
+		const missed = missedSlot(last, new Date(), SCHEDULES, TIMEZONE);
+		if (!missed) return;
+		log("Varredura agendada perdida (computador dormindo?); rodando agora.");
+		void cycle(missed.digest);
+	};
+	const catchUpTimer = setInterval(catchUp, CATCH_UP_EVERY_MS);
 
 	let stopping = false;
 	const stop = async () => {
 		stopping = true;
 		log("Encerrando...");
+		clearInterval(catchUpTimer);
 		for (const task of tasks) await task.stop();
 		// Let a running scan finish so its scores and spending are saved.
 		await cycle.idle();
@@ -121,6 +154,7 @@ async function main() {
 		);
 	}
 	if (values.now) void cycle(values.digest);
+	else catchUp();
 
 	// Long polling keeps the process alive and receives the button presses.
 	try {
