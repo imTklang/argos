@@ -54,18 +54,15 @@ async function main() {
 		},
 	});
 
-	const token = process.env.TELEGRAM_BOT_TOKEN;
-	if (!token) {
-		throw new Error(
-			"TELEGRAM_BOT_TOKEN não configurado. Crie o bot no @BotFather e coloque o token no .env.",
-		);
-	}
+	// Telegram is optional: without it the scans still fill the dashboard.
+	const token = process.env.TELEGRAM_BOT_TOKEN || undefined;
 	const chatId = process.env.TELEGRAM_CHAT_ID || undefined;
 
 	const db = createDb(DATABASE_PATH);
-	const bot = new Bot(token);
-	registerHandlers(bot, db, chatId);
-	const messenger = chatId ? createTelegramMessenger(bot.api, chatId) : null;
+	const bot = token ? new Bot(token) : null;
+	if (bot) registerHandlers(bot, db, chatId);
+	const messenger =
+		bot && chatId ? createTelegramMessenger(bot.api, chatId) : null;
 	const client = new Anthropic();
 
 	// Started in this process, so a run that fails before scoring is not
@@ -141,14 +138,18 @@ async function main() {
 		for (const task of tasks) await task.stop();
 		// Let a running scan finish so its scores and spending are saved.
 		await cycle.idle();
-		await bot.stop();
+		await bot?.stop();
 		process.exit(0);
 	};
 	process.once("SIGINT", stop);
 	process.once("SIGTERM", stop);
 
 	log(`Worker ativo. Varreduras às 8h e às 18h (${TIMEZONE}); resumo às 18h.`);
-	if (!chatId) {
+	if (!bot) {
+		log(
+			"Sem TELEGRAM_BOT_TOKEN: as vagas ficam só no dashboard. Veja o README para ligar o Telegram.",
+		);
+	} else if (!chatId) {
 		log(
 			"TELEGRAM_CHAT_ID vazio: envie /start ao bot para descobrir o ID do chat.",
 		);
@@ -156,6 +157,8 @@ async function main() {
 	if (values.now) void cycle(values.digest);
 	else catchUp();
 
+	// Without a bot, the cron tasks and the catch-up timer keep it alive.
+	if (!bot) return;
 	// Long polling keeps the process alive and receives the button presses.
 	try {
 		await bot.start({ drop_pending_updates: false });

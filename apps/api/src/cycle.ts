@@ -51,7 +51,7 @@ export async function runCycle(opts: CycleOptions): Promise<CycleResult> {
 	opts.log(formatScanReport(report, opts.preferences.minScoreToNotify));
 
 	if (!opts.messenger) {
-		opts.log("TELEGRAM_CHAT_ID não configurado: nada foi enviado.");
+		opts.log("Telegram não configurado: nada foi enviado.");
 		return { report, alerts: 0, digest: 0, errors: [] };
 	}
 	const sent = await notify({
