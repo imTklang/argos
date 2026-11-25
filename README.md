@@ -52,6 +52,15 @@ pnpm build:web && pnpm api                     # dashboard em http://localhost:3
 pnpm api & pnpm web                            # desenvolvimento do dashboard com recarga automática (Vite)
 ```
 
+## Sempre ligado no Mac
+
+```sh
+sh scripts/launchd/install.sh     # worker + dashboard iniciam no login e reiniciam se caírem
+sh scripts/launchd/uninstall.sh   # remove
+```
+
+Logs em `data/logs/`. Se o Mac estiver dormindo às 8h ou às 18h, a varredura perdida roda assim que ele acordar (o worker confere a cada 10 minutos). Rode o `install.sh` de novo depois de atualizar o Node.
+
 ## Dashboard
 
 Visual no estilo Apple, com Liquid Glass (macOS no computador, iOS 27 no celular): listas inteligentes como caixas do Mail (Para você, Novas, Salvas, Candidaturas, Descartadas), detalhe da vaga ao lado da lista em telas largas ou em painel nas menores, quadro por status com arrastar e soltar (também pelo teclado) e Ajustes no estilo do app Ajustes do iPhone. O detalhe traz a análise da IA, nota pessoal e rascunho de mensagem de apresentação gerado sob demanda pelo Claude Sonnet 5.5. A API escuta só em `127.0.0.1`: não há login, então o dashboard não deve ser exposto na rede. Guia completo em [docs/dashboard.md](docs/dashboard.md).
